@@ -88,9 +88,12 @@ html {
 
 /* Sticky glassmorphism header surface */
 @utility glass {
-  background: color-mix(in srgb, #ffffff 72%, transparent);
-  backdrop-filter: saturate(180%) blur(14px);
-  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  background: color-mix(in srgb, #ffffff 82%, transparent);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 8px 30px -12px rgba(35, 43, 49, 0.18);
 }
 
 /* ---------- Reveal-on-scroll base states (driven by GSAP/IO) ---------- */

@@ -2,7 +2,7 @@ import { Container } from "@/components/ui/Container";
 import { CountUp } from "@/components/anim/CountUp";
 
 const stats = [
-  { value: 60, suffix: "+", label: "Years combined leadership experience" },
+  { value: 100, suffix: "+", label: "Years combined leadership experience" },
   { value: 6, suffix: "", label: "Industries served" },
   { value: 3, suffix: "Ds", label: "Framework: Discover, Design, Deliver" },
   { value: 100, suffix: "%", label: "People-centric, always" },
