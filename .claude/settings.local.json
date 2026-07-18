@@ -33,7 +33,14 @@
       "mcp__supabase__execute_sql",
       "mcp__supabase__generate_typescript_types",
       "mcp__supabase__get_advisors",
-      "mcp__supabase__get_publishable_keys"
+      "mcp__supabase__get_publishable_keys",
+      "PowerShell(Get-Process *)",
+      "PowerShell(Get-CimInstance *)",
+      "PowerShell(Remove-Item *)",
+      "Bash(curl -s -o /dev/null -w \"status=%{http_code} redirect=%{redirect_url}\\\\n\" http://localhost:3000/admin)",
+      "Bash(curl -s -o /dev/null -w \"status=%{http_code}\\\\n\" http://localhost:3000/login)",
+      "Bash(curl -s -X POST \"https://ebnjvbppgcifxrcqozhj.supabase.co/auth/v1/token?grant_type=password\" -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVibmp2YnBwZ2NpZnhyY3FvemhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNTc3MDQsImV4cCI6MjA5OTkzMzcwNH0.PoB8Qnjgn2J6eYgg0HC0aqd-LceXerYGF0XCWbD7akQ\" -H \"Content-Type: application/json\" -d '{\"email\":\"admin@pplsolutionsinc.com\",\"password\":\"PplAdmin!2026#tmp\"}')",
+      "Bash(grep -o -E '\"access_token\":\"[^\"]{0,20}|\"error[^,]*|\"user\":\\\\{\"id\":\"[^\"]*\"')"
     ]
   },
   "enabledMcpjsonServers": [
