@@ -40,7 +40,16 @@
       "Bash(curl -s -o /dev/null -w \"status=%{http_code} redirect=%{redirect_url}\\\\n\" http://localhost:3000/admin)",
       "Bash(curl -s -o /dev/null -w \"status=%{http_code}\\\\n\" http://localhost:3000/login)",
       "Bash(curl -s -X POST \"https://ebnjvbppgcifxrcqozhj.supabase.co/auth/v1/token?grant_type=password\" -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVibmp2YnBwZ2NpZnhyY3FvemhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNTc3MDQsImV4cCI6MjA5OTkzMzcwNH0.PoB8Qnjgn2J6eYgg0HC0aqd-LceXerYGF0XCWbD7akQ\" -H \"Content-Type: application/json\" -d '{\"email\":\"admin@pplsolutionsinc.com\",\"password\":\"PplAdmin!2026#tmp\"}')",
-      "Bash(grep -o -E '\"access_token\":\"[^\"]{0,20}|\"error[^,]*|\"user\":\\\\{\"id\":\"[^\"]*\"')"
+      "Bash(grep -o -E '\"access_token\":\"[^\"]{0,20}|\"error[^,]*|\"user\":\\\\{\"id\":\"[^\"]*\"')",
+      "Bash(curl -s -o /dev/null -w \"status=%{http_code} loc=%{redirect_url}\\\\n\" http://localhost:3000/about-us)",
+      "Bash(curl -s -o /dev/null -w \"status=%{http_code} loc=%{redirect_url}\\\\n\" http://localhost:3000/faq)",
+      "Bash(curl -s http://localhost:3000/robots.txt)",
+      "Bash(curl -s http://localhost:3000/sitemap.xml)",
+      "Bash(curl -s -o /dev/null -w \"status=%{http_code}\\\\n\" http://localhost:3000/does-not-exist)",
+      "Bash(curl -s http://localhost:3000/does-not-exist)",
+      "Bash(curl -s http://localhost:3000/blog)",
+      "Bash(curl -s http://localhost:3000/careers)",
+      "Bash(curl -s http://localhost:3000/careers/customer-service-associate)"
     ]
   },
   "enabledMcpjsonServers": [
