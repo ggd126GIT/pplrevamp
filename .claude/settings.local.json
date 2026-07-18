@@ -6,7 +6,19 @@
       "Bash(git --version)",
       "Bash(git init *)",
       "Bash(git add *)",
-      "Bash(git -c user.name=\"gilbert\" -c user.email=\"gilbertgrey126@gmail.com\" commit -q -m \"Add project spec and content source\")"
+      "Bash(git -c user.name=\"gilbert\" -c user.email=\"gilbertgrey126@gmail.com\" commit -q -m \"Add project spec and content source\")",
+      "Bash(gh auth *)",
+      "Bash(gh repo *)",
+      "Bash(mkdir -p ../_ppl_tmp)",
+      "Bash(mv .mcp.json CLAUDE.md content.md ../_ppl_tmp/)",
+      "Bash(mv ../_ppl_tmp/.mcp.json ../_ppl_tmp/CLAUDE.md ../_ppl_tmp/content.md ./)",
+      "Bash(rmdir ../_ppl_tmp)",
+      "PowerShell(npm install *)",
+      "Bash(grep -E \"^next$\")",
+      "Bash(grep -E \"^\\(gsap|lucide-react|resend\\)$\")",
+      "Bash(rm -f AGENTS.md)",
+      "Bash(git config *)",
+      "Bash(git commit *)"
     ]
   },
   "enabledMcpjsonServers": [
