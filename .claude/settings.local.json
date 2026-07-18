@@ -19,7 +19,14 @@
       "Bash(rm -f AGENTS.md)",
       "Bash(git config *)",
       "Bash(git commit *)",
-      "PowerShell(npm run *)"
+      "PowerShell(npm run *)",
+      "PowerShell(Get-Job *)",
+      "Bash(curl -s -o - -w \"\\\\nHTTP %{http_code}\\\\n\" -X POST http://localhost:3000/api/contact -H \"Content-Type: application/json\" -d '{\"firstName\":\"Jane\",\"lastName\":\"Doe\",\"email\":\"jane@example.com\",\"message\":\"Hello, testing the form.\"}')",
+      "Bash(curl -s -o - -w \"\\\\nHTTP %{http_code}\\\\n\" -X POST http://localhost:3000/api/contact -H \"Content-Type: application/json\" -d '{\"firstName\":\"Jane\",\"lastName\":\"Doe\",\"email\":\"notanemail\",\"message\":\"hi\"}')",
+      "Bash(curl -s -o - -w \"\\\\nHTTP %{http_code}\\\\n\" -X POST http://localhost:3000/api/discovery -H \"Content-Type: application/json\" -d '{\"fullName\":\"Jane Doe\",\"email\":\"jane@example.com\",\"company\":\"Acme\",\"model\":\"Outsourcing\"}')",
+      "Bash(curl -s -X POST http://localhost:3000/api/contact -H \"Content-Type: application/json\" -d '{\"firstName\":\"Bot\",\"lastName\":\"Spam\",\"email\":\"bot@x.com\",\"message\":\"spam\",\"company_url\":\"http://spam.example\"}')",
+      "Bash(curl -s http://localhost:3000/contact)",
+      "Bash(curl -s http://localhost:3000/)"
     ]
   },
   "enabledMcpjsonServers": [

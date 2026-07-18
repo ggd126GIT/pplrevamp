@@ -3,6 +3,7 @@ import { Mail, Clock, MessageSquareHeart } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
+import { ContactTabs } from "@/components/forms/ContactTabs";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -23,9 +24,9 @@ export default function ContactPage() {
       <Section bg="white">
         <Container size="wide">
           <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr] lg:items-start">
-            {/* Form area — populated in Step 7 */}
+            {/* Contact + discovery forms */}
             <div id="form" className="scroll-mt-24">
-              {/* ContactForm is mounted here in Step 7 */}
+              <ContactTabs />
             </div>
 
             {/* Contact info */}
