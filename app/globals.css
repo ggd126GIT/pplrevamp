@@ -1,26 +1,158 @@
 @import "tailwindcss";
 
+/*
+  .ppl Solutions, Inc. — design system
+  Brand tokens extracted from the current site (see CLAUDE.md §4).
+*/
+
+@theme {
+  /* Brand palette */
+  --color-purple: #9352a1;
+  --color-purple-dark: #7a3d88;
+  --color-purple-light: #b47ec0;
+  --color-grad-from: #a945cc; /* primary CTA gradient start */
+  --color-grad-to: #fd9224; /* primary CTA gradient end   */
+  --color-gold: #ffc82b;
+  --color-gold-alt: #ffca2b;
+  --color-charcoal: #232b31; /* body text */
+  --color-ink: #14181c; /* headings (near-black) */
+  --color-cream: #fdfbf7; /* warm off-white section bg */
+  --color-mist: #f5f2f8; /* light purple-tinted bg */
+
+  /* Typography */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-poppins), var(--font-inter), sans-serif;
+
+  /* Motion */
+  --ease-brand: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #232b31;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  color: var(--color-ink);
+  letter-spacing: -0.02em;
+}
+
+/* ---------- Brand utilities ---------- */
+
+/* The ".ppl" gold lockup used in headings */
+@utility ppl-lockup {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--color-gold);
+  letter-spacing: -0.03em;
+}
+
+/* Gradient text (purple -> orange) */
+@utility text-gradient {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-grad-from),
+    var(--color-grad-to)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Hero glow treatment on the gold wordmark */
+@utility hero-glow {
+  color: var(--color-gold);
+  text-shadow:
+    0 0 18px rgba(255, 200, 43, 0.55),
+    0 0 42px rgba(253, 146, 36, 0.35),
+    0 0 70px rgba(169, 69, 204, 0.25);
+}
+
+/* Sticky glassmorphism header surface */
+@utility glass {
+  background: color-mix(in srgb, #ffffff 72%, transparent);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+}
+
+/* ---------- Reveal-on-scroll base states (driven by GSAP/IO) ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  will-change: transform, opacity;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.7s var(--ease-brand),
+    transform 0.7s var(--ease-brand);
+}
+
+/* ---------- Marquee (industry strip) ---------- */
+@keyframes ppl-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: ppl-marquee 32s linear infinite;
+}
+.marquee-mask {
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+}
+
+/* ---------- Accessibility: respect reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .marquee-track {
+    animation: none;
+  }
 }
