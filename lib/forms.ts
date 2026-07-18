@@ -1,4 +1,5 @@
-import { getServiceClient } from "@/lib/supabase/server";
+import { getServiceClient } from "@/lib/supabase/service";
+import type { Json } from "@/lib/database.types";
 
 /** Hidden field name shared by client + server for honeypot spam detection. */
 export const HONEYPOT_FIELD = "company_url";
@@ -23,6 +24,8 @@ export async function persistInquiry(
     console.warn(`[inquiry:${type}] skipped persistence (Supabase not configured)`);
     return;
   }
-  const { error } = await supabase.from("inquiries").insert({ type, payload });
+  const { error } = await supabase
+    .from("inquiries")
+    .insert({ type, payload: payload as Json });
   if (error) console.error(`[inquiry:${type}] insert failed:`, error.message);
 }

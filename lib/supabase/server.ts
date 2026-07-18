@@ -1,15 +1,32 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import type { Database } from "@/lib/database.types";
 
 /**
- * Server-only Supabase client using the service-role key. Returns null when
- * env is not configured so API routes can degrade gracefully (still email,
- * just skip persistence). NEVER import this into client components.
+ * Supabase client for Server Components and Route Handlers, scoped to the
+ * signed-in user via cookies (respects RLS). In Server Components the cookie
+ * write is a no-op — middleware refreshes the session there.
  */
-export function getServiceClient(): SupabaseClient | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !serviceKey) return null;
-  return createClient(url, serviceKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+export async function createClient() {
+  const cookieStore = await cookies();
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options),
+            );
+          } catch {
+            // Called from a Server Component — safe to ignore.
+          }
+        },
+      },
+    },
+  );
 }

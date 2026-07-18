@@ -26,7 +26,14 @@
       "Bash(curl -s -o - -w \"\\\\nHTTP %{http_code}\\\\n\" -X POST http://localhost:3000/api/discovery -H \"Content-Type: application/json\" -d '{\"fullName\":\"Jane Doe\",\"email\":\"jane@example.com\",\"company\":\"Acme\",\"model\":\"Outsourcing\"}')",
       "Bash(curl -s -X POST http://localhost:3000/api/contact -H \"Content-Type: application/json\" -d '{\"firstName\":\"Bot\",\"lastName\":\"Spam\",\"email\":\"bot@x.com\",\"message\":\"spam\",\"company_url\":\"http://spam.example\"}')",
       "Bash(curl -s http://localhost:3000/contact)",
-      "Bash(curl -s http://localhost:3000/)"
+      "Bash(curl -s http://localhost:3000/)",
+      "mcp__supabase__get_project_url",
+      "mcp__supabase__list_tables",
+      "mcp__supabase__apply_migration",
+      "mcp__supabase__execute_sql",
+      "mcp__supabase__generate_typescript_types",
+      "mcp__supabase__get_advisors",
+      "mcp__supabase__get_publishable_keys"
     ]
   },
   "enabledMcpjsonServers": [
