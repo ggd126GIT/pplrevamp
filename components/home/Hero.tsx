@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
+import { HeroIntro } from "@/components/anim/HeroIntro";
+import { Magnetic } from "@/components/anim/Magnetic";
 
 export function Hero() {
   return (
@@ -24,6 +26,7 @@ export function Hero() {
       />
 
       <Container size="wide" className="relative">
+        <HeroIntro />
         <div className="flex min-h-[86vh] flex-col justify-center py-28">
           <div className="max-w-3xl">
             <span
@@ -56,9 +59,11 @@ export function Hero() {
               data-hero="cta"
               className="mt-9 flex flex-wrap items-center gap-4"
             >
-              <Button href="/contact" size="lg">
-                Schedule a Consultation Today
-              </Button>
+              <Magnetic>
+                <Button href="/contact" size="lg">
+                  Schedule a Consultation Today
+                </Button>
+              </Magnetic>
               <Button href="/services" size="lg" variant="outline"
                 className="border-white/30 text-white hover:border-white hover:bg-white/10"
               >
