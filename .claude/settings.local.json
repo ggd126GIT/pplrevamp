@@ -18,7 +18,8 @@
       "Bash(grep -E \"^\\(gsap|lucide-react|resend\\)$\")",
       "Bash(rm -f AGENTS.md)",
       "Bash(git config *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "PowerShell(npm run *)"
     ]
   },
   "enabledMcpjsonServers": [
