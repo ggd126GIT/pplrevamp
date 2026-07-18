@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude mcp *)",
+      "Bash(npm --version)",
+      "Bash(git --version)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git -c user.name=\"gilbert\" -c user.email=\"gilbertgrey126@gmail.com\" commit -q -m \"Add project spec and content source\")"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "supabase"
+  ]
+}
