@@ -5,7 +5,7 @@ import { threeDs } from "@/lib/content";
 
 export function ThreeDs() {
   return (
-    <section id="threeds" className="bg-white py-20 sm:py-28">
+    <section id="threeds" className="relative z-10 bg-white py-20 sm:py-28">
       <Container size="wide">
         <SectionHeading
           eyebrow="The .ppl Strategy"

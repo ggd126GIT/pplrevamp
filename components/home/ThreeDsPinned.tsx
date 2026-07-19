@@ -63,7 +63,7 @@ export function ThreeDsPinned() {
         gsap.set(pillNums[0], { color: "#fff" });
         gsap.set(progressFill, { scaleX: 0, transformOrigin: "left center" });
 
-        gsap.set(zoom, { scale: 0.7, autoAlpha: 0.35, svgOrigin: "100 100" });
+        gsap.set(zoom, { scale: 0.7, autoAlpha: 0, svgOrigin: "100 100" });
 
         // Design line: driven by a single progress value so the pen's nib always
         // sits on the drawn tip. `dasharray = "L bigGap"` reveals exactly [0, L]
@@ -95,11 +95,12 @@ export function ThreeDsPinned() {
         // Continuous progress bar across the whole sequence.
         tl.to(progressFill, { scaleX: 1, duration: 3 }, 0);
 
-        // Phase 1 — Discover: a simple zoom-in.
+        // Phase 1 — Discover: a simple zoom-in. Offset from 0 so the magnifying
+        // glass stays hidden until the section has settled into its pin.
         tl.to(
           zoom,
-          { scale: 1.12, autoAlpha: 1, ease: "power2.out", duration: 0.9 },
-          0,
+          { scale: 1.12, autoAlpha: 1, ease: "power2.out", duration: 0.6 },
+          0.25,
         );
 
         // Transition 1 -> 2.
