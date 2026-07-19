@@ -175,6 +175,74 @@ html {
   animation: ppl-caret-blink 1s steps(1) infinite;
 }
 
+/* ---------- CTA band load-in ---------- */
+/*
+  The shared CTA band reveals when it scrolls into view: its background photo
+  blurs and scales into focus, a shimmer bar sweeps across once, and the copy
+  rises in. Driven by the `.is-loaded` class an IntersectionObserver toggles.
+*/
+.cta-band__img {
+  opacity: 0;
+  transform: scale(1.12);
+  filter: blur(14px);
+  transition:
+    opacity 1s var(--ease-brand),
+    transform 1.4s var(--ease-brand),
+    filter 1s var(--ease-brand);
+}
+.cta-band.is-loaded .cta-band__img {
+  opacity: 0.9;
+  transform: scale(1);
+  filter: blur(0);
+}
+
+.cta-band__content {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.7s var(--ease-brand) 0.25s,
+    transform 0.7s var(--ease-brand) 0.25s;
+}
+.cta-band.is-loaded .cta-band__content {
+  opacity: 1;
+  transform: none;
+}
+
+.cta-band__shimmer {
+  background: linear-gradient(
+    100deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.14) 50%,
+    transparent 65%
+  );
+  transform: translateX(-100%);
+}
+.cta-band.is-loaded .cta-band__shimmer {
+  animation: ppl-cta-shimmer 1.3s var(--ease-brand) 0.15s 1 forwards;
+}
+@keyframes ppl-cta-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-band__img {
+    opacity: 0.9;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+  .cta-band__content {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .cta-band__shimmer {
+    display: none;
+  }
+}
+
 /* ---------- Marquee (industry strip) ---------- */
 @keyframes ppl-marquee {
   from {
