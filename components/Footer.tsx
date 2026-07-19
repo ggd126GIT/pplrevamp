@@ -36,7 +36,7 @@ export function Footer() {
       <Container size="wide" className="py-16">
         <div className="grid gap-12 md:grid-cols-[1.4fr_1fr_1fr]">
           <div className="max-w-sm">
-            <Logo className="text-2xl" onDark />
+            <Logo className="text-2xl" />
             <p className="mt-4 text-white/70 leading-relaxed">
               {site.tagline}
             </p>

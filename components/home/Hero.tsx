@@ -29,16 +29,9 @@ export function Hero() {
         <HeroIntro />
         <div className="flex min-h-[86vh] flex-col justify-center py-28">
           <div className="max-w-3xl">
-            <span
-              data-hero="eyebrow"
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-white/80"
-            >
-              BPO Solutions Provider
-            </span>
-
             <h1
               data-hero="headline"
-              className="mt-6 font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl"
+              className="font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl"
             >
               Power your business strategies with{" "}
               <span className="hero-glow whitespace-nowrap">.ppl</span>

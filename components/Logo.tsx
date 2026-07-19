@@ -2,13 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/cn";
 
-export function Logo({
-  className,
-  onDark = false,
-}: {
-  className?: string;
-  onDark?: boolean;
-}) {
+export function Logo({ className }: { className?: string }) {
   return (
     <Link
       href="/"
@@ -26,7 +20,6 @@ export function Logo({
         priority
         className="h-[1.1em] w-auto"
       />
-      <span className={onDark ? "text-white" : "text-ink"}>Solutions</span>
     </Link>
   );
 }

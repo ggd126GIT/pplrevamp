@@ -110,6 +110,28 @@ html {
     transform 0.7s var(--ease-brand);
 }
 
+/* ---------- 3Ds pinned sequence ---------- */
+/*
+  Two renderings of the same content: an animated pinned stage for motion-safe
+  desktop, and a static stacked grid everywhere else (mobile + reduced motion).
+  The media query below matches the GSAP matchMedia condition exactly, so the
+  visible layout always agrees with whether the scroll animation is wired up.
+*/
+.threeds-stage {
+  display: none;
+}
+.threeds-static {
+  display: block;
+}
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .threeds-stage {
+    display: flex;
+  }
+  .threeds-static {
+    display: none;
+  }
+}
+
 /* ---------- Marquee (industry strip) ---------- */
 @keyframes ppl-marquee {
   from {

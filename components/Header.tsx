@@ -40,10 +40,10 @@ export function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 transition-all duration-300",
+        "sticky top-0 z-50 bg-white transition-all duration-300",
         scrolled
-          ? "glass border-b border-black/[0.06] shadow-sm"
-          : "bg-transparent",
+          ? "border-b border-black/[0.06] shadow-sm"
+          : "border-b border-transparent",
       )}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 sm:px-8">
