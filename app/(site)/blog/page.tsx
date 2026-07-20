@@ -40,6 +40,7 @@ export default async function BlogPage() {
         eyebrow="Blog"
         title="Insights from our .ppl"
         intro="Perspectives on offshoring, outsourcing, and building high-performing teams."
+        image="/blog/ppl-blog-header.jpg"
       />
 
       <Section bg="white">
@@ -73,9 +74,13 @@ export default async function BlogPage() {
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
-                      <div className="flex h-full items-center justify-center bg-gradient-to-br from-grad-from/15 to-grad-to/15">
-                        <span className="ppl-lockup text-3xl">.ppl</span>
-                      </div>
+                      <Image
+                        src="/blog/ppl-blog-placeholder.png"
+                        alt={post.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
                     )}
                   </div>
                   <div className="flex flex-1 flex-col p-6">
