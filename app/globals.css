@@ -214,6 +214,43 @@ html {
     animation: none;
   }
 }
+
+/* ---------- Services front/back-office toggle panels ---------- */
+@keyframes svc-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.svc-panel-in {
+  animation: svc-panel-in 0.4s ease both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .svc-panel-in {
+    animation: none;
+  }
+}
+
+/* ---------- Services "what is offshoring" pinned reveal ---------- */
+.svc-reveal-stage {
+  display: none;
+}
+.svc-reveal-static {
+  display: block;
+}
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .svc-reveal-stage {
+    display: flex;
+  }
+  .svc-reveal-static {
+    display: none;
+  }
+}
+
 /* Leadership profile panel cross-fades in each time the focused person changes
    (the element is remounted via a React key). */
 @keyframes about-lead-panel-in {

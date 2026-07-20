@@ -185,6 +185,45 @@ export const industriesSupported = [
   "Manufacturing",
 ];
 
+/** Industries supported — photo showcase for the scroll-reveal on the services
+ * page. Order sets the reveal sequence (each frame grows from 50% → 100%). */
+export const industryShowcase: {
+  label: string;
+  image: string;
+  alt: string;
+}[] = [
+  {
+    label: "IT, Software Development & Animation",
+    image: "/services/ppl-it.jpg",
+    alt: "Software developers collaborating at their workstations",
+  },
+  {
+    label: "Telecommunications",
+    image: "/services/ppl-comms.jpg",
+    alt: "Telecommunications network and connectivity",
+  },
+  {
+    label: "Retail & e-Commerce",
+    image: "/services/ppl-ecom.png",
+    alt: "Online retail and e-commerce fulfilment",
+  },
+  {
+    label: "Healthcare",
+    image: "/services/ppl-health.jpg",
+    alt: "Healthcare professionals supporting patients",
+  },
+  {
+    label: "Banking, Financial Services & Insurance",
+    image: "/services/ppl-bank.jpg",
+    alt: "Banking and financial services",
+  },
+  {
+    label: "Manufacturing",
+    image: "/services/ppl-manufacture.jpg",
+    alt: "Modern manufacturing operations",
+  },
+];
+
 /** FAQ (resources/faq). */
 export const faqs: { question: string; answer: string[] }[] = [
   {

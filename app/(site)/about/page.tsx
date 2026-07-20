@@ -17,7 +17,7 @@ export default function AboutPage() {
   return (
     <>
       <PageHero
-        eyebrow="About .ppl"
+        eyebrow="About"
         title="Outstanding solutions delivered by amazing PEOPLE."
         image="/about/ppl-about-header.png"
       />
