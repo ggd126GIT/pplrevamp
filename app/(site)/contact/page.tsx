@@ -19,6 +19,7 @@ export default function ContactPage() {
         eyebrow="Contact Us"
         title="Let's power your business strategies"
         intro="Tell us about your goals. One of our .ppl will get back to you regarding your inquiry."
+        image="/contact/ppl-contact-header.png"
       />
 
       <Section bg="white">
