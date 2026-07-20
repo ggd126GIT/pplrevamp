@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { Target, Eye, Heart, Sparkles } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
+import { AboutIntro } from "@/components/about/AboutIntro";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -72,57 +73,23 @@ export default function AboutPage() {
       <PageHero
         eyebrow="About .ppl"
         title="Outstanding solutions delivered by amazing PEOPLE."
+        image="/about/ppl-about-header.png"
       />
 
-      <Section bg="white">
-        <Container size="wide">
-          <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
-            <div className="space-y-6 text-lg leading-relaxed text-charcoal/80">
-              <p>
-                .ppl Solutions, Inc. was built with the vision of being the
-                playground of the best people. With us, we work with them and
-                open doors of opportunities through the right training —
-                developing them to become their best self yet. Nurturing a
-                culture that supports people is what our leaders took to heart
-                through their combined 100+ years of working in the industry.
-              </p>
-              <p>
-                What this means to you as our client is that you have fun-loving,
-                transformative people who are ready to take on your challenges
-                and driven to deliver ultimate client and customer satisfaction.
-                As your expert partner, we will guide you in your BPO
-                transformation — from discovery to delivery — as you enable your
-                outsourcing or offshoring strategies.
-              </p>
-              <p className="text-xl font-semibold text-ink">
-                .ppl Solutions, Inc. is the place of the best people for
-                outstanding clients.
-              </p>
-            </div>
-            <Reveal>
-              <div className="relative mx-auto aspect-square w-full max-w-md">
-                <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-grad-from/10 to-grad-to/10" />
-                <Image
-                  src="/about/team-highfive.png"
-                  alt=".ppl Solutions team celebrating together with a high five"
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 40vw"
-                  className="object-contain p-4"
-                />
-              </div>
-            </Reveal>
-          </div>
-        </Container>
-      </Section>
+      <AboutIntro />
 
       {/* Leadership */}
       <Section bg="mist">
         <Container size="wide">
-          <SectionHeading
-            eyebrow="Leadership"
-            title="Led by 100+ years of combined experience"
-            subtitle="Nurturing a culture that supports people — and clients."
-          />
+          {/* Hidden on desktop-motion — the AboutIntro sequence lands this same
+              heading. Shown on mobile / reduced-motion where that stage is off. */}
+          <div className="about-lead-fallback">
+            <SectionHeading
+              eyebrow="Leadership"
+              title="Led by 100+ years of combined experience"
+              subtitle="Nurturing a culture that supports people — and clients."
+            />
+          </div>
 
           {/* Co-founders — with bios */}
           <div className="mt-14 grid gap-8 md:grid-cols-2">

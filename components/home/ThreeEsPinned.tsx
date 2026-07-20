@@ -243,6 +243,11 @@ export function ThreeEsPinned() {
   }, []);
 
   return (
+    // Stable outer wrapper: ScrollTrigger's pin wraps the inner stage in a
+    // .pin-spacer, reparenting it. Without this wrapper React would try to
+    // removeChild the reparented stage on route change and throw a
+    // NotFoundError ("not a child of this node").
+    <div className="threees-stage-wrap">
     <div
       ref={root}
       className="threees-stage min-h-screen w-full items-center overflow-hidden"
@@ -377,6 +382,7 @@ export function ThreeEsPinned() {
           </div>
         </div>
       </Container>
+    </div>
     </div>
   );
 }

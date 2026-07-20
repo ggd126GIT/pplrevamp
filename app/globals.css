@@ -175,6 +175,46 @@ html {
   animation: ppl-caret-blink 1s steps(1) infinite;
 }
 
+/* ---------- About intro pinned sequence ---------- */
+.about-intro-stage {
+  display: none;
+}
+.about-intro-static {
+  display: block;
+}
+/* The static Leadership heading is only needed where the pinned animation is
+   NOT shown — on desktop-motion the sequence lands that heading itself, so the
+   duplicate is hidden to avoid showing it twice. */
+.about-lead-fallback {
+  display: block;
+}
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .about-intro-stage {
+    display: flex;
+  }
+  .about-intro-static {
+    display: none;
+  }
+  .about-lead-fallback {
+    display: none;
+  }
+}
+/* The ring of words revolves continuously around the centre photo. */
+@keyframes about-revolve {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.about-revolve {
+  transform-origin: center;
+  animation: about-revolve 30s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .about-revolve {
+    animation: none;
+  }
+}
+
 /* ---------- CTA band load-in ---------- */
 /*
   The shared CTA band reveals when it scrolls into view: its background photo

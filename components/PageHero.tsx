@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { PplText } from "@/components/ui/PplText";
 
@@ -5,13 +6,35 @@ export function PageHero({
   eyebrow,
   title,
   intro,
+  image,
 }: {
   eyebrow?: string;
   title: string;
   intro?: string;
+  /** Optional full-bleed background photo, dimmed beneath the gradients. */
+  image?: string;
 }) {
   return (
     <section className="relative overflow-hidden bg-ink text-white">
+      {image && (
+        <>
+          {/* Background photo — dimmed so the gradients and copy stay dominant. */}
+          <Image
+            src={image}
+            alt=""
+            aria-hidden
+            fill
+            priority
+            sizes="100vw"
+            className="pointer-events-none select-none object-cover object-center opacity-40"
+          />
+          {/* Left-heavy scrim keeps the headline readable over the photo. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink via-ink/80 to-ink/40"
+          />
+        </>
+      )}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-80"
