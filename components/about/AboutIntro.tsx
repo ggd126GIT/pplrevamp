@@ -44,6 +44,7 @@ export function AboutIntro() {
     const imgEl = one<HTMLElement>("[data-img-el]");
     const ring = one<HTMLElement>("[data-ring]");
     const lead = one<HTMLElement>("[data-lead]");
+    const count = one<HTMLElement>("[data-count]");
     const plus = one<HTMLElement>("[data-plus]");
     const dot = one<HTMLElement>("[data-dot]");
     const trail = one<HTMLElement>("[data-trail]");
@@ -83,6 +84,8 @@ export function AboutIntro() {
         gsap.set(p1, { autoAlpha: 0, x: 190 });
         gsap.set(p2, { autoAlpha: 0, x: -190 });
         gsap.set(lead, { autoAlpha: 0 });
+        // The "100" starts at 0 and counts up as the dot falls (below).
+        if (count) count.textContent = "0";
         gsap.set(dot, {
           autoAlpha: 0,
           x: circle.cx,
@@ -208,6 +211,20 @@ export function AboutIntro() {
           .to(trail, { scaleY: 1, ease: "power2.in", duration: fallDur }, fallAt)
           // the heading arrives with the dot
           .to(lead, { autoAlpha: 1, ease: "power1.out", duration: 0.7 }, fallAt + 0.2);
+        // the "100" ticks up from 0 as the dot falls, hitting 100 on impact
+        const counter = { v: 0 };
+        tl.to(
+          counter,
+          {
+            v: 100,
+            ease: "none",
+            duration: fallDur - 0.2,
+            onUpdate: () => {
+              if (count) count.textContent = String(Math.round(counter.v));
+            },
+          },
+          fallAt + 0.2,
+        );
         // impact — the "+" pops in, the dot vanishes, both trails fade away
         tl.to(
           plus,
@@ -352,7 +369,7 @@ export function AboutIntro() {
                 Leadership
               </span>
               <h2 className="mt-4 max-w-3xl font-display text-4xl font-extrabold leading-tight text-ink sm:text-5xl">
-                Led by 100
+                Led by <span data-count>100</span>
                 <span data-plus className="inline-block align-baseline">
                   +
                 </span>{" "}
