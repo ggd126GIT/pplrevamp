@@ -24,6 +24,7 @@ export default function FaqPage() {
         eyebrow="Resources"
         title="Frequently Asked Questions"
         intro="Below are answers to the questions we get asked the most when looking for a trusted partner to implement solutions."
+        image="/resources/ppl-how-to-header.jpg"
       />
 
       <Section bg="white">
