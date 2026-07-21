@@ -2,7 +2,7 @@ export const site = {
   name: ".ppl Solutions, Inc.",
   shortName: ".ppl Solutions",
   tagline: "We are here to partner with you to achieve your business goals.",
-  email: "hello@pplsolutionsinc.com",
+  email: "sales@pplsolutionsinc.com",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.pplsolutionsinc.com",
   social: {
     linkedin: "https://www.linkedin.com/company/ppl-solutions-inc",

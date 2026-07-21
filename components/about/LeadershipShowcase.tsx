@@ -39,7 +39,7 @@ type Leader = {
 };
 
 // Array order == default left-to-right arrangement. Index 2 (Joey) starts
-// centred. LinkedIn URLs are placeholders ("#") — swap in the real profiles.
+// centred.
 // Bios for Rafael / Roschelle / Karen are PLACEHOLDER copy — edit to taste.
 const leaders: Leader[] = [
   {
@@ -47,35 +47,35 @@ const leaders: Leader[] = [
     title: "Head of Technology",
     photo: "/team/rafael-dayalo.png",
     bio: "Leads .ppl's technology — building the platforms and infrastructure that keep our teams and clients seamlessly connected.",
-    linkedin: "#",
+    linkedin: "https://www.linkedin.com/in/rafael-dayalo",
   },
   {
     name: "Tina Loneza",
     title: "Chief People Officer & Co-founder",
     photo: "/team/tina-loneza.png",
     bio: "A seasoned HR leader with 20 years in strategic talent acquisition and people development across corporate and outsourced environments.",
-    linkedin: "#",
+    linkedin: "https://www.linkedin.com/in/tina-medel-loneza-b53b4b16",
   },
   {
     name: "Joey Lianko",
     title: "Chief Operating Officer & Co-founder",
     photo: "/team/joey-lianko.png",
     bio: "20+ years across customer service, operations and workforce management — a leader who inspires people to become agents of transformation.",
-    linkedin: "#",
+    linkedin: "https://www.linkedin.com/in/joeylianko",
   },
   {
     name: "Roschelle Del Rosario",
     title: "Head of Workforce Management & Business Intelligence",
     photo: "/team/roschelle-del-rosario.png",
     bio: "Heads workforce management and business intelligence, turning data into the staffing and performance decisions that drive client results.",
-    linkedin: "#",
+    linkedin: "https://www.linkedin.com/in/roschelle-del-rosario-lssmbb-b2a7a828",
   },
   {
     name: "Karen Clarissa Porras",
     title: "Project Manager",
     photo: "/team/karen-porras.png",
     bio: "Drives projects from kickoff to delivery — keeping teams aligned, timelines tight and client outcomes firmly on track.",
-    linkedin: "#",
+    linkedin: "https://www.linkedin.com/in/karen-clarissa-porras-090588b9",
   },
 ];
 
@@ -183,6 +183,8 @@ export function LeadershipShowcase() {
           <p className="mt-4 leading-relaxed text-charcoal/75">{focused.bio}</p>
           <a
             href={focused.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
             aria-label={`${focused.name} on LinkedIn`}
             className="mt-5 inline-flex size-10 items-center justify-center rounded-full bg-purple/10 text-purple transition-colors hover:bg-purple hover:text-white"
           >
@@ -216,6 +218,8 @@ export function LeadershipShowcase() {
             </p>
             <a
               href={leader.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label={`${leader.name} on LinkedIn`}
               className="mt-4 inline-flex size-9 items-center justify-center rounded-full bg-purple/10 text-purple transition-colors hover:bg-purple hover:text-white"
             >

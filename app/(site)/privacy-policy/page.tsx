@@ -169,7 +169,11 @@ function Blocks({ body }: { body: Block[] }) {
 export default function PrivacyPolicyPage() {
   return (
     <>
-      <PageHero eyebrow="Legal" title="Privacy Policy" />
+      <PageHero
+        eyebrow="Legal"
+        title="Privacy Policy"
+        image="/services/ppl-it.jpg"
+      />
 
       <Section bg="white">
         <Container size="narrow">
