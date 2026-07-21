@@ -45,10 +45,13 @@ function escape(s: string): string {
     .replace(/>/g, "&gt;");
 }
 
+export type EmailAttachment = { filename: string; content: Buffer };
+
 /** Internal notification to the .ppl team. No-op if Resend/NOTIFY not set. */
 export async function sendInternalNotification(
   subject: string,
   data: Record<string, unknown>,
+  attachments?: EmailAttachment[],
 ): Promise<void> {
   const resend = getResend();
   if (!resend || !NOTIFY) {
@@ -63,6 +66,13 @@ export async function sendInternalNotification(
       subject,
       `<table style="border-collapse:collapse;width:100%">${rows(data)}</table>`,
     ),
+    // Resend serializes the request body as JSON, which mangles a raw Buffer
+    // into {"type":"Buffer",...} and silently drops the attachment. Send the
+    // content as a base64 string, which the Resend API accepts directly.
+    attachments: attachments?.map((a) => ({
+      filename: a.filename,
+      content: a.content.toString("base64"),
+    })),
   });
 }
 

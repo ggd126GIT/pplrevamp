@@ -114,14 +114,18 @@ export async function POST(request: Request) {
 
   try {
     await Promise.all([
-      sendInternalNotification("New job application", {
-        jobId,
-        firstName,
-        lastName,
-        email,
-        phone,
-        cvPath: path,
-      }),
+      sendInternalNotification(
+        "New job application",
+        {
+          jobId,
+          firstName,
+          lastName,
+          email,
+          phone,
+          cvPath: path,
+        },
+        [{ filename: `${slugify(`${firstName}-${lastName}`)}.${ext}`, content: buffer }],
+      ),
       sendAutoReply(email, firstName),
     ]);
   } catch (err) {
