@@ -27,7 +27,10 @@ export function ViewsChart({ data }: Props) {
 
   return (
     <div className="overflow-x-auto">
-      <div className="flex items-end gap-1" style={{ height: CHART_HEIGHT }}>
+      <div
+        className="flex items-end justify-center-safe gap-1"
+        style={{ height: CHART_HEIGHT }}
+      >
         {data.map((d) => (
           <div
             key={d.day}
