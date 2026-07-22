@@ -58,18 +58,21 @@ export type Database = {
           created_at: string | null
           id: string
           payload: Json
+          session_id: string | null
           type: string
         }
         Insert: {
           created_at?: string | null
           id?: string
           payload: Json
+          session_id?: string | null
           type: string
         }
         Update: {
           created_at?: string | null
           id?: string
           payload?: Json
+          session_id?: string | null
           type?: string
         }
         Relationships: []
@@ -110,6 +113,45 @@ export type Database = {
           title?: string
           updated_at?: string | null
           work_mode?: string | null
+        }
+        Relationships: []
+      }
+      page_views: {
+        Row: {
+          country: string | null
+          created_at: string
+          device: string | null
+          id: number
+          is_staging: boolean
+          path: string
+          referrer: string | null
+          session_id: string
+          source: string | null
+          utm: Json | null
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          id?: never
+          is_staging?: boolean
+          path: string
+          referrer?: string | null
+          session_id: string
+          source?: string | null
+          utm?: Json | null
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          id?: never
+          is_staging?: boolean
+          path?: string
+          referrer?: string | null
+          session_id?: string
+          source?: string | null
+          utm?: Json | null
         }
         Relationships: []
       }
