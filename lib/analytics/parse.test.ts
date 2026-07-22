@@ -100,6 +100,17 @@ describe("deriveSource", () => {
   it("ignores a blank utm_source", () => {
     expect(deriveSource("www.google.com", "  ")).toBe("google");
   });
+
+  it("rejects phishing hosts that start with a known search engine domain", () => {
+    // Regression: the old regex /(^|\.)google\./ would match "google.attacker-phishing.com"
+    expect(deriveSource("google.attacker-phishing.com")).toBe("google.attacker-phishing.com");
+    expect(deriveSource("bing.evil.net")).toBe("bing.evil.net");
+  });
+
+  it("handles mixed-case hosts by lowercasing them", () => {
+    expect(deriveSource("WWW.GOOGLE.COM")).toBe("google");
+    expect(deriveSource("Www.Linkedin.Com")).toBe("linkedin");
+  });
 });
 
 describe("sanitizePath", () => {

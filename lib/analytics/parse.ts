@@ -43,10 +43,10 @@ export function referrerHost(
 }
 
 const SOURCE_HOSTS: Array<[RegExp, string]> = [
-  [/(^|\.)google\./, "google"],
-  [/(^|\.)bing\./, "bing"],
-  [/(^|\.)duckduckgo\./, "duckduckgo"],
-  [/(^|\.)yahoo\./, "yahoo"],
+  [/(^|\.)google\.[a-z.]{2,6}$/, "google"],
+  [/(^|\.)bing\.[a-z.]{2,6}$/, "bing"],
+  [/(^|\.)duckduckgo\.[a-z.]{2,6}$/, "duckduckgo"],
+  [/(^|\.)yahoo\.[a-z.]{2,6}$/, "yahoo"],
   [/(^|\.)linkedin\.com$/, "linkedin"],
   [/(^|\.)lnkd\.in$/, "linkedin"],
   [/(^|\.)facebook\.com$/, "facebook"],
@@ -64,10 +64,11 @@ export function deriveSource(
     return utmSource.trim().toLowerCase().slice(0, 64);
   }
   if (!host) return "direct";
+  const lowerHost = host.toLowerCase();
   for (const [re, name] of SOURCE_HOSTS) {
-    if (re.test(host)) return name;
+    if (re.test(lowerHost)) return name;
   }
-  return stripWww(host);
+  return stripWww(lowerHost);
 }
 
 const MAX_PATH = 512;
