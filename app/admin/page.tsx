@@ -1,6 +1,14 @@
 import Link from "next/link";
-import { FileText, Briefcase, Inbox, Mails, ArrowRight } from "lucide-react";
+import {
+  FileText,
+  Briefcase,
+  Inbox,
+  Mails,
+  BarChart3,
+  ArrowRight,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getAnalyticsSummary } from "@/lib/analytics/queries";
 
 async function count(table: "posts" | "jobs" | "applications" | "inquiries") {
   const supabase = await createClient();
@@ -11,11 +19,12 @@ async function count(table: "posts" | "jobs" | "applications" | "inquiries") {
 }
 
 export default async function AdminDashboard() {
-  const [posts, jobs, applications, inquiries] = await Promise.all([
+  const [posts, jobs, applications, inquiries, summary] = await Promise.all([
     count("posts"),
     count("jobs"),
     count("applications"),
     count("inquiries"),
+    getAnalyticsSummary(30),
   ]);
 
   const cards = [
@@ -33,6 +42,12 @@ export default async function AdminDashboard() {
       href: "/admin/inquiries",
       icon: Mails,
     },
+    {
+      label: "Views (30d)",
+      value: summary?.views ?? 0,
+      href: "/admin/analytics",
+      icon: BarChart3,
+    },
   ];
 
   return (
@@ -40,7 +55,7 @@ export default async function AdminDashboard() {
       <h1 className="text-2xl font-bold text-ink">Dashboard</h1>
       <p className="mt-1 text-charcoal/60">Overview of your content and leads.</p>
 
-      <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
         {cards.map((card) => {
           const Icon = card.icon;
           return (

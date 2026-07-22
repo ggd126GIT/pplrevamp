@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
+  BarChart3,
   FileText,
   Briefcase,
   Inbox,
@@ -13,6 +14,7 @@ import { cn } from "@/lib/cn";
 
 const items = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { label: "Posts", href: "/admin/posts", icon: FileText },
   { label: "Jobs", href: "/admin/jobs", icon: Briefcase },
   { label: "Applications", href: "/admin/applications", icon: Inbox },
