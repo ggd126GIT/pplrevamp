@@ -24,8 +24,14 @@ export async function persistInquiry(
     console.warn(`[inquiry:${type}] skipped persistence (Supabase not configured)`);
     return;
   }
+  // Staging shares the production database, so mark test rows to make them
+  // separable at cutover. Unset in production, so real rows carry no flag.
+  const tagged = process.env.STAGING_PASSWORD
+    ? { ...payload, _staging: true }
+    : payload;
+
   const { error } = await supabase
     .from("inquiries")
-    .insert({ type, payload: payload as Json });
+    .insert({ type, payload: tagged as Json });
   if (error) console.error(`[inquiry:${type}] insert failed:`, error.message);
 }
