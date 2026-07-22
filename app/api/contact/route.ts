@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     message,
   };
 
-  await persistInquiry("contact", payload);
+  await persistInquiry("contact", payload, body.sessionId as string | undefined);
 
   try {
     await Promise.all([

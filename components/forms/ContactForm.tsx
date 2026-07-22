@@ -5,6 +5,7 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Field, TextInput, Textarea, Honeypot } from "./fields";
 import { HONEYPOT_FIELD } from "@/lib/forms";
+import { getSessionId } from "@/lib/analytics/session";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -18,7 +19,10 @@ export function ContactForm() {
     setError(null);
 
     const form = e.currentTarget;
-    const data = Object.fromEntries(new FormData(form).entries());
+    const data = {
+      ...Object.fromEntries(new FormData(form).entries()),
+      sessionId: getSessionId(),
+    };
 
     try {
       const res = await fetch("/api/contact", {

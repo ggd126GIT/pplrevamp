@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { Field, TextInput, Textarea, Select, Honeypot } from "./fields";
 import { HONEYPOT_FIELD } from "@/lib/forms";
+import { getSessionId } from "@/lib/analytics/session";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -77,6 +78,7 @@ export function DiscoveryForm() {
         data.industry === "Other" && data.industryOther
           ? data.industryOther
           : data.industry,
+      sessionId: getSessionId(),
     };
 
     try {

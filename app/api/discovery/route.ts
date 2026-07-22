@@ -63,7 +63,7 @@ export async function POST(request: Request) {
     goals: b.goals,
   };
 
-  await persistInquiry("discovery", payload);
+  await persistInquiry("discovery", payload, b.sessionId as string | undefined);
 
   try {
     await Promise.all([
