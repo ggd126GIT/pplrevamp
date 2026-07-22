@@ -88,7 +88,7 @@ user-agent regex at the route catches headless ones. Filtered hits are never wri
 the table stays clean rather than needing an `is_bot` flag filtered at read time forever.
 
 **Journey linking:** `persistInquiry()` takes `session_id` as a third argument. The
-contact, discovery, and referral forms read it from `sessionStorage` and post it along.
+contact and discovery forms read it from `sessionStorage` and post it along.
 Analytics must never be able to break lead capture — a missing or malformed session ID is
 ignored, not rejected.
 

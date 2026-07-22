@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/cn";
+import { getJourneys } from "@/lib/analytics/queries";
+import { JourneyStrip } from "@/components/admin/JourneyStrip";
 
 const typeStyles: Record<string, string> = {
   contact: "bg-purple/10 text-purple",
@@ -17,6 +19,11 @@ export default async function InquiriesPage() {
     .from("inquiries")
     .select("*")
     .order("created_at", { ascending: false });
+
+  const sessionIds = (inquiries ?? [])
+    .map((i) => i.session_id)
+    .filter((id): id is string => Boolean(id));
+  const journeys = await getJourneys(sessionIds);
 
   return (
     <div>
@@ -63,6 +70,9 @@ export default async function InquiriesPage() {
                       </div>
                     ))}
                 </dl>
+                {inq.session_id && (
+                  <JourneyStrip steps={journeys.get(inq.session_id) ?? []} />
+                )}
               </div>
             );
           })}
