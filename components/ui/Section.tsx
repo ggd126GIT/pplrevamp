@@ -5,15 +5,18 @@ export function Section({
   className,
   id,
   bg = "white",
+  trackSection,
 }: {
   children: React.ReactNode;
   className?: string;
   id?: string;
   bg?: "white" | "cream" | "mist" | "ink";
+  trackSection?: string;
 }) {
   return (
     <section
       id={id}
+      data-track-section={trackSection}
       className={cn(
         "py-20 sm:py-28",
         bg === "white" && "bg-white",

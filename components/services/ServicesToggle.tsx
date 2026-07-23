@@ -45,6 +45,7 @@ export function ServicesToggle() {
 
   return (
     <section
+      data-track-section="offices"
       className={cn(
         "py-20 transition-colors duration-500 sm:py-28",
         dark ? "bg-ink" : "bg-cream",

@@ -28,7 +28,7 @@ export default function AboutPage() {
           backgrounds blend into a seamless cutout arrangement). Tight top
           padding on desktop: the AboutIntro sequence already lands the heading
           just above, so the fan should sit close beneath it. */}
-      <Section bg="white" className="lg:pt-0 lg:pb-8">
+      <Section bg="white" trackSection="leadership" className="lg:pt-0 lg:pb-8">
         <Container size="wide">
           <LeadershipShowcase />
         </Container>

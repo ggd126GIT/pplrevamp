@@ -153,7 +153,7 @@ export function IndustriesReveal() {
   return (
     <>
       {/* Static fallback — mobile / reduced motion */}
-      <section className="svc-reveal-static bg-white py-20 sm:py-28">
+      <section data-track-section="offshoring" className="svc-reveal-static bg-white py-20 sm:py-28">
         <Container size="wide">
           <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
             <div>
@@ -196,7 +196,7 @@ export function IndustriesReveal() {
           pin re-parents the inner stage into a .pin-spacer, so without this
           wrapper React would try to removeChild the stage from a parent it no
           longer belongs to on route change ("NotFoundError"). */}
-      <div className="svc-reveal-stage-wrap">
+      <div data-track-section="offshoring" className="svc-reveal-stage-wrap">
         <div
           ref={root}
           className="svc-reveal-stage min-h-screen w-full items-center overflow-hidden bg-white pt-24 pb-12"

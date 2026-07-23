@@ -6,7 +6,7 @@ export function IndustryMarquee() {
   const loop = [...industries, ...industries];
 
   return (
-    <section className="border-y border-black/[0.06] bg-cream py-14">
+    <section data-track-section="industries" className="border-y border-black/[0.06] bg-cream py-14">
       <Container size="wide">
         <p className="mb-8 text-center text-xs font-semibold uppercase tracking-[0.25em] text-purple">
           Industry Expertise
