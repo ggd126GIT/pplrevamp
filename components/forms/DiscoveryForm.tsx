@@ -5,7 +5,7 @@ import { CheckCircle2, Loader2, ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { Field, TextInput, Textarea, Select, Honeypot } from "./fields";
-import { HONEYPOT_FIELD } from "@/lib/forms";
+import { HONEYPOT_FIELD, MAX_MESSAGE_LENGTH } from "@/lib/forms";
 import { getSessionId } from "@/lib/analytics/session";
 
 type Status = "idle" | "submitting" | "success" | "error";
@@ -236,7 +236,7 @@ export function DiscoveryForm() {
             </Field>
           </div>
           <Field label="Tell us about your goals" htmlFor="d-goals">
-            <Textarea id="d-goals" value={data.goals} onChange={set("goals")} />
+            <Textarea id="d-goals" value={data.goals} onChange={set("goals")} maxLength={MAX_MESSAGE_LENGTH} />
           </Field>
         </div>
       )}

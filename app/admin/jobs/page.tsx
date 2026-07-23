@@ -2,13 +2,23 @@ import Link from "next/link";
 import { Plus, Pencil } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/cn";
+import { Pagination } from "@/components/admin/Pagination";
+import { pageCount, pageRange, parsePage } from "@/lib/pagination";
 
-export default async function AdminJobsPage() {
+export default async function AdminJobsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const page = parsePage((await searchParams).page);
+  const { from, to } = pageRange(page);
+
   const supabase = await createClient();
-  const { data: jobs } = await supabase
+  const { data: jobs, count } = await supabase
     .from("jobs")
-    .select("*")
-    .order("created_at", { ascending: false });
+    .select("*", { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range(from, to);
 
   return (
     <div>
@@ -64,6 +74,8 @@ export default async function AdminJobsPage() {
           ))}
         </div>
       )}
+
+      <Pagination page={page} pageCount={pageCount(count)} basePath="/admin/jobs" />
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Field, TextInput, Textarea, Honeypot } from "./fields";
-import { HONEYPOT_FIELD } from "@/lib/forms";
+import { HONEYPOT_FIELD, MAX_MESSAGE_LENGTH } from "@/lib/forms";
 import { getSessionId } from "@/lib/analytics/session";
 
 type Status = "idle" | "submitting" | "success" | "error";
@@ -81,7 +81,7 @@ export function ContactForm() {
       </div>
 
       <Field label="Message" htmlFor="message" required>
-        <Textarea id="message" name="message" required placeholder="How can we help power your business strategies?" />
+        <Textarea id="message" name="message" required maxLength={MAX_MESSAGE_LENGTH} placeholder="How can we help power your business strategies?" />
       </Field>
 
       {error && (

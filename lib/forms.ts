@@ -5,12 +5,20 @@ import type { Json } from "@/lib/database.types";
 /** Hidden field name shared by client + server for honeypot spam detection. */
 export const HONEYPOT_FIELD = "company_url";
 
+/** Max length for free-text message fields (contact message, discovery goals). */
+export const MAX_MESSAGE_LENGTH = 2000;
+
 export function isEmail(value: unknown): value is string {
   return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
 export function isNonEmpty(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+/** True when value is a string no longer than max (rejects non-strings). */
+export function isWithinLength(value: unknown, max: number): boolean {
+  return typeof value === "string" && value.length <= max;
 }
 
 export type InquiryType = "contact" | "discovery" | "referral";

@@ -5,6 +5,8 @@ import {
   HONEYPOT_FIELD,
   isEmail,
   isNonEmpty,
+  isWithinLength,
+  MAX_MESSAGE_LENGTH,
   persistInquiry,
 } from "@/lib/forms";
 
@@ -41,6 +43,16 @@ export async function POST(request: Request) {
   if (!isEmail(b.email)) {
     return NextResponse.json(
       { ok: false, error: "Please provide a valid email address." },
+      { status: 400 },
+    );
+  }
+  // Goals is optional free text; cap it when present.
+  if (isNonEmpty(b.goals) && !isWithinLength(b.goals, MAX_MESSAGE_LENGTH)) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: `Your goals message is too long. Please keep it under ${MAX_MESSAGE_LENGTH} characters.`,
+      },
       { status: 400 },
     );
   }

@@ -2,6 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/cn";
 import { getJourneys } from "@/lib/analytics/queries";
 import { JourneyStrip } from "@/components/admin/JourneyStrip";
+import { ExpandableText } from "@/components/admin/ExpandableText";
+import { Pagination } from "@/components/admin/Pagination";
+import { pageCount, pageRange, parsePage } from "@/lib/pagination";
 
 const typeStyles: Record<string, string> = {
   contact: "bg-purple/10 text-purple",
@@ -13,12 +16,20 @@ function humanize(key: string): string {
   return key.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase());
 }
 
-export default async function InquiriesPage() {
+export default async function InquiriesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const page = parsePage((await searchParams).page);
+  const { from, to } = pageRange(page);
+
   const supabase = await createClient();
-  const { data: inquiries } = await supabase
+  const { data: inquiries, count } = await supabase
     .from("inquiries")
-    .select("*")
-    .order("created_at", { ascending: false });
+    .select("*", { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range(from, to);
 
   const sessionIds = (inquiries ?? [])
     .map((i) => i.session_id)
@@ -63,12 +74,23 @@ export default async function InquiriesPage() {
                 <dl className="mt-4 grid gap-x-6 gap-y-2 sm:grid-cols-2">
                   {Object.entries(payload)
                     .filter(([, v]) => v !== null && v !== "" && v !== undefined)
-                    .map(([k, v]) => (
-                      <div key={k} className="text-sm">
-                        <dt className="text-charcoal/50">{humanize(k)}</dt>
-                        <dd className="text-ink">{String(v)}</dd>
-                      </div>
-                    ))}
+                    .map(([k, v]) => {
+                      const text = String(v);
+                      // Long free-text (message/goals) spans the full width and
+                      // collapses to a snippet so it can't blow out the card.
+                      const isLong = text.length > 120;
+                      return (
+                        <div
+                          key={k}
+                          className={cn("text-sm", isLong && "sm:col-span-2")}
+                        >
+                          <dt className="text-charcoal/50">{humanize(k)}</dt>
+                          <dd className="text-ink">
+                            <ExpandableText text={text} />
+                          </dd>
+                        </div>
+                      );
+                    })}
                 </dl>
                 {inq.session_id && (
                   <JourneyStrip steps={journeys.get(inq.session_id) ?? []} />
@@ -78,6 +100,12 @@ export default async function InquiriesPage() {
           })}
         </div>
       )}
+
+      <Pagination
+        page={page}
+        pageCount={pageCount(count)}
+        basePath="/admin/inquiries"
+      />
     </div>
   );
 }

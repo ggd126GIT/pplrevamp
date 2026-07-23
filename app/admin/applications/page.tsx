@@ -1,12 +1,22 @@
 import { Download, FileText } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { Pagination } from "@/components/admin/Pagination";
+import { pageCount, pageRange, parsePage } from "@/lib/pagination";
 
-export default async function ApplicationsPage() {
+export default async function ApplicationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const page = parsePage((await searchParams).page);
+  const { from, to } = pageRange(page);
+
   const supabase = await createClient();
-  const { data: applications } = await supabase
+  const { data: applications, count } = await supabase
     .from("applications")
-    .select("*, jobs(title, slug)")
-    .order("created_at", { ascending: false });
+    .select("*, jobs(title, slug)", { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range(from, to);
 
   // Signed URLs for private CVs (1 hour).
   const withCv = await Promise.all(
@@ -90,6 +100,12 @@ export default async function ApplicationsPage() {
           </table>
         </div>
       )}
+
+      <Pagination
+        page={page}
+        pageCount={pageCount(count)}
+        basePath="/admin/applications"
+      />
     </div>
   );
 }

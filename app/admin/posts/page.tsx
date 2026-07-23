@@ -2,13 +2,23 @@ import Link from "next/link";
 import { Plus, Pencil } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/cn";
+import { Pagination } from "@/components/admin/Pagination";
+import { pageCount, pageRange, parsePage } from "@/lib/pagination";
 
-export default async function AdminPostsPage() {
+export default async function AdminPostsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const page = parsePage((await searchParams).page);
+  const { from, to } = pageRange(page);
+
   const supabase = await createClient();
-  const { data: posts } = await supabase
+  const { data: posts, count } = await supabase
     .from("posts")
-    .select("id, title, slug, status, updated_at")
-    .order("updated_at", { ascending: false });
+    .select("id, title, slug, status, updated_at", { count: "exact" })
+    .order("updated_at", { ascending: false })
+    .range(from, to);
 
   return (
     <div>
@@ -62,6 +72,8 @@ export default async function AdminPostsPage() {
           ))}
         </div>
       )}
+
+      <Pagination page={page} pageCount={pageCount(count)} basePath="/admin/posts" />
     </div>
   );
 }
