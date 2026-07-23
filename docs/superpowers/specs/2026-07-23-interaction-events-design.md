@@ -86,12 +86,16 @@ Flush triggers, all three necessary:
 Flush is a no-op on an empty queue, and clears the queue *before* the beacon call so a
 double-trigger (hide then unload) cannot double-send.
 
-### Read depth — `lib/analytics/sections.ts` + `components/analytics/SectionTracker.tsx`
+### Read depth — `lib/analytics/sections.ts` + `components/analytics/InteractionTracker.tsx`
 
 Split deliberately. `lib/analytics/sections.ts` holds **only pure data and logic** — the
 registry and `shouldFireSection()` — with no DOM references, because the admin server
 component imports the registry too and must not drag browser code into a server bundle. The
 `IntersectionObserver` wiring lives in the client component.
+
+That client component carries the click listener as well, rather than a second component:
+both need the same `pagehide` / `visibilitychange` / route-change flush lifecycle, and
+splitting them would duplicate it.
 
 Sections are marked in JSX: `<section data-track-section="threeds">`.
 
