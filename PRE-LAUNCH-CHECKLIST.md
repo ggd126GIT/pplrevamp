@@ -18,7 +18,8 @@ production site if not changed at cutover.
 | `STAGING_PASSWORD` | set (`ppl` / `Jaax4PvOUvE9`) | **UNSET IT.** While set it (a) basic-auth-gates the whole site, (b) forces `robots.txt` → `Disallow: /`, (c) adds `x-robots-tag: noindex`, (d) stamps every inquiry `_staging:true` and every page_view `is_staging:true`. Leaving it set = production stays private and de-indexed. |
 | `NEXT_PUBLIC_SITE_URL` | `https://pplrevamp.vercel.app` | Set to `https://www.pplsolutionsinc.com`. Consumed by `app/layout.tsx` (canonical/OG), `app/sitemap.ts`, `app/robots.ts`, `lib/site.ts`, `app/api/track/route.ts`. Wrong value = canonical tags + sitemap point at Vercel. **No trailing slash** (consumers string-concat `/sitemap.xml`). |
 | `RESEND_FROM` | unset → defaults to `onboarding@resend.dev` (`lib/email.ts:3`) | Set to a verified `@pplsolutionsinc.com` (or `@send.pplsolutionsinc.com`) sender. Until the domain is verified in Resend, auto-replies to visitors are rejected (test mode only delivers to the signup inbox). |
-| `CONTACT_NOTIFY_EMAIL` | `gilbert.dayalo@pplsolutionsinc.com` (monitored test inbox) | Switch to the real destination inbox (e.g. `sales@pplsolutionsinc.com`). **If unset, internal notifications silently no-op** (`lib/email.ts:57`). |
+| `CONTACT_NOTIFY_EMAIL` | `gilbert.dayalo@pplsolutionsinc.com` (monitored test inbox) | Switch to the real destination inbox (e.g. `sales@pplsolutionsinc.com`). **If unset, internal notifications silently no-op** (`lib/email.ts`). |
+| `JOBS_NOTIFY_EMAIL` | unset | Optional. Set to e.g. `jobs@pplsolutionsinc.com` to route job-application notifications away from the contact inbox. Falls back to `CONTACT_NOTIFY_EMAIL` when unset. |
 | `SUPABASE_SERVICE_ROLE_KEY` | set (`sb_secret_…`) | Confirm present in prod env — its absence breaks CV upload ("Applications temporarily unavailable") and page-view tracking (`/api/track` no-ops without it). |
 | `RESEND_API_KEY` | set | Confirm present. Absence makes all email a silent no-op. |
 | `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_ANON_KEY` | set | Confirm present (build-time inlined — a change needs a **redeploy**, not just a save). |
@@ -60,13 +61,13 @@ production site if not changed at cutover.
 - **Decide:** VPS (per spec) vs. a paid Vercel plan. If VPS, the whole PM2/Nginx/Certbot/DNS
   step still has to be built and tested.
 
-### VPS-specific gotcha — country tracking (🟠)
-- `app/api/track/route.ts:54` reads `x-vercel-ip-country`. **This header only exists on Vercel**
-  and will silently be `null` on the VPS, so the analytics `country` column stops populating.
-- Recommended fix (undecided): fallback chain
-  `x-vercel-ip-country` → `cf-ipcountry` (if fronted by Cloudflare) → `x-geoip-country` (Nginx GeoIP).
-  Nothing in the admin UI displays country yet, so this is non-urgent but should be resolved before
-  relying on the metric.
+### VPS-specific gotcha — country tracking (✅ resolved)
+- `x-vercel-ip-country` only exists on Vercel and would go `null` on the VPS. Now handled by
+  `countryFromHeaders()` (`lib/analytics/parse.ts`, unit-tested), which tries
+  `x-vercel-ip-country` → `cf-ipcountry` → `x-geoip-country` and rejects `XX`/`T1`/malformed values.
+- **Still needed on the VPS:** the country only populates if something upstream sets one of those
+  headers — either Cloudflare proxying (orange cloud) or the Nginx GeoIP module writing
+  `x-geoip-country`. Without either, `country` stays null (harmless; nothing displays it yet).
 
 ---
 
@@ -82,35 +83,29 @@ production site if not changed at cutover.
 
 ---
 
-## 6. Email-send correctness bugs (🟠 should-fix)
+## 6. Email-send correctness bugs (✅ resolved)
 
-All three public form routes use `Promise.all` for the two concurrent sends:
-- `app/api/contact/route.ts:75`
-- `app/api/discovery/route.ts:69`
-- `app/api/apply/route.ts:116`
+All three public form routes previously used `Promise.all` for the two concurrent sends, so a
+rejected visitor auto-reply (Resend test mode rejects any non-signup recipient) aborted the batch
+and could leave the internal notification's request in flight when a serverless function froze —
+**silently losing the notification.**
 
-**Problem:** `Promise.all` rejects on the first failure. In Resend **test mode**, the visitor
-auto-reply rejects for any non-signup recipient, which aborts the batch and can leave the internal
-notification's request in flight when a serverless function freezes → **internal notification
-silently lost.** After domain verification this is less likely but still latent for any single
-send failure.
-**Fix:** switch to `Promise.allSettled` and log individual failures.
+**Fixed:** `settleSends()` in `lib/email.ts` wraps `Promise.allSettled`, logs each failure by name
+(`[contact] auto-reply failed: …`), and never throws. Wired into `/api/contact`, `/api/discovery`,
+and `/api/apply`.
 
-### Per-form notification routing (🟠)
-- `sendInternalNotification` has no recipient param — it always targets the single module-level
-  `NOTIFY` (`CONTACT_NOTIFY_EMAIL`, `lib/email.ts:4`). Consider adding an optional `to` and a
-  `JOBS_NOTIFY_EMAIL` (e.g. `jobs@`) for `/api/apply`, falling back to `CONTACT_NOTIFY_EMAIL`.
-  Reminder: an unset notify var makes the send a silent no-op (`lib/email.ts:57`).
+### Per-form notification routing (✅ resolved)
+- `sendInternalNotification` now takes an options object `{ attachments?, to? }`. `/api/apply`
+  passes `to: process.env.JOBS_NOTIFY_EMAIL`, which falls back to `CONTACT_NOTIFY_EMAIL` when
+  unset. Reminder: if **both** are unset the send is still a silent no-op.
 
 ---
 
-## 7. Admin UI cleanups (🟡)
+## 7. Admin UI cleanups (✅ resolved)
 
-- **`_staging` junk field on inquiry cards** — `app/admin/inquiries/page.tsx:64` renders every
-  payload key, so staging rows show a literal "Staging: true" field. Either filter `_staging` out
-  of the render, or rely on the cutover cleanup (below) to remove those rows.
-- **Stale subtitle** — `app/admin/inquiries/page.tsx:32` reads "Contact, discovery, and referral
-  submissions" but **no referral form exists** on the site. Drop "referral".
+- **`_staging` junk field on inquiry cards** — fixed: `app/admin/inquiries/page.tsx` now skips any
+  underscore-prefixed payload key, so internal bookkeeping never renders as an answer.
+- **Stale subtitle** — fixed: now reads "Contact and discovery submissions" (no referral form exists).
 
 ---
 
@@ -164,5 +159,7 @@ Staging shares the **same Supabase project** as production, so real test data is
 verify Resend domain + set `RESEND_FROM` · set real `CONTACT_NOTIFY_EMAIL` · rotate admin password ·
 resolve Cloudflare DNS access · pick & build the deploy target (VPS vs paid Vercel) · clean staging test data.
 
-**Strongly recommended alongside:** `Promise.allSettled` email fix · country-header fallback (if VPS) ·
-inquiries `_staging`/subtitle cleanups · leadership bios.
+**Done (2026-07-23):** `Promise.allSettled` email fix · per-form `JOBS_NOTIFY_EMAIL` routing ·
+country-header fallback chain · inquiries `_staging`/subtitle cleanups.
+
+**Strongly recommended alongside:** leadership bios · referral conditions copy.

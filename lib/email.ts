@@ -47,20 +47,27 @@ function escape(s: string): string {
 
 export type EmailAttachment = { filename: string; content: Buffer };
 
+export type NotificationOptions = {
+  attachments?: EmailAttachment[];
+  /** Override recipient (e.g. a jobs@ inbox). Falls back to CONTACT_NOTIFY_EMAIL. */
+  to?: string;
+};
+
 /** Internal notification to the .ppl team. No-op if Resend/NOTIFY not set. */
 export async function sendInternalNotification(
   subject: string,
   data: Record<string, unknown>,
-  attachments?: EmailAttachment[],
+  { attachments, to }: NotificationOptions = {},
 ): Promise<void> {
   const resend = getResend();
-  if (!resend || !NOTIFY) {
+  const recipient = to?.trim() || NOTIFY;
+  if (!resend || !recipient) {
     console.warn("[email] skipped internal notification (Resend not configured)");
     return;
   }
   await resend.emails.send({
     from: FROM,
-    to: NOTIFY,
+    to: recipient,
     subject,
     html: shell(
       subject,
@@ -73,6 +80,27 @@ export async function sendInternalNotification(
       filename: a.filename,
       content: a.content.toString("base64"),
     })),
+  });
+}
+
+/**
+ * Await several sends independently and log whichever ones fail.
+ *
+ * `Promise.all` would reject on the first failure — and because a rejected
+ * auto-reply (Resend test mode rejects any non-signup recipient) resolves the
+ * batch immediately, the internal notification's request could still be in
+ * flight when a serverless function freezes, silently losing it. Never throws.
+ */
+export async function settleSends(
+  scope: string,
+  sends: Record<string, Promise<unknown>>,
+): Promise<void> {
+  const entries = Object.entries(sends);
+  const results = await Promise.allSettled(entries.map(([, p]) => p));
+  results.forEach((result, i) => {
+    if (result.status === "rejected") {
+      console.error(`[${scope}] ${entries[i][0]} failed:`, result.reason);
+    }
   });
 }
 

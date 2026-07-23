@@ -93,6 +93,28 @@ export function extractUtm(query: string): Record<string, string> | null {
   return Object.keys(utm).length ? utm : null;
 }
 
+/**
+ * Two-letter country from whichever edge set it. `x-vercel-ip-country` only
+ * exists on Vercel, so the VPS falls back to Cloudflare's `cf-ipcountry` or an
+ * Nginx GeoIP header. Returns null when no edge resolved a country.
+ */
+const COUNTRY_HEADERS = [
+  "x-vercel-ip-country",
+  "cf-ipcountry",
+  "x-geoip-country",
+];
+
+export function countryFromHeaders(headers: Headers): string | null {
+  for (const name of COUNTRY_HEADERS) {
+    const value = headers.get(name)?.trim().toUpperCase();
+    // Cloudflare sends XX for anonymised/unknown clients, T1 for Tor.
+    if (value && /^[A-Z]{2}$/.test(value) && value !== "XX" && value !== "T1") {
+      return value;
+    }
+  }
+  return null;
+}
+
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

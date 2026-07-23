@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { clientIp, rateLimit } from "@/lib/rateLimit";
-import { sendAutoReply, sendInternalNotification } from "@/lib/email";
+import { sendAutoReply, sendInternalNotification, settleSends } from "@/lib/email";
 import {
   HONEYPOT_FIELD,
   isEmail,
@@ -77,14 +77,13 @@ export async function POST(request: Request) {
 
   await persistInquiry("discovery", payload, b.sessionId as string | undefined);
 
-  try {
-    await Promise.all([
-      sendInternalNotification("New discovery / consultation request", payload),
-      sendAutoReply(b.email, b.fullName.split(" ")[0] ?? b.fullName),
-    ]);
-  } catch (err) {
-    console.error("[discovery] email error:", err);
-  }
+  await settleSends("discovery", {
+    "internal notification": sendInternalNotification(
+      "New discovery / consultation request",
+      payload,
+    ),
+    "auto-reply": sendAutoReply(b.email, b.fullName.split(" ")[0] ?? b.fullName),
+  });
 
   return NextResponse.json({ ok: true });
 }

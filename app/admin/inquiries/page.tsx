@@ -40,7 +40,7 @@ export default async function InquiriesPage({
     <div>
       <h1 className="text-2xl font-bold text-ink">Inquiries</h1>
       <p className="mt-1 text-charcoal/60">
-        Contact, discovery, and referral submissions.
+        Contact and discovery submissions.
       </p>
 
       {!inquiries?.length ? (
@@ -73,6 +73,9 @@ export default async function InquiriesPage({
                 </div>
                 <dl className="mt-4 grid gap-x-6 gap-y-2 sm:grid-cols-2">
                   {Object.entries(payload)
+                    // Underscore-prefixed keys are internal bookkeeping
+                    // (e.g. _staging), not submitted answers.
+                    .filter(([k]) => !k.startsWith("_"))
                     .filter(([, v]) => v !== null && v !== "" && v !== undefined)
                     .map(([k, v]) => {
                       const text = String(v);

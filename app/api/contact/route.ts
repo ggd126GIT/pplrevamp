@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { clientIp, rateLimit } from "@/lib/rateLimit";
-import { sendAutoReply, sendInternalNotification } from "@/lib/email";
+import { sendAutoReply, sendInternalNotification, settleSends } from "@/lib/email";
 import {
   HONEYPOT_FIELD,
   isEmail,
@@ -82,15 +82,12 @@ export async function POST(request: Request) {
 
   await persistInquiry("contact", payload, body.sessionId as string | undefined);
 
-  try {
-    await Promise.all([
-      sendInternalNotification("New contact inquiry", payload),
-      sendAutoReply(email, firstName),
-    ]);
-  } catch (err) {
-    console.error("[contact] email error:", err);
-    // Submission is still recorded; don't fail the user.
-  }
+  // Submission is already recorded; a failed send must never fail the user,
+  // and one failing send must not abort the other.
+  await settleSends("contact", {
+    "internal notification": sendInternalNotification("New contact inquiry", payload),
+    "auto-reply": sendAutoReply(email, firstName),
+  });
 
   return NextResponse.json({ ok: true });
 }

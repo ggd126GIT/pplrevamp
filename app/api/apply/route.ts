@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { clientIp, rateLimit } from "@/lib/rateLimit";
 import { getServiceClient } from "@/lib/supabase/service";
-import { sendInternalNotification, sendAutoReply } from "@/lib/email";
+import { sendInternalNotification, sendAutoReply, settleSends } from "@/lib/email";
 import { HONEYPOT_FIELD, isEmail, isNonEmpty } from "@/lib/forms";
 import { slugify } from "@/lib/slug";
 
@@ -112,25 +112,27 @@ export async function POST(request: Request) {
     );
   }
 
-  try {
-    await Promise.all([
-      sendInternalNotification(
-        "New job application",
-        {
-          jobId,
-          firstName,
-          lastName,
-          email,
-          phone,
-          cvPath: path,
-        },
-        [{ filename: `${slugify(`${firstName}-${lastName}`)}.${ext}`, content: buffer }],
-      ),
-      sendAutoReply(email, firstName),
-    ]);
-  } catch (err) {
-    console.error("[apply] email error:", err);
-  }
+  await settleSends("apply", {
+    "internal notification": sendInternalNotification(
+      "New job application",
+      {
+        jobId,
+        firstName,
+        lastName,
+        email,
+        phone,
+        cvPath: path,
+      },
+      {
+        attachments: [
+          { filename: `${slugify(`${firstName}-${lastName}`)}.${ext}`, content: buffer },
+        ],
+        // Applications go to the jobs inbox when one is configured.
+        to: process.env.JOBS_NOTIFY_EMAIL,
+      },
+    ),
+    "auto-reply": sendAutoReply(email, firstName),
+  });
 
   return NextResponse.json({ ok: true });
 }

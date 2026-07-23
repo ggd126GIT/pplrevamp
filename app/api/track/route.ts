@@ -1,4 +1,5 @@
 import {
+  countryFromHeaders,
   deriveSource,
   deviceFromUserAgent,
   extractUtm,
@@ -51,7 +52,7 @@ export async function POST(request: Request) {
       source: deriveSource(host, utm?.utm_source),
       utm: (utm as Json) ?? null,
       device: deviceFromUserAgent(ua),
-      country: request.headers.get("x-vercel-ip-country"),
+      country: countryFromHeaders(request.headers),
       is_staging: Boolean(process.env.STAGING_PASSWORD),
     });
     if (error) console.error("[track] insert failed:", error.message);

@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  countryFromHeaders,
   isBot,
   deviceFromUserAgent,
   referrerHost,
@@ -148,5 +149,33 @@ describe("isUuid", () => {
     expect(isUuid("3f2504e0-4f89-41d3-9a0c-0305e82c3301")).toBe(true);
     expect(isUuid("nope")).toBe(false);
     expect(isUuid(null)).toBe(false);
+  });
+});
+
+describe("countryFromHeaders", () => {
+  const h = (init: Record<string, string>) => new Headers(init);
+
+  it("prefers the Vercel header", () => {
+    expect(
+      countryFromHeaders(h({ "x-vercel-ip-country": "PH", "cf-ipcountry": "US" })),
+    ).toBe("PH");
+  });
+
+  it("falls back to Cloudflare then Nginx GeoIP off Vercel", () => {
+    expect(countryFromHeaders(h({ "cf-ipcountry": "sg" }))).toBe("SG");
+    expect(countryFromHeaders(h({ "x-geoip-country": "AU" }))).toBe("AU");
+  });
+
+  it("returns null when no edge resolved a country", () => {
+    expect(countryFromHeaders(h({}))).toBeNull();
+    expect(countryFromHeaders(h({ "cf-ipcountry": "XX" }))).toBeNull();
+    expect(countryFromHeaders(h({ "cf-ipcountry": "T1" }))).toBeNull();
+    expect(countryFromHeaders(h({ "x-vercel-ip-country": "PHL" }))).toBeNull();
+  });
+
+  it("skips an unusable header and keeps looking", () => {
+    expect(
+      countryFromHeaders(h({ "x-vercel-ip-country": "XX", "cf-ipcountry": "PH" })),
+    ).toBe("PH");
   });
 });
