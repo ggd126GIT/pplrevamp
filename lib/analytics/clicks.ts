@@ -20,8 +20,12 @@ export function classifyClick(
   if (label) return { label };
 
   if (!href) return null;
-  if (href.startsWith("mailto:")) return { label: "email", meta: { href } };
-  if (href.startsWith("tel:")) return { label: "phone", meta: { href } };
+  // URI schemes are case-insensitive per RFC 3986, and markup sometimes has
+  // stray leading whitespace — normalise for the comparison only. `meta.href`
+  // below must stay the original, unmodified href.
+  const scheme = href.trim().toLowerCase();
+  if (scheme.startsWith("mailto:")) return { label: "email", meta: { href } };
+  if (scheme.startsWith("tel:")) return { label: "phone", meta: { href } };
 
   let url: URL;
   try {

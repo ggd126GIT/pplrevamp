@@ -23,44 +23,56 @@ export function InteractionTracker() {
     const timers = new Map<Element, number>();
 
     const fire = (el: Element, key: string) => {
-      seen.add(`${pathname}:${key}`);
-      queueEvent("section_view", key, pathname);
-      observer.unobserve(el);
-      const timer = timers.get(el);
-      if (timer) {
-        window.clearTimeout(timer);
-        timers.delete(el);
+      try {
+        seen.add(`${pathname}:${key}`);
+        queueEvent("section_view", key, pathname);
+        observer.unobserve(el);
+        const timer = timers.get(el);
+        if (timer) {
+          window.clearTimeout(timer);
+          timers.delete(el);
+        }
+      } catch {
+        // Analytics must never break the page. fire() also runs off a
+        // setTimeout (the dwell-time path), outside any surrounding
+        // try/catch, so it needs its own guard.
       }
     };
 
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          const el = entry.target;
-          const key = el.getAttribute("data-track-section");
-          if (!key) continue;
+          try {
+            const el = entry.target;
+            const key = el.getAttribute("data-track-section");
+            if (!key) continue;
 
-          if (seen.has(`${pathname}:${key}`)) {
-            observer.unobserve(el);
-            continue;
-          }
-
-          if (!entry.isIntersecting) {
-            const timer = timers.get(el);
-            if (timer) {
-              window.clearTimeout(timer);
-              timers.delete(el);
+            if (seen.has(`${pathname}:${key}`)) {
+              observer.unobserve(el);
+              continue;
             }
-            continue;
-          }
 
-          if (shouldFireSection(entry.intersectionRatio, 0)) {
-            fire(el, key);
-          } else if (!timers.has(el)) {
-            timers.set(
-              el,
-              window.setTimeout(() => fire(el, key), SECTION_DWELL_MS),
-            );
+            if (!entry.isIntersecting) {
+              const timer = timers.get(el);
+              if (timer) {
+                window.clearTimeout(timer);
+                timers.delete(el);
+              }
+              continue;
+            }
+
+            if (shouldFireSection(entry.intersectionRatio, 0)) {
+              fire(el, key);
+            } else if (!timers.has(el)) {
+              timers.set(
+                el,
+                window.setTimeout(() => fire(el, key), SECTION_DWELL_MS),
+              );
+            }
+          } catch {
+            // Analytics must never break the page. Per-entry, so one bad
+            // entry doesn't abort unobserve/timer cleanup for the rest of
+            // the batch.
           }
         }
       },

@@ -16,6 +16,15 @@ describe("classifyClick", () => {
       .toEqual({ label: "phone", meta: { href: "tel:+6321234567" } });
   });
 
+  it("classifies mailto and tel links regardless of scheme case or leading whitespace", () => {
+    expect(classifyClick({ href: "MAILTO:sales@pplsolutionsinc.com" }, HOST))
+      .toEqual({ label: "email", meta: { href: "MAILTO:sales@pplsolutionsinc.com" } });
+    expect(classifyClick({ href: "TEL:+6321234567" }, HOST))
+      .toEqual({ label: "phone", meta: { href: "TEL:+6321234567" } });
+    expect(classifyClick({ href: " mailto:sales@pplsolutionsinc.com" }, HOST))
+      .toEqual({ label: "email", meta: { href: " mailto:sales@pplsolutionsinc.com" } });
+  });
+
   it("classifies external links as outbound", () => {
     expect(classifyClick({ href: "https://www.linkedin.com/in/x" }, HOST))
       .toEqual({ label: "outbound", meta: { href: "https://www.linkedin.com/in/x" } });
