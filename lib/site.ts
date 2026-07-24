@@ -3,6 +3,8 @@ export const site = {
   shortName: ".ppl Solutions",
   tagline: "We are here to partner with you to achieve your business goals.",
   email: "sales@pplsolutionsinc.com",
+  phone: "+1.814.747.5335",
+  phoneHref: "tel:+18147475335",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.pplsolutionsinc.com",
   social: {
     linkedin: "https://www.linkedin.com/company/ppl-solutions-inc",

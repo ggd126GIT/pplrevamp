@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Mail, Clock, MessageSquareHeart } from "lucide-react";
+import { Mail, Phone, Clock, MessageSquareHeart } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
@@ -46,6 +46,20 @@ export default function ContactPage() {
                         className="text-charcoal/70 hover:text-purple"
                       >
                         {site.email}
+                      </a>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-purple/10 text-purple">
+                      <Phone className="size-5" />
+                    </span>
+                    <div>
+                      <p className="font-semibold text-ink">Phone</p>
+                      <a
+                        href={site.phoneHref}
+                        className="text-charcoal/70 hover:text-purple"
+                      >
+                        {site.phone}
                       </a>
                     </div>
                   </li>
