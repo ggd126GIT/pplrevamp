@@ -153,6 +153,7 @@ export type Database = {
       }
       page_views: {
         Row: {
+          city: string | null
           country: string | null
           created_at: string
           device: string | null
@@ -160,11 +161,13 @@ export type Database = {
           is_staging: boolean
           path: string
           referrer: string | null
+          region: string | null
           session_id: string
           source: string | null
           utm: Json | null
         }
         Insert: {
+          city?: string | null
           country?: string | null
           created_at?: string
           device?: string | null
@@ -172,11 +175,13 @@ export type Database = {
           is_staging?: boolean
           path: string
           referrer?: string | null
+          region?: string | null
           session_id: string
           source?: string | null
           utm?: Json | null
         }
         Update: {
+          city?: string | null
           country?: string | null
           created_at?: string
           device?: string | null
@@ -184,6 +189,7 @@ export type Database = {
           is_staging?: boolean
           path?: string
           referrer?: string | null
+          region?: string | null
           session_id?: string
           source?: string | null
           utm?: Json | null
@@ -267,6 +273,7 @@ export type Database = {
     }
     Functions: {
       analytics_summary: { Args: { days?: number }; Returns: Json }
+      geo_summary: { Args: { days?: number }; Returns: Json }
       section_reach: { Args: { days?: number }; Returns: Json }
     }
     Enums: {

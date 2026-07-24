@@ -13,6 +13,8 @@ export type AnalyticsSummary = {
 export type JourneyStep = {
   path: string;
   source: string | null;
+  country: string | null;
+  city: string | null;
   created_at: string;
 };
 
@@ -45,7 +47,7 @@ export async function getJourneys(
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("page_views")
-      .select("session_id, path, source, created_at")
+      .select("session_id, path, source, country, city, created_at")
       .in("session_id", sessionIds)
       .order("created_at", { ascending: true });
 
@@ -59,6 +61,8 @@ export async function getJourneys(
       steps.push({
         path: row.path,
         source: row.source,
+        country: row.country,
+        city: row.city,
         created_at: row.created_at,
       });
       journeys.set(row.session_id, steps);
@@ -119,4 +123,27 @@ export function reachRows(
       pct: sessions ? Math.min(100, Math.round((count / sessions) * 100)) : 0,
     };
   });
+}
+
+export type GeoSummary = {
+  countries: Array<{ country: string; views: number }>;
+  cities: Array<{ city: string; country: string | null; views: number }>;
+  services_countries: Array<{ country: string; views: number }>;
+  services_cities: Array<{ city: string; country: string | null; views: number }>;
+};
+
+/** Returns null on failure so a broken panel degrades instead of 500ing /admin. */
+export async function getGeoSummary(days: number): Promise<GeoSummary | null> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.rpc("geo_summary", { days });
+    if (error) {
+      console.error("[analytics] geo summary failed:", error.message);
+      return null;
+    }
+    return data as unknown as GeoSummary;
+  } catch (err) {
+    console.error("[analytics] geo summary threw:", err);
+    return null;
+  }
 }

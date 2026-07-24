@@ -64,11 +64,11 @@ const sections: { heading: string; body: Block[] }[] = [
   {
     heading: "Methods Utilized for Automated Access",
     body: [
-      "The Company uses third-party analytics services to analyze our web traffic data, facilitate in gauging our website’s engagement, and enhance our website services and features. This service employs cookies. The data produced is not disclosed to any other entity.",
+      "The Company uses its own first-party, cookieless analytics to understand website traffic and improve our services. We record an approximate location (country and city) derived from your IP address at the network edge; we do not store your IP address. No data is disclosed to any other entity, and no cookies are used for this purpose.",
       "The following web traffic data are processed for this purpose:",
       {
         list: [
-          "Your IP address",
+          "Your IP address (used transiently at the network edge to derive approximate location; not stored)",
           "The pages and internal links accessed on our site",
           "The date and time you visited the site",
           "Geolocation",

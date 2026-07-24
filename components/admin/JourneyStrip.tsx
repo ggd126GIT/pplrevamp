@@ -1,16 +1,19 @@
 import { ArrowRight } from "lucide-react";
 import type { JourneyStep } from "@/lib/analytics/queries";
+import { journeyLocation } from "@/lib/analytics/format";
 
 export function JourneyStrip({ steps }: { steps: JourneyStep[] }) {
   if (!steps.length) return null;
 
   const arrivedFrom = steps[0].source ?? "direct";
+  const location = journeyLocation(steps[0].city, steps[0].country);
 
   return (
     <details className="mt-4 border-t border-black/[0.06] pt-3">
       <summary className="cursor-pointer text-xs font-medium text-purple">
         Journey · {steps.length} page{steps.length === 1 ? "" : "s"} · via{" "}
         {arrivedFrom}
+        {location ? ` · 📍 ${location}` : ""}
       </summary>
       <ol className="mt-3 space-y-1.5">
         {steps.map((step, i) => (
