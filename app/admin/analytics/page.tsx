@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { cn } from "@/lib/cn";
-import { getAnalyticsSummary } from "@/lib/analytics/queries";
+import {
+  getAnalyticsSummary,
+  getSectionReach,
+  reachRows,
+} from "@/lib/analytics/queries";
+import { SECTION_REGISTRY } from "@/lib/analytics/sections";
 import { ViewsChart } from "@/components/admin/ViewsChart";
+import { SectionReachCard } from "@/components/admin/SectionReachCard";
 
 const RANGES = [7, 30, 90];
 
@@ -42,7 +48,10 @@ export default async function AnalyticsPage({
 }) {
   const { days: raw } = await searchParams;
   const days = RANGES.includes(Number(raw)) ? Number(raw) : 30;
-  const summary = await getAnalyticsSummary(days);
+  const [summary, reach] = await Promise.all([
+    getAnalyticsSummary(days),
+    getSectionReach(days),
+  ]);
 
   if (!summary) {
     return (
@@ -123,6 +132,44 @@ export default async function AnalyticsPage({
           }))}
         />
       </div>
+
+      {reach && (
+        <>
+          <h2 className="mt-12 text-lg font-semibold text-ink">Section reach</h2>
+          <p className="mt-1 text-sm text-charcoal/60">
+            Share of visits to each page that scrolled far enough to see the section.
+          </p>
+          <div className="mt-5 grid gap-5 lg:grid-cols-3">
+            {Object.entries(SECTION_REGISTRY).map(([path, defs]) => {
+              const sessions =
+                reach.sessions.find((s) => s.path === path)?.sessions ?? 0;
+              const reached = new Map(
+                reach.sections
+                  .filter((s) => s.path === path)
+                  .map((s) => [s.label, s.reached]),
+              );
+              return (
+                <SectionReachCard
+                  key={path}
+                  path={path}
+                  sessions={sessions}
+                  rows={reachRows(defs, sessions, reached)}
+                />
+              );
+            })}
+          </div>
+
+          <div className="mt-8">
+            <BreakdownCard
+              title="Clicks"
+              rows={reach.clicks.map((c) => ({
+                label: c.label,
+                views: c.clicks,
+              }))}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 }
