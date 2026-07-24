@@ -13,6 +13,8 @@ export type AnalyticsSummary = {
 export type JourneyStep = {
   path: string;
   source: string | null;
+  country: string | null;
+  city: string | null;
   created_at: string;
 };
 
@@ -45,7 +47,7 @@ export async function getJourneys(
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("page_views")
-      .select("session_id, path, source, created_at")
+      .select("session_id, path, source, country, city, created_at")
       .in("session_id", sessionIds)
       .order("created_at", { ascending: true });
 
@@ -59,6 +61,8 @@ export async function getJourneys(
       steps.push({
         path: row.path,
         source: row.source,
+        country: row.country,
+        city: row.city,
         created_at: row.created_at,
       });
       journeys.set(row.session_id, steps);
