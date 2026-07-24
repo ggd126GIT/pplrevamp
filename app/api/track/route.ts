@@ -44,6 +44,8 @@ export async function POST(request: Request) {
     const supabase = getServiceClient();
     if (!supabase) return noContent();
 
+    const geo = geoFromHeaders(request.headers);
+
     // IP and raw user-agent are intentionally never persisted.
     const { error } = await supabase.from("page_views").insert({
       session_id: sessionId,
@@ -52,7 +54,9 @@ export async function POST(request: Request) {
       source: deriveSource(host, utm?.utm_source),
       utm: (utm as Json) ?? null,
       device: deviceFromUserAgent(ua),
-      country: geoFromHeaders(request.headers).country,
+      country: geo.country,
+      region: geo.region,
+      city: geo.city,
       is_staging: Boolean(process.env.STAGING_PASSWORD),
     });
     if (error) console.error("[track] insert failed:", error.message);
