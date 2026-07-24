@@ -149,9 +149,10 @@ function cityFromHeaders(headers: Headers): string | null {
  */
 export function geoFromHeaders(headers: Headers): Geo {
   const region = firstHeader(headers, REGION_HEADERS);
+  // Vercel sends "00" for an unresolved subdivision — treat it as no region.
   return {
     country: countryFromHeaders(headers),
-    region: region ? region.slice(0, MAX_GEO) : null,
+    region: region && region !== "00" ? region.slice(0, MAX_GEO) : null,
     city: cityFromHeaders(headers),
   };
 }
