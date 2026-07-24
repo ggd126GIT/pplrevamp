@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
-  countryFromHeaders,
+  geoFromHeaders,
   isBot,
   deviceFromUserAgent,
   referrerHost,
@@ -153,31 +153,64 @@ describe("isUuid", () => {
   });
 });
 
-describe("countryFromHeaders", () => {
+describe("geoFromHeaders", () => {
   const h = (init: Record<string, string>) => new Headers(init);
 
-  it("prefers the Vercel header", () => {
+  it("reads the full Vercel edge set", () => {
     expect(
-      countryFromHeaders(h({ "x-vercel-ip-country": "PH", "cf-ipcountry": "US" })),
+      geoFromHeaders(
+        h({
+          "x-vercel-ip-country": "PH",
+          "x-vercel-ip-country-region": "MM",
+          "x-vercel-ip-city": "Makati",
+        }),
+      ),
+    ).toEqual({ country: "PH", region: "MM", city: "Makati" });
+  });
+
+  it("url-decodes a Vercel city", () => {
+    expect(
+      geoFromHeaders(h({ "x-vercel-ip-city": "San%20Francisco" })).city,
+    ).toBe("San Francisco");
+  });
+
+  it("keeps the raw city when decoding would throw", () => {
+    expect(geoFromHeaders(h({ "x-vercel-ip-city": "Bad%ZZname" })).city).toBe(
+      "Bad%ZZname",
+    );
+  });
+
+  it("falls back to Cloudflare then Nginx GeoIP for country, and skips XX", () => {
+    expect(geoFromHeaders(h({ "cf-ipcountry": "sg" })).country).toBe("SG");
+    expect(geoFromHeaders(h({ "x-geoip-country": "AU" })).country).toBe("AU");
+    expect(
+      geoFromHeaders(h({ "x-vercel-ip-country": "XX", "cf-ipcountry": "PH" }))
+        .country,
     ).toBe("PH");
   });
 
-  it("falls back to Cloudflare then Nginx GeoIP off Vercel", () => {
-    expect(countryFromHeaders(h({ "cf-ipcountry": "sg" }))).toBe("SG");
-    expect(countryFromHeaders(h({ "x-geoip-country": "AU" }))).toBe("AU");
-  });
-
-  it("returns null when no edge resolved a country", () => {
-    expect(countryFromHeaders(h({}))).toBeNull();
-    expect(countryFromHeaders(h({ "cf-ipcountry": "XX" }))).toBeNull();
-    expect(countryFromHeaders(h({ "cf-ipcountry": "T1" }))).toBeNull();
-    expect(countryFromHeaders(h({ "x-vercel-ip-country": "PHL" }))).toBeNull();
-  });
-
-  it("skips an unusable header and keeps looking", () => {
+  it("reads city and region from Nginx GeoIP headers", () => {
     expect(
-      countryFromHeaders(h({ "x-vercel-ip-country": "XX", "cf-ipcountry": "PH" })),
-    ).toBe("PH");
+      geoFromHeaders(h({ "x-geoip-city": "Cebu", "x-geoip-region": "CEB" })),
+    ).toMatchObject({ city: "Cebu", region: "CEB" });
+  });
+
+  it("rejects malformed country and returns nulls when nothing resolves", () => {
+    expect(geoFromHeaders(h({ "x-vercel-ip-country": "PHL" })).country).toBeNull();
+    expect(geoFromHeaders(h({ "cf-ipcountry": "T1" })).country).toBeNull();
+    expect(geoFromHeaders(h({}))).toEqual({
+      country: null,
+      region: null,
+      city: null,
+    });
+  });
+
+  it("caps overlong city and region at 128 chars", () => {
+    const g = geoFromHeaders(
+      h({ "x-vercel-ip-city": "a".repeat(200), "x-geoip-region": "b".repeat(200) }),
+    );
+    expect(g.city).toHaveLength(128);
+    expect(g.region).toHaveLength(128);
   });
 });
 

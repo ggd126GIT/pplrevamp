@@ -1,8 +1,8 @@
 import {
-  countryFromHeaders,
   deriveSource,
   deviceFromUserAgent,
   extractUtm,
+  geoFromHeaders,
   isBot,
   isUuid,
   referrerHost,
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
       source: deriveSource(host, utm?.utm_source),
       utm: (utm as Json) ?? null,
       device: deviceFromUserAgent(ua),
-      country: countryFromHeaders(request.headers),
+      country: geoFromHeaders(request.headers).country,
       is_staging: Boolean(process.env.STAGING_PASSWORD),
     });
     if (error) console.error("[track] insert failed:", error.message);

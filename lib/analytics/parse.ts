@@ -93,26 +93,67 @@ export function extractUtm(query: string): Record<string, string> | null {
   return Object.keys(utm).length ? utm : null;
 }
 
-/**
- * Two-letter country from whichever edge set it. `x-vercel-ip-country` only
- * exists on Vercel, so the VPS falls back to Cloudflare's `cf-ipcountry` or an
- * Nginx GeoIP header. Returns null when no edge resolved a country.
- */
-const COUNTRY_HEADERS = [
-  "x-vercel-ip-country",
-  "cf-ipcountry",
-  "x-geoip-country",
-];
+export type Geo = {
+  country: string | null;
+  region: string | null;
+  city: string | null;
+};
 
-export function countryFromHeaders(headers: Headers): string | null {
+const COUNTRY_HEADERS = ["x-vercel-ip-country", "cf-ipcountry", "x-geoip-country"];
+const REGION_HEADERS = ["x-vercel-ip-country-region", "x-geoip-region"];
+const CITY_HEADERS = ["x-vercel-ip-city", "cf-ipcity", "x-geoip-city"];
+const MAX_GEO = 128;
+
+/** First non-empty value across a header fallback chain, trimmed. */
+function firstHeader(headers: Headers, names: string[]): string | null {
+  for (const name of names) {
+    const value = headers.get(name)?.trim();
+    if (value) return value;
+  }
+  return null;
+}
+
+/**
+ * Country is validated per header, not just first-non-empty: Cloudflare sends
+ * XX for anonymised clients and T1 for Tor, and we want the next edge's value
+ * when that happens.
+ */
+function countryFromHeaders(headers: Headers): string | null {
   for (const name of COUNTRY_HEADERS) {
     const value = headers.get(name)?.trim().toUpperCase();
-    // Cloudflare sends XX for anonymised/unknown clients, T1 for Tor.
     if (value && /^[A-Z]{2}$/.test(value) && value !== "XX" && value !== "T1") {
       return value;
     }
   }
   return null;
+}
+
+/** URL-decoded, trimmed, length-capped city. Decode failure keeps the raw value. */
+function cityFromHeaders(headers: Headers): string | null {
+  const raw = firstHeader(headers, CITY_HEADERS);
+  if (!raw) return null;
+  let city = raw;
+  try {
+    city = decodeURIComponent(raw);
+  } catch {
+    // Malformed percent-encoding: fall back to the raw header value.
+  }
+  city = city.trim();
+  return city ? city.slice(0, MAX_GEO) : null;
+}
+
+/**
+ * Country, region, and city from whichever edge set them. `x-vercel-ip-*` exist
+ * only on Vercel; a VPS falls back to Cloudflare or Nginx GeoIP headers. Any
+ * field is null when no edge resolved it. Never throws.
+ */
+export function geoFromHeaders(headers: Headers): Geo {
+  const region = firstHeader(headers, REGION_HEADERS);
+  return {
+    country: countryFromHeaders(headers),
+    region: region ? region.slice(0, MAX_GEO) : null,
+    city: cityFromHeaders(headers),
+  };
 }
 
 const UUID_RE =
