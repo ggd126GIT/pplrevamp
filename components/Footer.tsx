@@ -60,6 +60,14 @@ export function Footer() {
                 <FacebookIcon className="size-5" />
               </a>
             </div>
+            <p className="mt-6 text-sm">
+              <a
+                href={site.phoneHref}
+                className="text-white/70 transition-colors hover:text-gold"
+              >
+                {site.phone}
+              </a>
+            </p>
           </div>
 
           <div>
