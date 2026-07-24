@@ -7,7 +7,7 @@ import {
   reachRows,
   type GeoSummary,
 } from "@/lib/analytics/queries";
-import { cityLabel } from "@/lib/analytics/format";
+import { placeLabel } from "@/lib/analytics/format";
 import { SECTION_REGISTRY } from "@/lib/analytics/sections";
 import { ViewsChart } from "@/components/admin/ViewsChart";
 import { SectionReachCard } from "@/components/admin/SectionReachCard";
@@ -63,7 +63,7 @@ function LocationCards({
       <BreakdownCard
         title="Top cities"
         rows={cities.map((c) => ({
-          label: cityLabel(c.city, c.country),
+          label: placeLabel(c.city, c.country),
           views: c.views,
         }))}
       />

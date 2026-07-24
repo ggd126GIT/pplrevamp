@@ -4,9 +4,9 @@
  * request parsing rather than presentation.
  */
 
-/** "Makati, PH" — or just the city when country is unknown. */
-export function cityLabel(city: string, country: string | null): string {
-  return country ? `${city}, ${country}` : city;
+/** "Makati, PH" — value plus country code, or just the value when country is unknown. */
+export function placeLabel(place: string, country: string | null): string {
+  return country ? `${place}, ${country}` : place;
 }
 
 /**
@@ -17,7 +17,7 @@ export function journeyLocation(
   city: string | null,
   country: string | null,
 ): string | null {
-  if (city) return cityLabel(city, country);
+  if (city) return placeLabel(city, country);
   if (country) return country;
   return null;
 }
