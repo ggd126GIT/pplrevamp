@@ -3,8 +3,11 @@ import { cn } from "@/lib/cn";
 import {
   getAnalyticsSummary,
   getSectionReach,
+  getGeoSummary,
   reachRows,
+  type GeoSummary,
 } from "@/lib/analytics/queries";
+import { countryFlag, cityLabel } from "@/lib/analytics/format";
 import { SECTION_REGISTRY } from "@/lib/analytics/sections";
 import { ViewsChart } from "@/components/admin/ViewsChart";
 import { SectionReachCard } from "@/components/admin/SectionReachCard";
@@ -41,6 +44,33 @@ function BreakdownCard({
   );
 }
 
+function LocationCards({
+  countries,
+  cities,
+}: {
+  countries: GeoSummary["countries"];
+  cities: GeoSummary["cities"];
+}) {
+  return (
+    <div className="grid gap-5 lg:grid-cols-2">
+      <BreakdownCard
+        title="Top countries"
+        rows={countries.map((c) => ({
+          label: `${countryFlag(c.country)} ${c.country}`.trim(),
+          views: c.views,
+        }))}
+      />
+      <BreakdownCard
+        title="Top cities"
+        rows={cities.map((c) => ({
+          label: cityLabel(c.city, c.country),
+          views: c.views,
+        }))}
+      />
+    </div>
+  );
+}
+
 export default async function AnalyticsPage({
   searchParams,
 }: {
@@ -48,9 +78,10 @@ export default async function AnalyticsPage({
 }) {
   const { days: raw } = await searchParams;
   const days = RANGES.includes(Number(raw)) ? Number(raw) : 30;
-  const [summary, reach] = await Promise.all([
+  const [summary, reach, geo] = await Promise.all([
     getAnalyticsSummary(days),
     getSectionReach(days),
+    getGeoSummary(days),
   ]);
 
   if (!summary) {
@@ -166,6 +197,31 @@ export default async function AnalyticsPage({
                 label: c.label,
                 views: c.clicks,
               }))}
+            />
+          </div>
+        </>
+      )}
+
+      {geo && (
+        <>
+          <h2 className="mt-12 text-lg font-semibold text-ink">Top locations</h2>
+          <p className="mt-1 text-sm text-charcoal/60">
+            Where visitors accessed the site from. Unknown = no location resolved.
+          </p>
+          <div className="mt-5">
+            <LocationCards countries={geo.countries} cities={geo.cities} />
+          </div>
+
+          <h2 className="mt-12 text-lg font-semibold text-ink">
+            Services — top locations
+          </h2>
+          <p className="mt-1 text-sm text-charcoal/60">
+            Where visitors to the services page came from.
+          </p>
+          <div className="mt-5">
+            <LocationCards
+              countries={geo.services_countries}
+              cities={geo.services_cities}
             />
           </div>
         </>
