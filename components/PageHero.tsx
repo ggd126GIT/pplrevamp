@@ -15,7 +15,7 @@ export function PageHero({
   image?: string;
 }) {
   return (
-    <section className="relative overflow-hidden bg-ink text-white">
+    <section data-track-section="hero" className="relative overflow-hidden bg-ink text-white">
       {image && (
         <>
           {/* Background photo — dimmed so the gradients and copy stay dominant. */}

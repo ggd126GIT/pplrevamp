@@ -8,6 +8,7 @@ import {
   sanitizePath,
   extractUtm,
   isUuid,
+  normalizeEventBatch,
 } from "@/lib/analytics/parse";
 
 const CHROME =
@@ -177,5 +178,72 @@ describe("countryFromHeaders", () => {
     expect(
       countryFromHeaders(h({ "x-vercel-ip-country": "XX", "cf-ipcountry": "PH" })),
     ).toBe("PH");
+  });
+});
+
+describe("normalizeEventBatch", () => {
+  const SID = "3f2504e0-4f89-41d3-9a0c-0305e82c3301";
+  const ok = { type: "section_view", label: "threeds", path: "/" };
+
+  it("accepts a valid batch", () => {
+    expect(normalizeEventBatch({ sessionId: SID, events: [ok] })).toEqual({
+      sessionId: SID,
+      events: [{ type: "section_view", label: "threeds", path: "/", meta: null }],
+    });
+  });
+
+  it("rejects a batch with a bad session id or no events", () => {
+    expect(normalizeEventBatch({ sessionId: "nope", events: [ok] })).toBeNull();
+    expect(normalizeEventBatch({ sessionId: SID, events: [] })).toBeNull();
+    expect(normalizeEventBatch(null)).toBeNull();
+    expect(normalizeEventBatch({ sessionId: SID })).toBeNull();
+  });
+
+  it("drops invalid events but keeps the valid remainder", () => {
+    const batch = normalizeEventBatch({
+      sessionId: SID,
+      events: [
+        { type: "bogus", label: "x", path: "/" },
+        { type: "click", label: "", path: "/" },
+        { type: "click", label: "cta", path: "not-a-path" },
+        ok,
+      ],
+    });
+    expect(batch?.events).toHaveLength(1);
+    expect(batch?.events[0].label).toBe("threeds");
+  });
+
+  it("caps the batch at 50 events", () => {
+    const many = Array.from({ length: 80 }, () => ok);
+    expect(normalizeEventBatch({ sessionId: SID, events: many })?.events)
+      .toHaveLength(50);
+  });
+
+  it("trims and caps label length", () => {
+    const batch = normalizeEventBatch({
+      sessionId: SID,
+      events: [{ ...ok, label: "  " + "a".repeat(200) + "  " }],
+    });
+    expect(batch?.events[0].label).toHaveLength(64);
+  });
+
+  it("keeps a meta href, capped, and ignores other meta keys", () => {
+    const batch = normalizeEventBatch({
+      sessionId: SID,
+      events: [
+        { type: "click", label: "outbound", path: "/", meta: { href: "https://x.com/a", evil: "y" } },
+        { type: "click", label: "outbound", path: "/", meta: { href: "h".repeat(900) } },
+      ],
+    });
+    expect(batch?.events[0].meta).toEqual({ href: "https://x.com/a" });
+    expect(batch?.events[1].meta?.href).toHaveLength(512);
+  });
+
+  it("strips query strings from event paths", () => {
+    const batch = normalizeEventBatch({
+      sessionId: SID,
+      events: [{ ...ok, path: "/services?utm_source=li" }],
+    });
+    expect(batch?.events[0].path).toBe("/services");
   });
 });

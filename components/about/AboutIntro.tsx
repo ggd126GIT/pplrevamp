@@ -255,7 +255,7 @@ export function AboutIntro() {
   return (
     <>
       {/* Static fallback — mobile / reduced motion */}
-      <section className="about-intro-static bg-white py-20 sm:py-28">
+      <section data-track-section="intro" className="about-intro-static bg-white py-20 sm:py-28">
         <Container size="wide">
           <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
             <div className="space-y-6 text-lg leading-relaxed text-charcoal/80">
@@ -287,7 +287,7 @@ export function AboutIntro() {
           which changes that node's real DOM parent; without this wrapper React
           would try to removeChild the stage from a parent it no longer belongs
           to on route change, throwing "NotFoundError: not a child of this node". */}
-      <div className="about-intro-stage-wrap">
+      <div data-track-section="intro" className="about-intro-stage-wrap">
       <div
         ref={root}
         className="about-intro-stage min-h-screen w-full items-start overflow-hidden bg-white"

@@ -9,6 +9,7 @@ export function ThreeEs() {
   return (
     <section
       id="threees"
+      data-track-section="threees"
       className="relative z-20 -mt-24 rounded-t-[3rem] bg-mist py-20 shadow-[0_-30px_70px_-25px_rgba(147,82,161,0.35)] sm:py-28"
     >
       <Container size="wide">

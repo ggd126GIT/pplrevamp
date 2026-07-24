@@ -6,7 +6,7 @@ import { Magnetic } from "@/components/anim/Magnetic";
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-ink text-white">
+    <section data-track-section="hero" className="relative overflow-hidden bg-ink text-white">
       {/* Background photo — sits beneath the gradients at low opacity so it
           reads as a subtle texture rather than a full-bleed image. */}
       <Image

@@ -115,6 +115,7 @@ Staging shares the **same Supabase project** as production, so real test data is
 
 - Delete tagged inquiries: `delete from inquiries where payload->>'_staging' = 'true';`
 - Delete staging page-views: `delete from page_views where is_staging = true;`
+- Delete staging interaction-events: `delete from events where is_staging = true;`
 - **Applications have no jsonb tag** — delete test applications by `created_at`, and clear the
   orphaned CV files from the private `cvs` storage bucket too.
 - Verify no test blog posts / jobs remain published (e.g. `hello-blog-test-1`,

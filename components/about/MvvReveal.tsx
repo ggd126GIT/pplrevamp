@@ -216,6 +216,7 @@ export function MvvReveal() {
   return (
     <section
       ref={root}
+      data-track-section="mvv"
       className="mvv-anim relative overflow-hidden bg-white pb-20 pt-8 sm:pb-28 sm:pt-10"
     >
       <Container size="wide">

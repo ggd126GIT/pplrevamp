@@ -121,3 +121,60 @@ const UUID_RE =
 export function isUuid(v: unknown): v is string {
   return typeof v === "string" && UUID_RE.test(v);
 }
+
+export type EventType = "section_view" | "click";
+
+export type NormalizedEvent = {
+  type: EventType;
+  label: string;
+  path: string;
+  meta: { href: string } | null;
+};
+
+const EVENT_TYPES: EventType[] = ["section_view", "click"];
+const MAX_EVENTS_PER_BATCH = 50;
+const MAX_LABEL = 64;
+const MAX_HREF = 512;
+
+/**
+ * Validates a client event batch. Individual bad events are dropped rather than
+ * rejecting the batch — one malformed entry must not lose a whole page's data.
+ * Returns null only when nothing usable survives.
+ */
+export function normalizeEventBatch(
+  body: unknown,
+): { sessionId: string; events: NormalizedEvent[] } | null {
+  if (!body || typeof body !== "object") return null;
+  const { sessionId, events } = body as Record<string, unknown>;
+  if (!isUuid(sessionId) || !Array.isArray(events)) return null;
+
+  const normalized: NormalizedEvent[] = [];
+  for (const raw of events.slice(0, MAX_EVENTS_PER_BATCH)) {
+    if (!raw || typeof raw !== "object") continue;
+    const { type, label, path, meta } = raw as Record<string, unknown>;
+
+    if (!EVENT_TYPES.includes(type as EventType)) continue;
+
+    const cleanLabel =
+      typeof label === "string" ? label.trim().slice(0, MAX_LABEL) : "";
+    if (!cleanLabel) continue;
+
+    const cleanPath = sanitizePath(path);
+    if (!cleanPath) continue;
+
+    // Only href survives from meta; anything else the client sends is ignored.
+    const href =
+      meta && typeof meta === "object"
+        ? (meta as Record<string, unknown>).href
+        : undefined;
+
+    normalized.push({
+      type: type as EventType,
+      label: cleanLabel,
+      path: cleanPath,
+      meta: typeof href === "string" && href ? { href: href.slice(0, MAX_HREF) } : null,
+    });
+  }
+
+  return normalized.length ? { sessionId, events: normalized } : null;
+}

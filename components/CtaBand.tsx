@@ -38,7 +38,7 @@ export function CtaBand({
   }, []);
 
   return (
-    <section className="bg-white py-16">
+    <section data-track-section="cta" className="bg-white py-16">
       <Container size="wide">
         <div
           ref={ref}
@@ -84,7 +84,7 @@ export function CtaBand({
               <PplText>{subtitle}</PplText>
             </p>
             <div className="mt-8 flex justify-center">
-              <Button href={buttonHref} size="lg">
+              <Button href={buttonHref} size="lg" data-track-click="cta-band">
                 {buttonLabel}
               </Button>
             </div>
