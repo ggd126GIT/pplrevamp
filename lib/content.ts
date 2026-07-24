@@ -252,7 +252,7 @@ export const faqs: { question: string; answer: string[] }[] = [
   {
     question: "Why choose .ppl Solutions, Inc.?",
     answer: [
-      "We have the right people. Our leaders have more than 60 years of combined experience in the BPO industry, earning in-depth knowledge of the offshoring and outsourcing industry by working with local and global teams.",
+      "We have the right people. Our leaders have more than 100 years of combined experience in the BPO industry, earning in-depth knowledge of the offshoring and outsourcing industry by working with local and global teams.",
       ".ppl Solutions, Inc. is also the place for driven and outstanding people. Our professionals work collaboratively and thrive in our culture of success — in an environment that promotes well-being and shares the ideology that “Happy .ppl create Happy Customers”.",
     ],
   },
