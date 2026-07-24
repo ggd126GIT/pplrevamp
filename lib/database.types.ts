@@ -273,6 +273,7 @@ export type Database = {
     }
     Functions: {
       analytics_summary: { Args: { days?: number }; Returns: Json }
+      geo_summary: { Args: { days?: number }; Returns: Json }
       section_reach: { Args: { days?: number }; Returns: Json }
     }
     Enums: {

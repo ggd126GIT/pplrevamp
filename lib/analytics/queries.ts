@@ -120,3 +120,26 @@ export function reachRows(
     };
   });
 }
+
+export type GeoSummary = {
+  countries: Array<{ country: string; views: number }>;
+  cities: Array<{ city: string; country: string | null; views: number }>;
+  services_countries: Array<{ country: string; views: number }>;
+  services_cities: Array<{ city: string; country: string | null; views: number }>;
+};
+
+/** Returns null on failure so a broken panel degrades instead of 500ing /admin. */
+export async function getGeoSummary(days: number): Promise<GeoSummary | null> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.rpc("geo_summary", { days });
+    if (error) {
+      console.error("[analytics] geo summary failed:", error.message);
+      return null;
+    }
+    return data as unknown as GeoSummary;
+  } catch (err) {
+    console.error("[analytics] geo summary threw:", err);
+    return null;
+  }
+}
