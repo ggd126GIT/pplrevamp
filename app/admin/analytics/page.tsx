@@ -206,7 +206,7 @@ export default async function AnalyticsPage({
         <>
           <h2 className="mt-12 text-lg font-semibold text-ink">Top locations</h2>
           <p className="mt-1 text-sm text-charcoal/60">
-            Where visitors accessed the site from. Unknown = no location resolved.
+            Where views came from. Unknown = no location resolved.
           </p>
           <div className="mt-5">
             <LocationCards countries={geo.countries} cities={geo.cities} />
@@ -216,7 +216,7 @@ export default async function AnalyticsPage({
             Services — top locations
           </h2>
           <p className="mt-1 text-sm text-charcoal/60">
-            Where visitors to the services page came from.
+            Where views of the services page came from.
           </p>
           <div className="mt-5">
             <LocationCards
