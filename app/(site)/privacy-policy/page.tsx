@@ -68,7 +68,7 @@ const sections: { heading: string; body: Block[] }[] = [
       "The following web traffic data are processed for this purpose:",
       {
         list: [
-          "Your IP address",
+          "Your IP address (used transiently at the network edge to derive approximate location; not stored)",
           "The pages and internal links accessed on our site",
           "The date and time you visited the site",
           "Geolocation",
