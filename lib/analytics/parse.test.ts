@@ -212,6 +212,14 @@ describe("geoFromHeaders", () => {
     expect(g.city).toHaveLength(128);
     expect(g.region).toHaveLength(128);
   });
+
+  it("rejects Vercel's '00' unknown-region sentinel as null", () => {
+    expect(
+      geoFromHeaders(
+        h({ "x-vercel-ip-country": "PH", "x-vercel-ip-country-region": "00" }),
+      ).region,
+    ).toBeNull();
+  });
 });
 
 describe("normalizeEventBatch", () => {
