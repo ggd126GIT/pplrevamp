@@ -7,7 +7,7 @@ import {
   reachRows,
   type GeoSummary,
 } from "@/lib/analytics/queries";
-import { countryFlag, cityLabel } from "@/lib/analytics/format";
+import { cityLabel } from "@/lib/analytics/format";
 import { SECTION_REGISTRY } from "@/lib/analytics/sections";
 import { ViewsChart } from "@/components/admin/ViewsChart";
 import { SectionReachCard } from "@/components/admin/SectionReachCard";
@@ -56,7 +56,7 @@ function LocationCards({
       <BreakdownCard
         title="Top countries"
         rows={countries.map((c) => ({
-          label: `${countryFlag(c.country)} ${c.country}`.trim(),
+          label: c.country,
           views: c.views,
         }))}
       />

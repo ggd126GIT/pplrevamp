@@ -4,16 +4,6 @@
  * request parsing rather than presentation.
  */
 
-/** Regional-indicator flag emoji for a two-letter ISO code, or "" for anything else. */
-export function countryFlag(code: string | null): string {
-  if (!code || !/^[A-Z]{2}$/.test(code)) return "";
-  const BASE = 0x1f1e6; // regional indicator 'A'
-  return String.fromCodePoint(
-    BASE + code.charCodeAt(0) - 65,
-    BASE + code.charCodeAt(1) - 65,
-  );
-}
-
 /** "Makati, PH" — or just the city when country is unknown. */
 export function cityLabel(city: string, country: string | null): string {
   return country ? `${city}, ${country}` : city;

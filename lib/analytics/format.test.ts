@@ -1,18 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countryFlag, cityLabel, journeyLocation } from "@/lib/analytics/format";
-
-describe("countryFlag", () => {
-  it("maps a two-letter code to its regional-indicator emoji", () => {
-    expect(countryFlag("PH")).toBe("🇵🇭");
-    expect(countryFlag("US")).toBe("🇺🇸");
-  });
-
-  it("returns empty string for null, the Unknown sentinel, or non-codes", () => {
-    expect(countryFlag(null)).toBe("");
-    expect(countryFlag("Unknown")).toBe("");
-    expect(countryFlag("PHL")).toBe("");
-  });
-});
+import { cityLabel, journeyLocation } from "@/lib/analytics/format";
 
 describe("cityLabel", () => {
   it("appends the country code when present", () => {
