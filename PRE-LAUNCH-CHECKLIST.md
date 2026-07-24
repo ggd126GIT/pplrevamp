@@ -68,6 +68,12 @@ production site if not changed at cutover.
 - **Still needed on the VPS:** the country only populates if something upstream sets one of those
   headers — either Cloudflare proxying (orange cloud) or the Nginx GeoIP module writing
   `x-geoip-country`. Without either, `country` stays null (harmless; nothing displays it yet).
+- **City/region precision is Vercel-only for free.** `geoFromHeaders()` also reads
+  `x-vercel-ip-city` / `x-vercel-ip-country-region` (Vercel) and `cf-ipcity` / `x-geoip-*`
+  (Cloudflare Enterprise / Nginx GeoIP). Cloudflare's **free** tier gives country only — a VPS
+  needs an Nginx MaxMind GeoIP module to populate `city`. Without it, `city`/`region` stay null
+  (shown as "Unknown"; harmless). No new cutover cleanup line is needed — `city`/`region` live on
+  `page_views`, already covered by `delete from page_views where is_staging = true`.
 
 ---
 
