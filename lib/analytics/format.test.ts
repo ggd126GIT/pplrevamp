@@ -1,13 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { cityLabel, journeyLocation } from "@/lib/analytics/format";
+import { placeLabel, journeyLocation } from "@/lib/analytics/format";
 
-describe("cityLabel", () => {
+describe("placeLabel", () => {
   it("appends the country code when present", () => {
-    expect(cityLabel("Makati", "PH")).toBe("Makati, PH");
+    expect(placeLabel("Makati", "PH")).toBe("Makati, PH");
   });
 
-  it("returns the bare city when country is null", () => {
-    expect(cityLabel("Makati", null)).toBe("Makati");
+  it("returns the bare value when country is null", () => {
+    expect(placeLabel("Makati", null)).toBe("Makati");
   });
 });
 

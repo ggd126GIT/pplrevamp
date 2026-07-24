@@ -7,7 +7,7 @@ import {
   reachRows,
   type GeoSummary,
 } from "@/lib/analytics/queries";
-import { cityLabel } from "@/lib/analytics/format";
+import { placeLabel } from "@/lib/analytics/format";
 import { SECTION_REGISTRY } from "@/lib/analytics/sections";
 import { ViewsChart } from "@/components/admin/ViewsChart";
 import { SectionReachCard } from "@/components/admin/SectionReachCard";
@@ -46,13 +46,15 @@ function BreakdownCard({
 
 function LocationCards({
   countries,
+  regions,
   cities,
 }: {
   countries: GeoSummary["countries"];
+  regions: GeoSummary["regions"];
   cities: GeoSummary["cities"];
 }) {
   return (
-    <div className="grid gap-5 lg:grid-cols-2">
+    <div className="grid gap-5 lg:grid-cols-3">
       <BreakdownCard
         title="Top countries"
         rows={countries.map((c) => ({
@@ -61,9 +63,16 @@ function LocationCards({
         }))}
       />
       <BreakdownCard
+        title="Top regions"
+        rows={regions.map((r) => ({
+          label: placeLabel(r.region, r.country),
+          views: r.views,
+        }))}
+      />
+      <BreakdownCard
         title="Top cities"
         rows={cities.map((c) => ({
-          label: cityLabel(c.city, c.country),
+          label: placeLabel(c.city, c.country),
           views: c.views,
         }))}
       />
@@ -209,7 +218,11 @@ export default async function AnalyticsPage({
             Where views came from. Unknown = no location resolved.
           </p>
           <div className="mt-5">
-            <LocationCards countries={geo.countries} cities={geo.cities} />
+            <LocationCards
+              countries={geo.countries}
+              regions={geo.regions}
+              cities={geo.cities}
+            />
           </div>
 
           <h2 className="mt-12 text-lg font-semibold text-ink">
@@ -221,6 +234,7 @@ export default async function AnalyticsPage({
           <div className="mt-5">
             <LocationCards
               countries={geo.services_countries}
+              regions={geo.services_regions}
               cities={geo.services_cities}
             />
           </div>

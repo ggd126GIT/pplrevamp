@@ -127,8 +127,10 @@ export function reachRows(
 
 export type GeoSummary = {
   countries: Array<{ country: string; views: number }>;
+  regions: Array<{ region: string; country: string | null; views: number }>;
   cities: Array<{ city: string; country: string | null; views: number }>;
   services_countries: Array<{ country: string; views: number }>;
+  services_regions: Array<{ region: string; country: string | null; views: number }>;
   services_cities: Array<{ city: string; country: string | null; views: number }>;
 };
 
