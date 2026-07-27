@@ -23,14 +23,13 @@ export const primaryNav: NavItem[] = [
   { label: "About", href: "/about" },
   { label: "Services", href: "/services" },
   { label: "Careers", href: "/careers" },
-  { label: "Blog", href: "/blog" },
   {
     label: "Resources",
     href: "/resources/how-to-get-started",
     children: [
       { label: "How to Get Started", href: "/resources/how-to-get-started" },
       { label: "FAQ", href: "/resources/faq" },
-      { label: "Referral Program", href: "/resources/referral" },
+      { label: "Blog", href: "/blog" },
     ],
   },
   { label: "Contact", href: "/contact" },

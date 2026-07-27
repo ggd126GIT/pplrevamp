@@ -15,7 +15,7 @@ export function ThreeEs() {
       <Container size="wide">
         <SectionHeading
           eyebrow="The .ppl Advantage"
-          title="The 3E's of partnering with .ppl"
+          title="The 3Es of partnering with .ppl"
           subtitle="Why leading businesses choose offshoring and outsourcing with us."
         />
       </Container>

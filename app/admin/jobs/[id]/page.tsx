@@ -56,6 +56,7 @@ export default async function EditJobPage({
             location: job.location,
             work_mode: job.work_mode,
             status: job.status,
+            short_description: job.short_description,
             description: docToText(job.description),
           }}
         />

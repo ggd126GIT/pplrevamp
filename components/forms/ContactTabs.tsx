@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 import { ContactForm } from "./ContactForm";
 import { DiscoveryForm } from "./DiscoveryForm";
@@ -12,6 +12,16 @@ const tabs = [
 
 export function ContactTabs() {
   const [active, setActive] = useState<(typeof tabs)[number]["key"]>("message");
+
+  // A "Schedule a Consultation" CTA elsewhere links to /contact#consultation —
+  // open the consultation tab and bring the form into view when we land there.
+  useEffect(() => {
+    if (window.location.hash !== "#consultation") return;
+    setActive("consultation");
+    document
+      .getElementById("form")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   return (
     <div className="rounded-3xl border border-black/[0.06] bg-white p-6 shadow-sm sm:p-8">

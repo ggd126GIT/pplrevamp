@@ -13,6 +13,8 @@ function parse(formData: FormData) {
   const slugInput = String(formData.get("slug") ?? "").trim();
   const department = String(formData.get("department") ?? "").trim() || null;
   const location = String(formData.get("location") ?? "").trim() || null;
+  const short_description =
+    String(formData.get("short_description") ?? "").trim() || null;
   const workModeRaw = String(formData.get("work_mode") ?? "").trim();
   const work_mode = ["onsite", "wfh", "hybrid"].includes(workModeRaw)
     ? workModeRaw
@@ -21,7 +23,16 @@ function parse(formData: FormData) {
     String(formData.get("status") ?? "open") === "closed" ? "closed" : "open";
   const description = textToDoc(String(formData.get("description") ?? ""));
   const slug = slugify(slugInput || title);
-  return { title, slug, department, location, work_mode, status, description };
+  return {
+    title,
+    slug,
+    department,
+    location,
+    short_description,
+    work_mode,
+    status,
+    description,
+  };
 }
 
 export async function createJob(

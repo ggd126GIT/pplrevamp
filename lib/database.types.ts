@@ -119,6 +119,7 @@ export type Database = {
           description: Json | null
           id: string
           location: string | null
+          short_description: string | null
           slug: string
           status: string
           title: string
@@ -131,6 +132,7 @@ export type Database = {
           description?: Json | null
           id?: string
           location?: string | null
+          short_description?: string | null
           slug: string
           status?: string
           title: string
@@ -143,6 +145,7 @@ export type Database = {
           description?: Json | null
           id?: string
           location?: string | null
+          short_description?: string | null
           slug?: string
           status?: string
           title?: string

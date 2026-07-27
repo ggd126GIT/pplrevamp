@@ -20,7 +20,7 @@ const COMET = [
 const COMET_STEP = 8; // degrees between trail dots
 
 /**
- * Motion-safe desktop presentation of the 3E's advantage: a pinned section that
+ * Motion-safe desktop presentation of the 3Es advantage: a pinned section that
  * scrubs through Economical -> Efficient & Effective -> Evolving & Elevating.
  * Image sits on the RIGHT (mirroring the 3Ds stage). Per phase:
  *   1. The photo shows desaturated (grayscale) while a gradient ring — drawn by

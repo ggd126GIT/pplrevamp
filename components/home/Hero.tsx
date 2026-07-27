@@ -72,7 +72,7 @@ export function Hero() {
               className="mt-9 flex flex-wrap items-center gap-4"
             >
               <Magnetic>
-                <Button href="/contact" size="lg">
+                <Button href="/contact#consultation" size="lg">
                   Schedule a Consultation Today
                 </Button>
               </Magnetic>

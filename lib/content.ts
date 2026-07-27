@@ -63,7 +63,7 @@ export const threeDs: {
   },
 ];
 
-/** The .ppl Advantage — 3E's. */
+/** The .ppl Advantage — 3Es. */
 export const threeEs: {
   key: string;
   title: string;
@@ -124,10 +124,10 @@ export const frontOffice: {
       "Focused on resolving technical issues related to a product or service encountered by customers.",
   },
   {
-    title: "Sales & Telemarketing",
+    title: "Sales and Lead Generation",
     icon: PhoneCall,
     blurb:
-      "Existing or potential customers are contacted to sell a product or service.",
+      "Identify, engage, and qualify potential customers to build a healthy pipeline and drive sales.",
   },
   {
     title: "Billing & Collections",

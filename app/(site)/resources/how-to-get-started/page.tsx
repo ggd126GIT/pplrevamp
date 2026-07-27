@@ -176,6 +176,7 @@ export default function HowToGetStartedPage() {
         title="Ready to begin your journey?"
         subtitle="Let's start with Discovery. Reach out and our .ppl will guide you."
         buttonLabel="Schedule a Consultation"
+        buttonHref="/contact#consultation"
       />
     </>
   );

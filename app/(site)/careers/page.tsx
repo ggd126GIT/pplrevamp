@@ -25,7 +25,7 @@ export default async function CareersPage() {
   const supabase = createPublicClient();
   const { data: jobs } = await supabase
     .from("jobs")
-    .select("id, slug, title, department, location, work_mode")
+    .select("id, slug, title, department, location, work_mode, short_description")
     .eq("status", "open")
     .order("created_at", { ascending: false });
 
@@ -61,6 +61,11 @@ export default async function CareersPage() {
                   className="group flex flex-col rounded-2xl border border-black/[0.06] bg-white p-7 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-purple/10"
                 >
                   <h2 className="text-xl font-bold text-ink">{job.title}</h2>
+                  {job.short_description && (
+                    <p className="mt-3 text-sm leading-relaxed text-charcoal/70">
+                      {job.short_description}
+                    </p>
+                  )}
                   <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-charcoal/70">
                     {job.department && (
                       <span className="inline-flex items-center gap-1.5">
