@@ -31,7 +31,7 @@ export const SECTION_REGISTRY: Record<string, SectionDef[]> = {
     { key: "hero", label: "Hero" },
     { key: "industries", label: "Industry expertise" },
     { key: "threeds", label: "3Ds framework" },
-    { key: "threees", label: "3E's advantage" },
+    { key: "threees", label: "3Es advantage" },
     { key: "cta", label: "Closing CTA" },
   ],
   "/about": [

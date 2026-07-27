@@ -40,7 +40,7 @@ export default function AboutPage() {
       <CtaBand
         title="Ready to work with amazing .ppl?"
         subtitle="Let's talk about how we can power your business strategies."
-        buttonLabel="Get in Touch"
+        buttonLabel="Ask us"
       />
     </>
   );

@@ -31,6 +31,7 @@ export default function ServicesPage() {
         title="Let's design your solution"
         subtitle="Tell us about your goals and our .ppl will map the right services for you."
         buttonLabel="Schedule a Consultation"
+        buttonHref="/contact#consultation"
       />
     </>
   );

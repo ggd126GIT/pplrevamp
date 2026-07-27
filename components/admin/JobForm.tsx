@@ -18,6 +18,7 @@ type Values = {
   location?: string | null;
   work_mode?: string | null;
   status?: string;
+  short_description?: string | null;
   description?: string;
 };
 
@@ -84,6 +85,16 @@ export function JobForm({
           </Select>
         </Field>
       </div>
+
+      <Field label="Short description" htmlFor="short_description">
+        <Textarea
+          id="short_description"
+          name="short_description"
+          defaultValue={values.short_description ?? ""}
+          className="min-h-20"
+          placeholder="One or two sentences shown on the careers listing card."
+        />
+      </Field>
 
       <Field label="Description" htmlFor="description">
         <Textarea

@@ -109,7 +109,7 @@ export function Header() {
         </nav>
 
         <div className="hidden lg:block">
-          <Button href="/contact" size="sm">
+          <Button href="/contact#consultation" size="sm">
             Schedule a Consultation
           </Button>
         </div>
@@ -163,7 +163,7 @@ export function Header() {
             </div>
           ))}
           <div className="pt-3">
-            <Button href="/contact" className="w-full">
+            <Button href="/contact#consultation" className="w-full">
               Schedule a Consultation
             </Button>
           </div>
