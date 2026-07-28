@@ -289,7 +289,7 @@ export function ThreeEsPinned() {
               {threeEs.map((item, i) => (
                 <div key={item.key} data-copy className="absolute inset-0">
                   <span className="text-sm font-semibold uppercase tracking-[0.18em] text-purple">
-                    The 3E&apos;s · 0{i + 1}
+                    The 3Es · 0{i + 1}
                   </span>
                   <h3
                     data-title
