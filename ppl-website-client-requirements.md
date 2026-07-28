@@ -109,7 +109,7 @@ The About page features all five leaders. We have proper bios for **Joey Lianko*
 like your real wording — one or two sentences each is plenty:
 
 - **Rafael Dayalo** — Head of Technology
-- **Roschelle Del Rosario** — Head of Workforce Management & Business Intelligence
+- **Apol Macaroyo** — Sr. Manager for Sales and Client Success
 - **Karen Clarissa Porras** — Project Manager
 
 ### C2 — Referral programme conditions — legal sign-off

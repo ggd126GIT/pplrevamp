@@ -131,7 +131,7 @@ Staging shares the **same Supabase project** as production, so real test data is
 
 ## 9. Content still outstanding (🟡)
 
-- **Leadership bios** — real short bios for **Rafael, Roschelle, Karen** in
+- **Leadership bios** — real short bios for **Rafael, Apol, Karen** in
   `components/about/LeadershipShowcase.tsx` (still placeholder copy). LinkedIn URLs for all 5 are done.
 - **Referral program** — CLAUDE.md flags the conditions text as "being checked by lawyer" —
   confirm final copy before launch.

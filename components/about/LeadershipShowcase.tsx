@@ -40,7 +40,7 @@ type Leader = {
 
 // Array order == default left-to-right arrangement. Index 2 (Joey) starts
 // centred.
-// Bios for Rafael / Roschelle / Karen are PLACEHOLDER copy — edit to taste.
+// Bios for Rafael / Apol / Karen are PLACEHOLDER copy — edit to taste.
 const leaders: Leader[] = [
   {
     name: "Rafael Dayalo",
@@ -64,11 +64,11 @@ const leaders: Leader[] = [
     linkedin: "https://www.linkedin.com/in/joeylianko",
   },
   {
-    name: "Roschelle Del Rosario",
-    title: "Head of Workforce Management & Business Intelligence",
-    photo: "/team/roschelle-del-rosario.png",
-    bio: "Heads workforce management and business intelligence, turning data into the staffing and performance decisions that drive client results.",
-    linkedin: "https://www.linkedin.com/in/roschelle-del-rosario-lssmbb-b2a7a828",
+    name: "Apol Macaroyo",
+    title: "Sr. Manager for Sales and Client Success",
+    photo: "/team/apolpng.png",
+    bio: "Leads sales and client success — building the partnerships that bring new clients on board and keeping them supported well beyond day one.",
+    linkedin: "https://www.linkedin.com/in/lizzell-macaroyo-19b5b3149",
   },
   {
     name: "Karen Clarissa Porras",
