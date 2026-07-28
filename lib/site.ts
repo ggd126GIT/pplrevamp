@@ -7,8 +7,11 @@ export const site = {
   phoneHref: "tel:+18147475335",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.pplsolutionsinc.com",
   social: {
-    linkedin: "https://www.linkedin.com/company/ppl-solutions-inc",
-    facebook: "https://www.facebook.com/pplsolutionsinc",
+    linkedin: "https://www.linkedin.com/company/ppl-solutions-inc/",
+    // Profile-style URL — the vanity handle /pplsolutionsinc is NOT ours.
+    // Tracking param (?mibextid=) intentionally stripped.
+    facebook:
+      "https://www.facebook.com/people/PPL-SOLUTIONS-INC/61550929425450/",
   },
 };
 
@@ -38,5 +41,7 @@ export const primaryNav: NavItem[] = [
 export const footerLinks: NavItem[] = [
   { label: "Services", href: "/services" },
   { label: "Contact Us", href: "/contact" },
+  { label: "FAQ", href: "/resources/faq" },
+  { label: "Blog", href: "/blog" },
   { label: "Privacy Policy", href: "/privacy-policy" },
 ];
