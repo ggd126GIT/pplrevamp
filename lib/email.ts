@@ -1,7 +1,34 @@
 import { Resend } from "resend";
+import { isEmail } from "./forms";
 
 const FROM = process.env.RESEND_FROM ?? ".ppl Solutions <onboarding@resend.dev>";
-const NOTIFY = process.env.CONTACT_NOTIFY_EMAIL;
+
+/**
+ * Split a notification env var into a recipient list.
+ *
+ * `CONTACT_NOTIFY_EMAIL` / `JOBS_NOTIFY_EMAIL` accept one address or several
+ * separated by commas (or semicolons, which is what Outlook produces when you
+ * copy a distribution list), so extra .ppl staff can be looped in without a
+ * code change.
+ *
+ * Malformed entries are dropped rather than passed through: Resend rejects the
+ * entire send if any single recipient is invalid, so one typo in the env var
+ * would otherwise cost every notification instead of just its own.
+ */
+export function parseRecipients(raw: string | undefined | null): string[] {
+  if (!raw) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const part of raw.split(/[,;]/)) {
+    const address = part.trim();
+    if (!address || !isEmail(address)) continue;
+    const key = address.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(address);
+  }
+  return out;
+}
 
 function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY;
@@ -49,7 +76,11 @@ export type EmailAttachment = { filename: string; content: Buffer };
 
 export type NotificationOptions = {
   attachments?: EmailAttachment[];
-  /** Override recipient (e.g. a jobs@ inbox). Falls back to CONTACT_NOTIFY_EMAIL. */
+  /**
+   * Override recipients (e.g. a jobs@ inbox). One address or a
+   * comma/semicolon-separated list. Falls back to CONTACT_NOTIFY_EMAIL when
+   * unset or when it contains no usable address.
+   */
   to?: string;
 };
 
@@ -60,14 +91,22 @@ export async function sendInternalNotification(
   { attachments, to }: NotificationOptions = {},
 ): Promise<void> {
   const resend = getResend();
-  const recipient = to?.trim() || NOTIFY;
-  if (!resend || !recipient) {
-    console.warn("[email] skipped internal notification (Resend not configured)");
+  const override = parseRecipients(to);
+  const recipients =
+    override.length > 0
+      ? override
+      : parseRecipients(process.env.CONTACT_NOTIFY_EMAIL);
+  if (!resend || recipients.length === 0) {
+    console.warn(
+      resend
+        ? "[email] skipped internal notification (no valid recipient configured)"
+        : "[email] skipped internal notification (Resend not configured)",
+    );
     return;
   }
   await resend.emails.send({
     from: FROM,
-    to: recipient,
+    to: recipients,
     subject,
     html: shell(
       subject,
