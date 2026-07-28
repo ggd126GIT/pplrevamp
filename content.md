@@ -32,7 +32,7 @@ Our design phase takes your business to the next level. Maximize your business s
 **Deliver**
 Delivery is when all the plannings are put into action. Beyond just executing the plan, it's crucial to set up a system of monitoring and control, establish a feedback mechanism, and work collaboratively to ensure that service levels are met.
 
-### The .ppl Advantage — 3E's
+### The .ppl Advantage — 3Es
 
 **Economical**
 Outsourcing or Offshoring targets the labor cost effectiveness of your business. It can result in savings that you are able to use to fuel other pursuits of your company. Hiring top caliber employees requires investment in a number of corporate functions including talent acquisition, human resources, training and facilities. You also need to develop your marketing campaigns to build your brand and attract the right talent. Retaining talent is also a multi-faceted approach that needs to be activated consistently to keep your leaders and their teams of professionals engaged and grow holistically. You need to find the right partner that will handle hiring and retaining top talents which allows you to focus on core business functions.
@@ -69,13 +69,31 @@ Joey has over 20 years of experience on his belt for Customer Service, Operation
 Tina is our resident expert for spotting exceptional talent. She is a seasoned HR professional with 20 years of solid experience in human resources and strategic talent acquisition. Tina has managed end-to-end recruitment cycle for corporate and outsourced environment to improve efficiency and effective delivery. Driven to expand her knowledge, Tina relentlessly pursued other HR areas of expertise such as training and development, employee relations, compensation and benefits, labor laws, performance management, and talent management systems. She is also equipped in handling global mobility and transitioning activities for both local and foreign talents.
 
 ### Mission
-We are committed to help our clients achieve their business goals by harnessing the power of human connections – collaborating with our professionals to deliver excellent results. Our commitment to our clients is that we will listen and provide the right support. To our people, we strive for positive employee experience that opens opportunities while having fun.
+Our mission is to help our clients achieve their business goals by harnessing the power of human connection, partnering with our professionals to deliver excellent results. We are committed to listening to our clients and providing the right support at every stage of their journey.
+
+For our people, we cultivate a positive and engaging workplace that creates opportunities for growth, success, and enjoyment.
 
 ### Vision
-We envision .ppl Solutions, Inc. to be the partner of choice for clients looking for market-leading solutions and employees seeking to develop their careers. We believe that everyone has the right to be supported – our people and our clients – and we want that experience to be easy, convenient, cost-effective, and fully satisfied.
+We envision .ppl Solutions, Inc. as the partner of choice for organizations seeking market-leading solutions and for professionals aspiring to grow meaningful careers.
 
-### Values
-We are a people-centric company, committed to build a positive work environment for everyone. We respect our people and their ideas. We enable collaboration and inspire our people to innovate. We are customer-focused, always driven to excel and provide outstanding results. We are also agile, able to respond to the ever-changing needs of our clients. We lead by example and with empathy. We teach our people to always act with integrity.
+We believe everyone deserves the right support to succeed — both our clients and our people, and we strive to make that experience seamless, accessible, and rewarding.
+
+### I.C.A.R.E Core Values
+
+**I — Integrity**
+We uphold honesty, accountability, and strong moral principles in everything we do.
+
+**C — Collaboration**
+We believe great results come from working together.
+
+**A — Agility**
+We remain flexible and responsive in a constantly evolving business environment.
+
+**R — Respect**
+We are a people-centric organization that values every person.
+
+**E — Excellence Through Empathy**
+We strive for outstanding results while leading by example with empathy, humility, and care.
 
 ---
 

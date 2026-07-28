@@ -287,7 +287,8 @@ html {
   .mvv-anim [data-reveal],
   .mvv-anim [data-icon],
   .mvv-anim [data-type],
-  .mvv-anim [data-body] {
+  .mvv-anim [data-body],
+  .mvv-anim [data-icare] {
     opacity: 0;
   }
 }

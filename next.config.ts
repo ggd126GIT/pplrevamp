@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Pin the workspace root. Without this, Turbopack walks up looking for a
+  // lockfile and can root itself outside the repo (e.g. a stray package.json
+  // in the home directory), which breaks module resolution at runtime.
+  turbopack: {
+    root: __dirname,
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "*.supabase.co", pathname: "/storage/v1/object/public/**" },
