@@ -229,46 +229,53 @@ export const faqs: { question: string; answer: string[] }[] = [
   {
     question: "Why the Philippines?",
     answer: [
-      "The Philippines is an amazing country with equally outstanding people. Filipinos are known around the world for their friendliness, positive attitude, and being service oriented. They smile at the face of challenges and quickly adapt to situations. They are avid learners and English is almost second nature to them. They are a nation of proud and skilled people.",
-      "Filipinos are a perfect choice for your business. They are hospitable, agile, driven, adaptable, and empathic. They care for your business as they care for their families. Choose the Philippines and experience working with game changers and a culture of always striving for excellence.",
+      "The strongest resource of the Philippines has always been its people and its culture. Nothing comes close to the Filipino work attitude and hospitality — friendly, with seemingly endless smiles regardless of the situation, which makes every Filipino a perfect fit for the customer service industry.",
+      "Filipinos are also well known for their resiliency and adaptability, able to quickly adjust to any condition, and are deeply empathetic.",
+      "As a people, we pride ourselves on prioritizing education. With English as the primary medium of instruction, it has become a second language to many — making the Philippines one of the Asian countries with the highest English proficiency levels.",
+      "Overall, while great communication skills are a definite advantage, it is the customer orientation, resiliency, and adaptability that each Filipino brings that are the real game changers.",
     ],
   },
   {
-    question: "Offshoring and Outsourcing — what's the difference?",
+    question: "What is the difference between offshoring and outsourcing?",
     answer: [
-      "Although they share a common goal of employing the best talent to push for your business agenda, offshoring and outsourcing are two different strategies.",
-      "Offshoring: You select your own qualified team members based on your skill requirements and job description. Team members follow your processes and procedures, and you have direct control over their performance and compensation.",
-      "Outsourcing: Team members are hired by your provider based on agreed qualifications and skills. The provider may recommend enhancements to your processes, and manages staff performance and productivity to ensure committed client service levels are met.",
+      "Both involve employing highly skilled and qualified staff to fill roles within a separate business or for another client. The difference lies in who selects the team and who manages it.",
+      "Offshoring — You select your own qualified team members based on your skill requirements and job description. Team members follow your processes and procedures, and you have direct control over their performance and compensation.",
+      "Outsourcing — Team members are hired by your provider based on the qualifications and skills agreed upon to perform the outsourced work. The provider may recommend enhancements to your processes and procedures, and manages staff performance and productivity to ensure that committed client service levels are met.",
     ],
   },
   {
     question: "What are the benefits of offshoring and outsourcing?",
     answer: [
-      "Economical — Typically, it results in staff cost reduction. The cost of labor for outsourced or offshored talent is lower compared to your onshore people.",
-      "Efficient and Effective — It may lead to workflow improvements that promote efficiency and productivity. Policies and processes are constantly reviewed to improve customer experience and satisfaction.",
-      "Evolving and Elevating — As you expand, new capabilities are required to support your optimized process and drive profitability. Outsourcing / Offshoring lets you scale as you reach different levels of strategic partnership and elevate your operating models.",
+      "We think of them as the three Es of outsourcing.",
+      "Economical — An outright reduction in staffing cost. Outsourcing typically costs less than having the same jobs performed onshore, where labor costs are higher, before accounting for the other overheads of employing internally for those roles. Retaining high-quality talent also delivers long-term savings, as employees become more productive with skill and experience.",
+      "Efficient and Effective — Workflow improvements that increase efficiency and productivity. Offshoring and outsourcing often lead to recommended process and policy enhancements, intended not just to improve processing time but to improve overall customer experience and satisfaction.",
+      "Evolving and Elevating — Building new capabilities that support optimized process capability and increased business profitability, and reaching new levels of strategic partnership that push for the expansion of current and new business — creating and elevating standards of operating business models.",
     ],
   },
   {
     question: "Why choose .ppl Solutions, Inc.?",
     answer: [
-      "We have the right people. Our leaders have more than 100 years of combined experience in the BPO industry, earning in-depth knowledge of the offshoring and outsourcing industry by working with local and global teams.",
-      ".ppl Solutions, Inc. is also the place for driven and outstanding people. Our professionals work collaboratively and thrive in our culture of success — in an environment that promotes well-being and shares the ideology that “Happy .ppl create Happy Customers”.",
+      "Executives with more than 100 years of combined experience in Business Process Outsourcing — self-made leaders who have risen from the ranks, with firsthand experience of outsourcing and offshoring global teams.",
+      "We are driven by employees who work in a collaborative environment that fosters the ideology that “Happy .ppl create Happy Customers”.",
+      "We promote a culture of winning and success built on trust, excellence and .ppl — uncompromising in our pursuit of a well-balanced lifestyle of professional and personal achievement, and overall well-being.",
     ],
   },
   {
-    question: "Who will help me design my solution and build my team?",
+    question: "Who will help me build my team?",
     answer: [
-      ".ppl Solutions, Inc.'s TRI-ACE Team is a special action team that will assist you in transitioning your business. This team is composed of process analysts and managers, business consultants, and other experts with extensive experience that ensures an effective and winning ramp.",
-      "We will listen to your needs and partner with you every step of the way — from mapping processes and creating integrated frameworks to designing robust and dynamic business solutions — until project implementation. Whether you partner with us for an outsourcing or offshoring model, our TRI-ACE team will be there to transform your business.",
+      ".ppl Solutions, Inc.'s TRI-ACE Team is a specially designed team that will help you transition your business, whether you take the offshoring or the outsourcing path. It is composed of process analysts, project managers, business consultants and other experts who can guide you from the beginning to the end of the transition process.",
+      "Each member has extensive experience in successfully managing a variety of project launches, equipping them with the skills that ensure an effective and winning ramp.",
+      "From the initial touch point, to mapping simple and complex processes, creating strategic yet integrated frameworks and building robust and dynamic business solutions, we work in partnership with your team until project implementation.",
+      "Depending on the partnership model you choose to have with .ppl Solutions, Inc., the TRI-ACE Team will help ensure a successful journey of transforming your business.",
     ],
   },
   {
     question: "How do I get started?",
     answer: [
-      "We make a commitment to provide a solution and create our framework of success for your outsourcing / offshoring journey through our 3Ds framework — Discover, Design, and Deliver.",
-      "Discovery is the first step to understanding you and aligning with your business operations. Our ACE (assess, calibrate, and establish baseline) approach to Discovery assures a robust partnership and project implementation.",
-      "Business modelling and process mapping are done in the Design phase to ensure the right solutions are implemented and rolled out effectively. Delivery is the last step — once the ideal solution is finalized and approved, we transition and integrate with your business, working with transparency and integrity to successfully deliver solutions.",
+      "At .ppl Solutions, Inc., we made a commitment to our clients to design a framework of success for their outsourcing and offshoring journey — our 3Ds framework of Discover, Design, and Deliver.",
+      "Discovery is the first step in understanding the client and aligning with the business operations. Calibration, scoping and in-depth analysis lead to invaluable breakthroughs that prevent pitfalls and failures. Our ACE (assess, calibrate and establish baseline) approach to Discovery assures an outstanding partnership and project implementation.",
+      "During Design, business modelling and process mapping are some of the critical activities we do to ensure the right solutions are implemented and rolled out.",
+      "Once the ideal solution has been finalized, we will transition, ramp and integrate your business into the .ppl Solutions, Inc. way of doing business.",
     ],
   },
 ];
