@@ -375,6 +375,11 @@ html {
   width: max-content;
   animation: ppl-marquee 32s linear infinite;
 }
+/* Hold the loop while the pointer is over the strip, so a visitor can read an
+   industry instead of tracking a moving target. */
+.marquee-mask:hover .marquee-track {
+  animation-play-state: paused;
+}
 .marquee-mask {
   overflow: hidden;
   mask-image: linear-gradient(
