@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useRef } from "react";
-import { Target, Eye, Heart } from "lucide-react";
+import { Target, Eye } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 
@@ -9,27 +9,61 @@ const mvv = [
   {
     title: "Mission",
     icon: Target,
-    body: "We are committed to help our clients achieve their business goals by harnessing the power of human connections — collaborating with our professionals to deliver excellent results. We will listen and provide the right support. To our people, we strive for a positive employee experience that opens opportunities while having fun.",
+    body: [
+      "Our mission is to help our clients achieve their business goals by harnessing the power of human connection, partnering with our professionals to deliver excellent results. We are committed to listening to our clients and providing the right support at every stage of their journey.",
+      "For our people, we cultivate a positive and engaging workplace that creates opportunities for growth, success, and enjoyment.",
+    ],
   },
   {
     title: "Vision",
     icon: Eye,
-    body: "We envision .ppl Solutions, Inc. to be the partner of choice for clients looking for market-leading solutions and employees seeking to develop their careers. We believe that everyone has the right to be supported — and we want that experience to be easy, convenient, cost-effective, and fully satisfied.",
+    body: [
+      "We envision .ppl Solutions, Inc. as the partner of choice for organizations seeking market-leading solutions and for professionals aspiring to grow meaningful careers.",
+      "We believe everyone deserves the right support to succeed — both our clients and our people, and we strive to make that experience seamless, accessible, and rewarding.",
+    ],
+  },
+];
+
+/** The I.C.A.R.E acronym — one tile per letter, in order. */
+const icare = [
+  {
+    letter: "I",
+    title: "Integrity",
+    body: "We uphold honesty, accountability, and strong moral principles in everything we do.",
   },
   {
-    title: "Values",
-    icon: Heart,
-    body: "We are a people-centric company committed to a positive work environment for everyone. We respect our people and their ideas, enable collaboration, and inspire innovation. We are customer-focused and agile, always driven to excel. We lead by example and with empathy, and we teach our people to always act with integrity.",
+    letter: "C",
+    title: "Collaboration",
+    body: "We believe great results come from working together.",
+  },
+  {
+    letter: "A",
+    title: "Agility",
+    body: "We remain flexible and responsive in a constantly evolving business environment.",
+  },
+  {
+    letter: "R",
+    title: "Respect",
+    body: "We are a people-centric organization that values every person.",
+  },
+  {
+    letter: "E",
+    title: "Excellence Through Empathy",
+    body: "We strive for outstanding results while leading by example with empathy, humility, and care.",
   },
 ];
 
 /**
  * Mission / Vision / Values — a light scroll-reveal. As the section enters (just
- * as the leadership panel scrolls away above it), the heading rises in and three
+ * as the leadership panel scrolls away above it), the heading rises in and two
  * dashed comet trails drop from above each card, each delivering its icon —
- * Target, Eye, Heart — which pops in on landing. The title then TYPES out beside
- * its icon, and the body rises in. Echoes the AboutIntro "+" trail; the whole
- * block also drifts up slightly for a parallax feel.
+ * Target, Eye — which pops in on landing. The title then TYPES out beside its
+ * icon, and the body rises in. Echoes the AboutIntro "+" trail; the whole block
+ * also drifts up slightly for a parallax feel.
+ *
+ * The I.C.A.R.E core values follow as their own band beneath the two cards: the
+ * five letter tiles stagger in left-to-right once the cards have settled, so the
+ * acronym reads as a sequence rather than appearing all at once.
  *
  * The sequence replays every time the section is scrolled back into view
  * (toggleActions restart / reset). Not pinned, so it's clear of the ScrollTrigger
@@ -55,6 +89,7 @@ export function MvvReveal() {
         const carets = gsap.utils.toArray<HTMLElement>("[data-caret]", el);
         const bodies = gsap.utils.toArray<HTMLElement>("[data-body]", el);
         const heads = gsap.utils.toArray<HTMLElement>("[data-reveal]", el);
+        const icareTiles = gsap.utils.toArray<HTMLElement>("[data-icare]", el);
         const chars = titles.map((t) =>
           gsap.utils.toArray<HTMLElement>("[data-ch]", t),
         );
@@ -108,6 +143,7 @@ export function MvvReveal() {
         gsap.set(carets, { autoAlpha: 0 });
         gsap.set(heads, { autoAlpha: 0, y: 26 });
         gsap.set(bodies, { autoAlpha: 0, y: 20 });
+        gsap.set(icareTiles, { autoAlpha: 0, y: 24 });
 
         const typers = anchors.map(() => ({ n: 0 }));
 
@@ -188,6 +224,20 @@ export function MvvReveal() {
             );
         });
 
+        // I.C.A.R.E tiles stagger in left-to-right once the last card has all
+        // but settled (slight overlap reads better than a dead gap).
+        tl.to(
+          icareTiles,
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.45,
+            stagger: 0.09,
+            ease: "power2.out",
+          },
+          0.35 + (anchors.length - 1) * 0.62 + 1.1,
+        );
+
         // Subtle upward parallax across the whole block.
         gsap.fromTo(
           el.querySelector("[data-parallax]"),
@@ -237,7 +287,7 @@ export function MvvReveal() {
           </div>
 
           <div data-stage className="relative mt-14">
-            <div className="grid gap-7 pt-16 md:grid-cols-3">
+            <div className="mx-auto grid max-w-4xl gap-7 pt-16 md:grid-cols-2">
               {mvv.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -265,12 +315,13 @@ export function MvvReveal() {
                         <span data-caret className="ty-caret" aria-hidden />
                       </h3>
                     </div>
-                    <p
-                      data-body
-                      className="mt-5 leading-relaxed text-charcoal/75"
-                    >
-                      {item.body}
-                    </p>
+                    <div data-body className="mt-5 space-y-4">
+                      {item.body.map((para) => (
+                        <p key={para} className="leading-relaxed text-charcoal/75">
+                          {para}
+                        </p>
+                      ))}
+                    </div>
                   </div>
                 );
               })}
@@ -300,6 +351,48 @@ export function MvvReveal() {
                 />
               </Fragment>
             ))}
+          </div>
+
+          {/* I.C.A.R.E core values — the acronym gets its own band so each
+              letter reads as part of a sequence. */}
+          <div className="mt-20">
+            <div className="mx-auto max-w-3xl text-center">
+              <span
+                data-icare
+                className="mb-3 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-purple"
+              >
+                Our core values
+              </span>
+              <h3
+                data-icare
+                className="text-balance font-display text-3xl font-bold leading-tight text-ink sm:text-4xl"
+              >
+                I.C.A.R.E
+              </h3>
+            </div>
+
+            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+              {icare.map((value) => (
+                <div
+                  key={value.letter}
+                  data-icare
+                  className="rounded-2xl border border-black/[0.06] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-purple/10"
+                >
+                  <span
+                    aria-hidden
+                    className="inline-flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-grad-from to-grad-to font-display text-xl font-extrabold text-white shadow-lg shadow-purple/20"
+                  >
+                    {value.letter}
+                  </span>
+                  <h4 className="mt-5 font-display text-lg font-bold leading-snug text-ink">
+                    {value.title}
+                  </h4>
+                  <p className="mt-2 text-sm leading-relaxed text-charcoal/75">
+                    {value.body}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </Container>
