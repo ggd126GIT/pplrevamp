@@ -221,40 +221,78 @@ export function LeadershipShowcase() {
       {/* ---------- Mobile / reduced-motion: stacked cards ---------- */}
       <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:hidden">
         {leaders.map((leader) => (
-          <div
-            key={leader.name}
-            className="flex flex-col items-center rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-black/5"
-          >
-            <div className="relative size-28 overflow-hidden rounded-full bg-gradient-to-br from-grad-from/10 to-grad-to/10 ring-1 ring-black/5">
-              <Image
-                src={leader.photo}
-                alt={`Portrait of ${leader.name}`}
-                fill
-                sizes="112px"
-                className="object-cover object-top"
-              />
-            </div>
-            <h3 className="mt-4 text-lg font-bold text-ink">{leader.name}</h3>
-            <p className="mt-1 text-sm font-medium text-purple">
-              {leader.title}
-            </p>
-            <div className="mt-3 w-full space-y-2 text-sm leading-relaxed text-charcoal/70">
-              {leader.bio.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-            </div>
-            <a
-              href={leader.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${leader.name} on LinkedIn`}
-              className="mt-4 inline-flex size-9 items-center justify-center rounded-full bg-purple/10 text-purple transition-colors hover:bg-purple hover:text-white"
-            >
-              <LinkedInIcon className="size-4" />
-            </a>
-          </div>
+          <MobileLeaderCard key={leader.name} leader={leader} />
         ))}
       </div>
     </>
+  );
+}
+
+/** Roughly the number of characters that fit in the clamped 4 lines on the
+ *  narrowest card, below which collapsing would hide nothing. */
+const CLAMP_BUDGET = 150;
+
+/**
+ * One leader on mobile. The full bios run 500-750 characters, which stacked
+ * five deep made the section about 3,400px of scrolling — so the bio is
+ * clamped to four lines behind a Read more toggle. Photo, name, title and the
+ * LinkedIn link stay visible, keeping the team scannable at a glance.
+ */
+function MobileLeaderCard({ leader }: { leader: Leader }) {
+  const [expanded, setExpanded] = useState(false);
+  const bioId = `bio-${leader.name.toLowerCase().replace(/\W+/g, "-")}`;
+
+  // A short single-paragraph bio fits inside the clamp, so a toggle that
+  // reveals nothing would just be noise.
+  const collapsible = leader.bio.length > 1 || leader.bio[0].length > CLAMP_BUDGET;
+
+  return (
+    <div className="flex flex-col items-center rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-black/5">
+      <div className="relative size-28 overflow-hidden rounded-full bg-gradient-to-br from-grad-from/10 to-grad-to/10 ring-1 ring-black/5">
+        <Image
+          src={leader.photo}
+          alt={`Portrait of ${leader.name}`}
+          fill
+          sizes="112px"
+          className="object-cover object-top"
+        />
+      </div>
+      <h3 className="mt-4 text-lg font-bold text-ink">{leader.name}</h3>
+      <p className="mt-1 text-sm font-medium text-purple">{leader.title}</p>
+
+      <div
+        id={bioId}
+        className="mt-3 w-full space-y-2 text-sm leading-relaxed text-charcoal/70"
+      >
+        {collapsible && !expanded ? (
+          <p className="line-clamp-4">{leader.bio[0]}</p>
+        ) : (
+          leader.bio.map((paragraph) => <p key={paragraph}>{paragraph}</p>)
+        )}
+      </div>
+
+      {collapsible && (
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
+          aria-controls={bioId}
+          className="mt-2 py-1.5 text-sm font-semibold text-purple hover:underline"
+        >
+          {expanded ? "Read less" : "Read more"}
+          <span className="sr-only"> about {leader.name}</span>
+        </button>
+      )}
+
+      <a
+        href={leader.linkedin}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`${leader.name} on LinkedIn`}
+        className="mt-4 inline-flex size-9 items-center justify-center rounded-full bg-purple/10 text-purple transition-colors hover:bg-purple hover:text-white"
+      >
+        <LinkedInIcon className="size-4" />
+      </a>
+    </div>
   );
 }
