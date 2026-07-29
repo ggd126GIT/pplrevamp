@@ -34,8 +34,29 @@ production site if not changed at cutover.
   auto-replies bounce; only the signup inbox receives mail.
 - Plan: verify the **`send.pplsolutionsinc.com` subdomain** in Resend (isolates from the
   company's Microsoft 365 root mail), add records in Cloudflare as **DNS-only (grey cloud)**.
-  Cloudflare's Name field is relative — enter `send`, not the FQDN. The subdomain does not
-  exist yet = clean slate. **Do not touch root MX/SPF** (M365).
+  Cloudflare's Name field is relative — enter the Name column verbatim, not the FQDN. The
+  subdomain does not exist yet = clean slate. **Do not touch root MX/SPF** (M365).
+
+### The three records (pulled from the Resend API 2026-07-30, domain id `edd36e88-a1c4-4770-aa24-7c2430e28453`)
+
+Add these in the **`pplsolutionsinc.com`** Cloudflare zone. Names are relative to that zone —
+enter them exactly as shown; Cloudflare appends the domain itself.
+
+| Type | Name | Value | Priority |
+|---|---|---|---|
+| TXT | `resend._domainkey.send` | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDXuuFuB8+PI8tfU0JmpdXQqj4hu1AKENYxIpZB6SPdvnbXzXiVf47HyJXvR/AqDi5s4wswMhP0WW3L4XMtAGZl5Y93fTMhlLFlyosCXdW5QS+Lu5QAwREqUNTOd3LwfyccBuZ5zKLSnAAJDzR9kSBg5e7NaWlPyKbFTQu6HXZZpQIDAQAB` | — |
+| MX | `send.send` | `feedback-smtp.ap-northeast-1.amazonses.com` | 10 |
+| TXT | `send.send` | `v=spf1 include:amazonses.com ~all` | — |
+
+All three are under `send.` — **none of them touch the root MX or SPF**, so Microsoft 365 mail is
+unaffected. After adding, click Verify in Resend; status goes `not_started` → `pending` → `verified`.
+
+Then, and only then: set `RESEND_FROM` to an address `@send.pplsolutionsinc.com`,
+`CONTACT_NOTIFY_EMAIL=sales@pplsolutionsinc.com`, `JOBS_NOTIFY_EMAIL=careers@pplsolutionsinc.com`.
+
+**Separately confirm the `sales@` and `careers@` mailboxes actually exist in the Microsoft 365
+tenant** — Resend verification only fixes *sending*; if the destination mailbox doesn't exist the
+mail bounces at the recipient end instead.
 
 ---
 
