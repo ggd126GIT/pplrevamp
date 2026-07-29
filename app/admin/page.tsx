@@ -10,6 +10,8 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { getAnalyticsSummary } from "@/lib/analytics/queries";
 import { ActivityFeed } from "@/components/admin/ActivityFeed";
+import { EmailRouting } from "@/components/admin/EmailRouting";
+import { describeEmailRouting } from "@/lib/email";
 
 async function count(table: "posts" | "jobs" | "applications" | "inquiries") {
   const supabase = await createClient();
@@ -105,6 +107,10 @@ export default async function AdminDashboard() {
         >
           New job
         </Link>
+      </div>
+
+      <div className="mt-10 max-w-2xl">
+        <EmailRouting routing={describeEmailRouting()} />
       </div>
 
       <div className="mt-10">

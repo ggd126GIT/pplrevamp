@@ -30,6 +30,81 @@ export function parseRecipients(raw: string | undefined | null): string[] {
   return out;
 }
 
+export type RoutingRow = {
+  /** Human label for the form, as shown in the admin panel. */
+  form: string;
+  /** The env var actually in effect once fallback is applied. */
+  source: "CONTACT_NOTIFY_EMAIL" | "JOBS_NOTIFY_EMAIL";
+  recipients: string[];
+  /** True when this form wanted its own var but fell back to the contact one. */
+  fellBack: boolean;
+  /** Entries present in the var but discarded as invalid or duplicate. */
+  dropped: number;
+};
+
+export type EmailRouting = {
+  from: string;
+  /** The from address is Resend's shared sandbox sender. */
+  sandboxSender: boolean;
+  /** RESEND_API_KEY is present — without it nothing sends at all. */
+  apiKeySet: boolean;
+  rows: RoutingRow[];
+};
+
+function countDropped(raw: string | undefined): number {
+  if (!raw) return 0;
+  const present = raw.split(/[,;]/).filter((p) => p.trim()).length;
+  return present - parseRecipients(raw).length;
+}
+
+/**
+ * Resolve where each form's internal notification is actually addressed.
+ *
+ * Mirrors sendInternalNotification's own precedence rather than restating the
+ * env vars, so the admin panel can't drift from real behaviour: the jobs var
+ * wins only when it yields at least one valid address, otherwise the contact
+ * var takes over. Reads env explicitly so it stays testable.
+ */
+export function describeEmailRouting(
+  env: Partial<NodeJS.ProcessEnv> = process.env,
+): EmailRouting {
+  const contact = parseRecipients(env.CONTACT_NOTIFY_EMAIL);
+  const jobs = parseRecipients(env.JOBS_NOTIFY_EMAIL);
+  const jobsFellBack = jobs.length === 0;
+  const from = env.RESEND_FROM ?? ".ppl Solutions <onboarding@resend.dev>";
+
+  return {
+    from,
+    sandboxSender: /@resend\.dev>?\s*$/.test(from.trim()),
+    apiKeySet: Boolean(env.RESEND_API_KEY),
+    rows: [
+      {
+        form: "Contact form",
+        source: "CONTACT_NOTIFY_EMAIL",
+        recipients: contact,
+        fellBack: false,
+        dropped: countDropped(env.CONTACT_NOTIFY_EMAIL),
+      },
+      {
+        form: "Discovery form",
+        source: "CONTACT_NOTIFY_EMAIL",
+        recipients: contact,
+        fellBack: false,
+        dropped: countDropped(env.CONTACT_NOTIFY_EMAIL),
+      },
+      {
+        form: "Job applications",
+        source: jobsFellBack ? "CONTACT_NOTIFY_EMAIL" : "JOBS_NOTIFY_EMAIL",
+        recipients: jobsFellBack ? contact : jobs,
+        fellBack: jobsFellBack,
+        dropped: countDropped(
+          jobsFellBack ? env.CONTACT_NOTIFY_EMAIL : env.JOBS_NOTIFY_EMAIL,
+        ),
+      },
+    ],
+  };
+}
+
 function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY;
   return key ? new Resend(key) : null;
