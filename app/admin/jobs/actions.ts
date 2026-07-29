@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slug";
 import { textToDoc } from "@/lib/tiptap";
+import { deriveAction, logActivity } from "@/lib/activity";
 
 export type JobFormState = { error?: string } | undefined;
 
@@ -44,7 +45,17 @@ export async function createJob(
   if (!data.slug) return { error: "A valid slug is required." };
 
   const supabase = await createClient();
-  const { error } = await supabase.from("jobs").insert(data);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const actorId = user?.id ?? null;
+
+  const { data: created, error } = await supabase
+    .from("jobs")
+    .insert({ ...data, created_by: actorId, updated_by: actorId })
+    .select("id")
+    .single();
+
   if (error) {
     return {
       error:
@@ -53,6 +64,14 @@ export async function createJob(
           : error.message,
     };
   }
+
+  await logActivity(supabase, {
+    action: "created",
+    entityType: "job",
+    entityId: created?.id ?? null,
+    entityTitle: data.title,
+    actorId,
+  });
 
   revalidatePath("/careers");
   revalidatePath("/admin/jobs");
@@ -69,7 +88,22 @@ export async function updateJob(
   if (!data.slug) return { error: "A valid slug is required." };
 
   const supabase = await createClient();
-  const { error } = await supabase.from("jobs").update(data).eq("id", id);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const actorId = user?.id ?? null;
+
+  const { data: existing } = await supabase
+    .from("jobs")
+    .select("status")
+    .eq("id", id)
+    .single();
+
+  const { error } = await supabase
+    .from("jobs")
+    .update({ ...data, updated_by: actorId })
+    .eq("id", id);
+
   if (error) {
     return {
       error:
@@ -78,6 +112,14 @@ export async function updateJob(
           : error.message,
     };
   }
+
+  await logActivity(supabase, {
+    action: deriveAction("job", existing?.status, data.status),
+    entityType: "job",
+    entityId: id,
+    entityTitle: data.title,
+    actorId,
+  });
 
   revalidatePath("/careers");
   revalidatePath(`/careers/${data.slug}`);
@@ -89,7 +131,28 @@ export async function deleteJob(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   if (!id) return;
   const supabase = await createClient();
-  await supabase.from("jobs").delete().eq("id", id);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Capture the title before the row disappears.
+  const { data: existing } = await supabase
+    .from("jobs")
+    .select("title")
+    .eq("id", id)
+    .single();
+
+  const { error } = await supabase.from("jobs").delete().eq("id", id);
+  if (!error) {
+    await logActivity(supabase, {
+      action: "deleted",
+      entityType: "job",
+      entityId: id,
+      entityTitle: existing?.title ?? "(untitled job)",
+      actorId: user?.id ?? null,
+    });
+  }
+
   revalidatePath("/careers");
   revalidatePath("/admin/jobs");
   redirect("/admin/jobs");

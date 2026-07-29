@@ -9,6 +9,7 @@ import {
   Briefcase,
   Inbox,
   Mails,
+  History,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -19,6 +20,7 @@ const items = [
   { label: "Jobs", href: "/admin/jobs", icon: Briefcase },
   { label: "Applications", href: "/admin/applications", icon: Inbox },
   { label: "Inquiries", href: "/admin/inquiries", icon: Mails },
+  { label: "Activity", href: "/admin/activity", icon: History },
 ];
 
 export function AdminNav() {

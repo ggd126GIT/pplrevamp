@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_label: string
+          created_at: string
+          entity_id: string | null
+          entity_title: string
+          entity_type: string
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_label: string
+          created_at?: string
+          entity_id?: string | null
+          entity_title: string
+          entity_type: string
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_label?: string
+          created_at?: string
+          entity_id?: string | null
+          entity_title?: string
+          entity_type?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       applications: {
         Row: {
           created_at: string | null
@@ -115,6 +156,7 @@ export type Database = {
       jobs: {
         Row: {
           created_at: string | null
+          created_by: string | null
           department: string | null
           description: Json | null
           id: string
@@ -124,10 +166,12 @@ export type Database = {
           status: string
           title: string
           updated_at: string | null
+          updated_by: string | null
           work_mode: string | null
         }
         Insert: {
           created_at?: string | null
+          created_by?: string | null
           department?: string | null
           description?: Json | null
           id?: string
@@ -137,10 +181,12 @@ export type Database = {
           status?: string
           title: string
           updated_at?: string | null
+          updated_by?: string | null
           work_mode?: string | null
         }
         Update: {
           created_at?: string | null
+          created_by?: string | null
           department?: string | null
           description?: Json | null
           id?: string
@@ -150,9 +196,25 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string | null
+          updated_by?: string | null
           work_mode?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "jobs_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       page_views: {
         Row: {
@@ -208,10 +270,12 @@ export type Database = {
           excerpt: string | null
           id: string
           published_at: string | null
+          published_by: string | null
           slug: string
           status: string
           title: string
           updated_at: string | null
+          updated_by: string | null
         }
         Insert: {
           author_id?: string | null
@@ -221,10 +285,12 @@ export type Database = {
           excerpt?: string | null
           id?: string
           published_at?: string | null
+          published_by?: string | null
           slug: string
           status?: string
           title: string
           updated_at?: string | null
+          updated_by?: string | null
         }
         Update: {
           author_id?: string | null
@@ -234,10 +300,12 @@ export type Database = {
           excerpt?: string | null
           id?: string
           published_at?: string | null
+          published_by?: string | null
           slug?: string
           status?: string
           title?: string
           updated_at?: string | null
+          updated_by?: string | null
         }
         Relationships: [
           {
@@ -247,23 +315,40 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "posts_published_by_fkey"
+            columns: ["published_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
         Row: {
           created_at: string | null
+          email: string | null
           full_name: string | null
           id: string
           role: string
         }
         Insert: {
           created_at?: string | null
+          email?: string | null
           full_name?: string | null
           id: string
           role?: string
         }
         Update: {
           created_at?: string | null
+          email?: string | null
           full_name?: string | null
           id?: string
           role?: string

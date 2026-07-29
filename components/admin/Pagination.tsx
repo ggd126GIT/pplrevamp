@@ -14,7 +14,9 @@ export function Pagination({
 }) {
   if (pageCount <= 1) return null;
 
-  const href = (p: number) => (p <= 1 ? basePath : `${basePath}?page=${p}`);
+  // basePath may already carry a filter (e.g. "/admin/activity?type=post").
+  const sep = basePath.includes("?") ? "&" : "?";
+  const href = (p: number) => (p <= 1 ? basePath : `${basePath}${sep}page=${p}`);
   const hasPrev = page > 1;
   const hasNext = page < pageCount;
 

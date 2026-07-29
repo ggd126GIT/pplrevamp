@@ -3,6 +3,7 @@ import { Plus, Pencil } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/cn";
 import { Pagination } from "@/components/admin/Pagination";
+import { Attribution } from "@/components/admin/Attribution";
 import { pageCount, pageRange, parsePage } from "@/lib/pagination";
 
 export default async function AdminPostsPage({
@@ -16,7 +17,12 @@ export default async function AdminPostsPage({
   const supabase = await createClient();
   const { data: posts, count } = await supabase
     .from("posts")
-    .select("id, title, slug, status, updated_at", { count: "exact" })
+    .select(
+      `id, title, slug, status, updated_at,
+       author:profiles!posts_author_id_fkey (full_name, email),
+       editor:profiles!posts_updated_by_fkey (full_name, email)`,
+      { count: "exact" },
+    )
     .order("updated_at", { ascending: false })
     .range(from, to);
 
@@ -66,6 +72,11 @@ export default async function AdminPostsPage({
                 <p className="mt-0.5 truncate text-sm text-charcoal/50">
                   /{post.slug}
                 </p>
+                <Attribution
+                  createdBy={post.author}
+                  updatedBy={post.editor}
+                  updatedAt={post.updated_at}
+                />
               </div>
               <Pencil className="size-4 shrink-0 text-charcoal/40" />
             </Link>

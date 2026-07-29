@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getAnalyticsSummary } from "@/lib/analytics/queries";
+import { ActivityFeed } from "@/components/admin/ActivityFeed";
 
 async function count(table: "posts" | "jobs" | "applications" | "inquiries") {
   const supabase = await createClient();
@@ -18,14 +19,26 @@ async function count(table: "posts" | "jobs" | "applications" | "inquiries") {
   return count ?? 0;
 }
 
+async function recentActivity() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("activity")
+    .select("id, actor_label, action, entity_type, entity_title, created_at")
+    .order("created_at", { ascending: false })
+    .limit(5);
+  return data ?? [];
+}
+
 export default async function AdminDashboard() {
-  const [posts, jobs, applications, inquiries, summary] = await Promise.all([
-    count("posts"),
-    count("jobs"),
-    count("applications"),
-    count("inquiries"),
-    getAnalyticsSummary(30),
-  ]);
+  const [posts, jobs, applications, inquiries, summary, activity] =
+    await Promise.all([
+      count("posts"),
+      count("jobs"),
+      count("applications"),
+      count("inquiries"),
+      getAnalyticsSummary(30),
+      recentActivity(),
+    ]);
 
   const cards = [
     { label: "Posts", value: posts, href: "/admin/posts", icon: FileText },
@@ -92,6 +105,23 @@ export default async function AdminDashboard() {
         >
           New job
         </Link>
+      </div>
+
+      <div className="mt-10">
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-lg font-bold text-ink">
+            Recent activity
+          </h2>
+          <Link
+            href="/admin/activity"
+            className="inline-flex items-center gap-1 text-sm font-semibold text-purple hover:underline"
+          >
+            View all <ArrowRight className="size-3.5" />
+          </Link>
+        </div>
+        <div className="mt-4">
+          <ActivityFeed rows={activity} />
+        </div>
       </div>
     </div>
   );

@@ -34,10 +34,16 @@ export default async function AdminLayout({
           <AdminNav />
         </div>
         <div className="border-t border-black/[0.06] pt-4">
-          <p className="truncate px-1.5 text-xs text-charcoal/50">
-            {user.email}
-          </p>
-          <form action="/auth/signout" method="post" className="mt-2">
+          <div className="px-1.5">
+            <p className="text-xs text-charcoal/50">You&rsquo;re logged in as</p>
+            <p
+              className="truncate text-sm font-semibold text-ink"
+              title={user.email}
+            >
+              {user.email}
+            </p>
+          </div>
+          <form action="/auth/signout" method="post" className="mt-3">
             <button
               type="submit"
               className="flex w-full items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium text-charcoal/70 transition-colors hover:bg-red-50 hover:text-red-600"
@@ -52,9 +58,15 @@ export default async function AdminLayout({
       {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile top bar */}
-        <header className="flex items-center justify-between border-b border-black/[0.06] bg-white px-5 py-3 lg:hidden">
-          <Logo className="text-lg" />
-          <form action="/auth/signout" method="post">
+        <header className="flex items-center justify-between gap-3 border-b border-black/[0.06] bg-white px-5 py-3 lg:hidden">
+          <div className="min-w-0">
+            <Logo className="text-lg" />
+            <p className="truncate text-[11px] text-charcoal/60">
+              You&rsquo;re logged in as{" "}
+              <span className="font-semibold text-ink">{user.email}</span>
+            </p>
+          </div>
+          <form action="/auth/signout" method="post" className="shrink-0">
             <button
               type="submit"
               className="inline-flex items-center gap-1.5 text-sm font-medium text-charcoal/70"

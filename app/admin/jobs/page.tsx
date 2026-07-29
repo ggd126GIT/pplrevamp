@@ -3,6 +3,7 @@ import { Plus, Pencil } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/cn";
 import { Pagination } from "@/components/admin/Pagination";
+import { Attribution } from "@/components/admin/Attribution";
 import { pageCount, pageRange, parsePage } from "@/lib/pagination";
 
 export default async function AdminJobsPage({
@@ -16,7 +17,12 @@ export default async function AdminJobsPage({
   const supabase = await createClient();
   const { data: jobs, count } = await supabase
     .from("jobs")
-    .select("*", { count: "exact" })
+    .select(
+      `*,
+       creator:profiles!jobs_created_by_fkey (full_name, email),
+       editor:profiles!jobs_updated_by_fkey (full_name, email)`,
+      { count: "exact" },
+    )
     .order("created_at", { ascending: false })
     .range(from, to);
 
@@ -68,6 +74,11 @@ export default async function AdminJobsPage({
                     .filter(Boolean)
                     .join(" · ") || "—"}
                 </p>
+                <Attribution
+                  createdBy={job.creator}
+                  updatedBy={job.editor}
+                  updatedAt={job.updated_at}
+                />
               </div>
               <Pencil className="size-4 shrink-0 text-charcoal/40" />
             </Link>
