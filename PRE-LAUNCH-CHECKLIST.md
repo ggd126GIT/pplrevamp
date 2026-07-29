@@ -54,9 +54,11 @@ unaffected. After adding, click Verify in Resend; status goes `not_started` → 
 Then, and only then: set `RESEND_FROM` to an address `@send.pplsolutionsinc.com`,
 `CONTACT_NOTIFY_EMAIL=sales@pplsolutionsinc.com`, `JOBS_NOTIFY_EMAIL=careers@pplsolutionsinc.com`.
 
-**Separately confirm the `sales@` and `careers@` mailboxes actually exist in the Microsoft 365
-tenant** — Resend verification only fixes *sending*; if the destination mailbox doesn't exist the
-mail bounces at the recipient end instead.
+✅ **`sales@` and `careers@` exist as real mailboxes in the Microsoft 365 tenant** (confirmed by the
+client 2026-07-30). The receiving end is therefore fine — the remaining work is entirely on the
+*sending* side, i.e. the three DNS records above. Nobody on the build team has access to those
+inboxes, so use the **Where form notifications go** panel on `/admin` to confirm the routing rather
+than trying to check the mailboxes directly.
 
 ---
 
