@@ -103,14 +103,14 @@ posts from development, which will be removed before launch. Please let us know 
 
 ## 3. Content we still need from you
 
-### C1 — Leadership bios *(three people)*
-The About page features all five leaders. We have proper bios for **Joey Lianko** and
-**Tina Loneza**. For the following three we've written placeholder text as a stand-in, and would
-like your real wording — one or two sentences each is plenty:
+### C1 — Leadership bios ✅ *received, now live*
+Thank you — we have bios for all five leaders and they are on the About page. No placeholder text
+remains. Two small points we settled while applying them, please correct us if either is wrong:
 
-- **Rafael Dayalo** — Head of Technology
-- **Apol Macaroyo** — Sr. Manager for Sales and Client Success
-- **Karen Clarissa Porras** — Project Manager
+- Your document headed her **"LIZZELL MACAROYO"** but referred to her as Apol throughout. We have
+  displayed her as **Apol Macaroyo**, which is how she appeared previously.
+- We have changed **"Karen Clarissa Porras"** to **"Clari Porras"**, matching your document and her
+  email address.
 
 ### C2 — Referral programme conditions — legal sign-off
 The referral programme terms were noted as being under review by your lawyer. Please send the

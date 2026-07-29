@@ -40,7 +40,7 @@ Legend: 🔴 hard blocker (cannot launch) · 🟠 needed at launch · 🟡 quali
 
 | # | Item | Current state |
 |---|---|---|
-| 3.1 | **Leadership bios for Rafael Dayalo, Apol Macaroyo and Karen Clarissa Porras** | The About page shows all five leaders. Joey's and Tina's bios are real; the other three are **placeholder copy we wrote** — plausible but invented. Needs 1–2 real sentences each (`components/about/LeadershipShowcase.tsx`). |
+| 3.1 | ~~**Leadership bios for Rafael Dayalo, Apol Macaroyo and Clari Porras**~~ | ✅ **RESOLVED 2026-07-29.** Client supplied full bios for all five leaders (`bio.md`); all placeholder copy is gone from `components/about/LeadershipShowcase.tsx`. Two naming points settled at the same time: she is displayed as **"Apol Macaroyo"** (the doc headed her "LIZZELL MACAROYO" — treated as her formal name), and **"Karen Clarissa Porras" was corrected to "Clari Porras"** per the client's own doc and her `clari.porras@` address. |
 | 3.2 | **Referral programme conditions — legal sign-off** | The project spec flags this text as "being checked by lawyer". The conditions are live on `/resources/referral`. We need the lawyer-approved final wording, or confirmation the current text stands. |
 | 3.3 | **"60 years" vs "100+ years" combined experience — which is correct?** | Inconsistent on the site today: the About page, leadership heading and home stats all say **100+ years**; the FAQ answer still says **more than 60 years** (`lib/content.ts:255`). One number, everywhere. We'll fix once they confirm. |
 | 3.4 | **Job descriptions** for whichever roles from 2.6 are real | Department, location, work mode (onsite/WFH/hybrid) and the description text for each. |

@@ -131,8 +131,9 @@ Staging shares the **same Supabase project** as production, so real test data is
 
 ## 9. Content still outstanding (🟡)
 
-- **Leadership bios** — real short bios for **Rafael, Apol, Karen** in
-  `components/about/LeadershipShowcase.tsx` (still placeholder copy). LinkedIn URLs for all 5 are done.
+- ~~**Leadership bios**~~ — ✅ **RESOLVED 2026-07-29.** Client-supplied bios for all five leaders
+  are live in `components/about/LeadershipShowcase.tsx`; no placeholder copy remains. LinkedIn URLs
+  for all 5 were already done. "Karen Clarissa Porras" corrected to **"Clari Porras"**.
 - **Referral program** — CLAUDE.md flags the conditions text as "being checked by lawyer" —
   confirm final copy before launch.
 - **Privacy policy analytics wording** — the in-house analytics is cookieless (sessionStorage id,
