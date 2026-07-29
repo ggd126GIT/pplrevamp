@@ -6,6 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { createPublicClient } from "@/lib/supabase/public";
+import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Careers",
@@ -44,7 +45,14 @@ export default async function CareersPage() {
             <div className="mx-auto max-w-md text-center">
               <p className="text-lg text-charcoal/70">
                 We don&apos;t have any open roles right now — but we&apos;d still
-                love to hear from driven, outstanding people.
+                love to hear from driven, outstanding people. Send your CV to{" "}
+                <a
+                  href={`mailto:${site.careersEmail}`}
+                  className="inline-block py-1 font-semibold text-purple hover:underline"
+                >
+                  {site.careersEmail}
+                </a>
+                .
               </p>
               <div className="mt-8 flex justify-center">
                 <Button href="/contact" size="lg">
@@ -93,6 +101,19 @@ export default async function CareersPage() {
                 </Link>
               ))}
             </div>
+          )}
+
+          {!!jobs?.length && (
+            <p className="mt-12 text-center text-charcoal/70">
+              Don&apos;t see a role that fits? Send your CV to{" "}
+              <a
+                href={`mailto:${site.careersEmail}`}
+                className="inline-block py-1 font-semibold text-purple hover:underline"
+              >
+                {site.careersEmail}
+              </a>
+              .
+            </p>
           )}
         </Container>
       </Section>

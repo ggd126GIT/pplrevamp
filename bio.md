@@ -21,6 +21,7 @@ Joey Lianko
 Joey has over 20 years of experience on his belt for Customer Service, Operations Business Management, and Workforce Management. He also brings to the table his deep understanding of contact center operations, performance management and business improvement – allowing Joey to nurture positive vendor-client relationships with various multinational companies and clients. 
  
 As a people manager, he is a strong leader who inspires the best in people and enables them to become agents of transformation. 
+
  
 
 Tina Loneza
