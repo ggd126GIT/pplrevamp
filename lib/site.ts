@@ -38,9 +38,17 @@ export const primaryNav: NavItem[] = [
   { label: "Contact", href: "/contact" },
 ];
 
+/**
+ * Footer "Quick Links". The Explore column renders `primaryNav` minus anything
+ * with children, which drops the whole Resources group — so this column carries
+ * those, plus Privacy Policy. Keep it free of entries Explore already shows
+ * (Services, Contact) or the two columns duplicate each other.
+ *
+ * Referral is deliberately absent: the page exists but is unlinked pending
+ * legal sign-off on its conditions.
+ */
 export const footerLinks: NavItem[] = [
-  { label: "Services", href: "/services" },
-  { label: "Contact Us", href: "/contact" },
+  { label: "How to Get Started", href: "/resources/how-to-get-started" },
   { label: "FAQ", href: "/resources/faq" },
   { label: "Blog", href: "/blog" },
   { label: "Privacy Policy", href: "/privacy-policy" },
