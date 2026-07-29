@@ -193,9 +193,13 @@ export function LeadershipShowcase() {
           <p className="mt-1 text-sm font-semibold uppercase tracking-[0.14em] text-purple">
             {focused.title}
           </p>
-          {/* min-height damps the page jump when switching between a short
-              bio and a long one. */}
-          <div className="mt-4 space-y-3 text-left sm:min-h-64">
+          {/* Narrower than the panel so centred lines stay readable (~55
+              characters) and the block reads as deliberate rather than flush
+              to the edges. No min-height: it kept the panel a stable height
+              but left a 50-80px hole under the shorter bios, which shows
+              every time, whereas the height change only shows while switching
+              between leaders. */}
+          <div className="mx-auto mt-4 max-w-md space-y-3">
             {focused.bio.map((paragraph) => (
               <p key={paragraph} className="leading-relaxed text-charcoal/75">
                 {paragraph}
@@ -234,7 +238,7 @@ export function LeadershipShowcase() {
             <p className="mt-1 text-sm font-medium text-purple">
               {leader.title}
             </p>
-            <div className="mt-3 w-full space-y-2 text-left text-sm leading-relaxed text-charcoal/70">
+            <div className="mt-3 w-full space-y-2 text-sm leading-relaxed text-charcoal/70">
               {leader.bio.map((paragraph) => (
                 <p key={paragraph}>{paragraph}</p>
               ))}
