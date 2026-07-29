@@ -32,7 +32,7 @@ export default async function LoginPage({
         </div>
 
         <p className="mt-6 text-center text-sm text-charcoal/60">
-          <Link href="/" className="hover:text-purple">
+          <Link href="/" className="inline-block py-1.5 hover:text-purple">
             ← Back to website
           </Link>
         </p>

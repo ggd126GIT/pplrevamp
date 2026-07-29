@@ -43,7 +43,7 @@ export default function ContactPage() {
                       <p className="font-semibold text-ink">Email</p>
                       <a
                         href={`mailto:${site.email}`}
-                        className="text-charcoal/70 hover:text-purple"
+                        className="inline-block py-1 text-charcoal/70 hover:text-purple"
                       >
                         {site.email}
                       </a>
@@ -57,7 +57,7 @@ export default function ContactPage() {
                       <p className="font-semibold text-ink">Phone</p>
                       <a
                         href={site.phoneHref}
-                        className="text-charcoal/70 hover:text-purple"
+                        className="inline-block py-1 text-charcoal/70 hover:text-purple"
                       >
                         {site.phone}
                       </a>

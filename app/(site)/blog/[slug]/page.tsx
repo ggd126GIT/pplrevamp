@@ -77,7 +77,7 @@ export default async function BlogPostPage({
         <Container size="narrow">
           <Link
             href="/blog"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-purple hover:underline"
+            className="inline-flex items-center gap-1.5 py-1 text-sm font-medium text-purple hover:underline"
           >
             <ArrowLeft className="size-4" /> All posts
           </Link>

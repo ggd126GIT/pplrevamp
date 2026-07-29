@@ -233,7 +233,7 @@ export default function PrivacyPolicyPage() {
                   <p className="mt-1">
                     <a
                       href={`mailto:${dpoEmail}`}
-                      className="font-medium text-purple hover:underline"
+                      className="inline-block py-1 font-medium text-purple hover:underline"
                     >
                       {dpoEmail}
                     </a>

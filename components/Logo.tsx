@@ -8,7 +8,9 @@ export function Logo({ className }: { className?: string }) {
       href="/"
       aria-label=".ppl Solutions, Inc. home"
       className={cn(
-        "inline-flex items-center gap-2 font-display font-extrabold tracking-tight leading-none",
+        // py-1 keeps the tap target above the 24px minimum at small text sizes;
+        // leading-none means the anchor would otherwise be only as tall as the mark.
+        "inline-flex items-center gap-2 py-1 font-display font-extrabold tracking-tight leading-none",
         className,
       )}
     >

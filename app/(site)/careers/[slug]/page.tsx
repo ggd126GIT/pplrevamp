@@ -74,7 +74,7 @@ export default async function JobDetailPage({
       <Container size="wide">
         <Link
           href="/careers"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-purple hover:underline"
+          className="inline-flex items-center gap-1.5 py-1 text-sm font-medium text-purple hover:underline"
         >
           <ArrowLeft className="size-4" /> All roles
         </Link>

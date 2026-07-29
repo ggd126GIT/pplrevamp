@@ -63,7 +63,7 @@ export function Footer() {
             <p className="mt-6 text-sm">
               <a
                 href={site.phoneHref}
-                className="text-white/70 transition-colors hover:text-gold"
+                className="inline-block py-2 text-white/70 transition-colors hover:text-gold"
               >
                 {site.phone}
               </a>
@@ -74,14 +74,16 @@ export function Footer() {
             <h4 className="text-sm font-semibold uppercase tracking-wider text-white">
               Explore
             </h4>
-            <ul className="mt-4 space-y-2.5">
+            {/* Tight spacing plus padded links: the tap target is the padding,
+                so the visual rhythm stays close to the original. */}
+            <ul className="mt-2 space-y-0.5">
               {primaryNav
                 .filter((i) => !i.children)
                 .map((item) => (
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className="text-white/70 transition-colors hover:text-gold"
+                      className="inline-block py-2 text-white/70 transition-colors hover:text-gold"
                     >
                       {item.label}
                     </Link>
@@ -94,12 +96,14 @@ export function Footer() {
             <h4 className="text-sm font-semibold uppercase tracking-wider text-white">
               Quick Links
             </h4>
-            <ul className="mt-4 space-y-2.5">
+            {/* Tight spacing plus padded links: the tap target is the padding,
+                so the visual rhythm stays close to the original. */}
+            <ul className="mt-2 space-y-0.5">
               {footerLinks.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="text-white/70 transition-colors hover:text-gold"
+                    className="inline-block py-2 text-white/70 transition-colors hover:text-gold"
                   >
                     {item.label}
                   </Link>
