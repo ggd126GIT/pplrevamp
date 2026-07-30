@@ -219,3 +219,50 @@ Clearing the latter appears to succeed and changes nothing.
 This matters for deployment: the CDN caches optimized images keyed by source URL, so
 replacing a file's *contents* without changing its *name* can serve the old image until
 the TTL expires. Renaming on content change avoids it.
+
+## Industry photos renamed and re-cropped (follow-on)
+
+The six industry photos kept placeholder names (`ppl-bank`, `ppl-comms`, `ppl-ecom`,
+`ppl-health`, `ppl-it`, `ppl-manufacture`) that said nothing about their content. Renamed
+on both sides — sources in `assets/` too, since `ppl-IT.jpg` vs `ppl-it.webp` was actively
+confusing.
+
+Contents were identified by looking at the photos, which showed three alt texts had
+drifted from what is actually in frame:
+
+| New name | Actual content | Old alt was |
+|---|---|---|
+| `ppl-it-software-developers-coding` | Two developers at dual monitors with code | "collaborating" — they work separately |
+| `ppl-telecommunications-network-testing` | Phone showing signal readings by a fibre patch panel | "network and connectivity" — vague |
+| `ppl-ecommerce-online-checkout` | Shopper with a credit card at a laptop checkout | "e-commerce **fulfilment**" — wrong, no warehouse |
+| `ppl-healthcare-reviewing-ct-scans` | Clinician in scrubs and mask reading CT scans | "supporting **patients**" — no patient present |
+| `ppl-banking-customer-at-atm` | Customer withdrawing cash at a row of ATMs | "banking and financial services" — vague |
+| `ppl-manufacturing-machine-operator` | Operator setting up an industrial press | "modern manufacturing operations" — vague |
+
+### Pre-cropped square instead of browser-cropped
+
+These render as circles in a 450×450 box, so the preset changed from 1600-wide landscape
+to **900×900** square — enough for DPR 2, and smaller (326 KB total, down from 548 KB).
+
+Shipping landscapes and letting the browser centre-crop was silently mangling two of
+them: the healthcare clinician was decapitated and the IT shot was framed on the back of
+an office chair. `position` is now per-photo, chosen by rendering the circles rather than
+assumed.
+
+Healthcare needed more than an anchor: its scans sit far left and the clinician far right,
+and no fixed anchor holds both. The manifest gained an optional `crop` (a sharp `extract`
+region); `left: 416` of the available 640 px slide keeps the scans, the pointing arm, and
+the masked face all inside the circle.
+
+### Privacy policy got its own banner
+
+It had been reusing the IT industry photo as a full-width hero. Now that the industry
+version is a 900×900 square, `privacy/ppl-privacy-hero-software-team.webp` is generated
+from the same source at banner dimensions.
+
+### Descriptions
+
+`industryShowcase` gained a `description` field feeding `IndustriesSchema` — an ItemList
+of ImageObjects with `name`, `caption` (the alt), `description`, and absolute
+`contentUrl`. Descriptions state only which industry .ppl supports; inventing compliance
+or capability language for a BPO provider would be a misrepresentation, not a flourish.

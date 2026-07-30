@@ -172,7 +172,7 @@ export default function PrivacyPolicyPage() {
       <PageHero
         eyebrow="Legal"
         title="Privacy Policy"
-        image="/services/ppl-it.webp"
+        image="/privacy/ppl-privacy-hero-software-team.webp"
       />
 
       <Section bg="white">

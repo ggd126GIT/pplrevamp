@@ -186,41 +186,60 @@ export const industriesSupported = [
 ];
 
 /** Industries supported — photo showcase for the scroll-reveal on the services
- * page. Order sets the reveal sequence (each frame grows from 50% → 100%). */
+ * page. Order sets the reveal sequence (each frame grows from 50% → 100%).
+ *
+ * `alt` describes what is actually in the frame, checked against the photos
+ * rather than inferred from the label — the previous set had drifted ("e-commerce
+ * fulfilment" for a shopper at checkout, "professionals supporting patients" for
+ * a clinician alone with a scan).
+ *
+ * `description` is the longer form consumed by the ImageObject entries in
+ * IndustriesSchema. It names the industry .ppl supports and stops there — it must
+ * not imply capabilities or certifications the client has not claimed. */
 export const industryShowcase: {
   label: string;
   image: string;
   alt: string;
+  description: string;
 }[] = [
   {
     label: "IT, Software Development & Animation",
-    image: "/services/ppl-it.webp",
-    alt: "Software developers collaborating at their workstations",
+    image: "/services/ppl-it-software-developers-coding.webp",
+    alt: "Two software developers writing code at dual-monitor workstations",
+    description:
+      "Offshore teams for IT, software development, and animation clients.",
   },
   {
     label: "Telecommunications",
-    image: "/services/ppl-comms.webp",
-    alt: "Telecommunications network and connectivity",
+    image: "/services/ppl-telecommunications-network-testing.webp",
+    alt: "A technician checking network signal readings on a phone beside a fibre-optic patch panel",
+    description: "Offshore support teams for telecommunications providers.",
   },
   {
     label: "Retail & e-Commerce",
-    image: "/services/ppl-ecom.webp",
-    alt: "Online retail and e-commerce fulfilment",
+    image: "/services/ppl-ecommerce-online-checkout.webp",
+    alt: "An online shopper holding a credit card while checking out on a laptop",
+    description:
+      "Offshore customer and order support for retail and e-commerce brands.",
   },
   {
     label: "Healthcare",
-    image: "/services/ppl-health.webp",
-    alt: "Healthcare professionals supporting patients",
+    image: "/services/ppl-healthcare-reviewing-ct-scans.webp",
+    alt: "A clinician in scrubs and a face mask reviewing CT scan images",
+    description: "Offshore support teams for healthcare organisations.",
   },
   {
     label: "Banking, Financial Services & Insurance",
-    image: "/services/ppl-bank.webp",
-    alt: "Banking and financial services",
+    image: "/services/ppl-banking-customer-at-atm.webp",
+    alt: "A bank customer withdrawing cash at a row of ATMs",
+    description:
+      "Offshore support teams for banking, financial services, and insurance.",
   },
   {
     label: "Manufacturing",
-    image: "/services/ppl-manufacture.webp",
-    alt: "Modern manufacturing operations",
+    image: "/services/ppl-manufacturing-machine-operator.webp",
+    alt: "A machine operator setting up an industrial press on a factory floor",
+    description: "Offshore support teams for manufacturing operations.",
   },
 ];
 

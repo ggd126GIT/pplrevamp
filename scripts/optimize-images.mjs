@@ -27,7 +27,12 @@ const PRESET = {
   circle: { width: 600, height: 600, quality: 82 },
   square: { width: 900, height: 900, quality: 82 },
   card: { width: 1200, height: 800, quality: 80 },
-  industry: { width: 1600, height: null, quality: 80 },
+  // Industry photos render as circles in a 450x450 box (IndustriesReveal), so
+  // they are pre-cropped square at 900 to cover DPR 2. Previously they were
+  // shipped as 1600-wide landscapes and left for the browser to centre-crop,
+  // which decapitated the healthcare clinician and centred the IT shot on an
+  // office chair.
+  industry: { width: 900, height: 900, quality: 82 },
 };
 
 /**
@@ -138,15 +143,63 @@ const MANIFEST = [
     position: "centre",
   },
 
-  // ---- Industries: kept because the new set has no industry-specific shots.
-  // Their alt text in lib/content.ts names the actual industry, so swapping in
-  // generic meeting photos would make that alt text untrue.
-  { src: "ppl-bank.jpg", out: "services/ppl-bank.webp", preset: "industry" },
-  { src: "ppl-comms.jpg", out: "services/ppl-comms.webp", preset: "industry" },
-  { src: "ppl-ecom.png", out: "services/ppl-ecom.webp", preset: "industry" },
-  { src: "ppl-health.jpg", out: "services/ppl-health.webp", preset: "industry" },
-  { src: "ppl-IT.jpg", out: "services/ppl-it.webp", preset: "industry" },
-  { src: "ppl-manufacture.jpg", out: "services/ppl-manufacture.webp", preset: "industry" },
+  // ---- Industries: kept because the new stock set has no industry-specific
+  // shots. Their alt text in lib/content.ts names the actual industry, so
+  // swapping in generic meeting photos would make that alt text untrue.
+  //
+  // `position` is per-photo because the subjects are not centred. A centre crop
+  // cut the healthcare clinician's head off and framed the IT photo on the back
+  // of an office chair — verified by rendering the circles, not assumed.
+  {
+    src: "it-software-developers-coding.jpg",
+    out: "services/ppl-it-software-developers-coding.webp",
+    preset: "industry",
+    position: "left", // both developers and their code; centre lands on a chair
+  },
+  {
+    src: "telecommunications-network-testing.jpg",
+    out: "services/ppl-telecommunications-network-testing.webp",
+    preset: "industry",
+    position: "centre",
+  },
+  {
+    src: "ecommerce-online-checkout.png",
+    out: "services/ppl-ecommerce-online-checkout.webp",
+    preset: "industry",
+    position: "centre",
+  },
+  {
+    src: "healthcare-reviewing-ct-scans.jpg",
+    out: "services/ppl-healthcare-reviewing-ct-scans.webp",
+    preset: "industry",
+    // Source is 1920x1280, so a square crop can slide 640px horizontally. The
+    // scans sit far left and the clinician far right; no fixed anchor holds both.
+    // `centre` (left: 320) puts the face exactly on the circle's clipped edge,
+    // which is what read as decapitated. 416 keeps the scans, the pointing arm,
+    // and the masked face all inside the circle.
+    crop: { left: 416, top: 0, width: 1280, height: 1280 },
+  },
+  {
+    src: "banking-customer-at-atm.jpg",
+    out: "services/ppl-banking-customer-at-atm.webp",
+    preset: "industry",
+    position: "centre",
+  },
+  {
+    src: "manufacturing-machine-operator.jpg",
+    out: "services/ppl-manufacturing-machine-operator.webp",
+    preset: "industry",
+    position: "centre",
+  },
+
+  // The privacy policy reused the IT photo as its banner. Now that the industry
+  // version is a 900x900 square, it needs its own wide crop from the same source.
+  {
+    src: "it-software-developers-coding.jpg",
+    out: "privacy/ppl-privacy-hero-software-team.webp",
+    preset: "banner",
+    position: "centre",
+  },
 
   // ---- Leadership portraits (supplied 2026-07-30, correctly named at last).
   //
@@ -190,8 +243,13 @@ async function build(entry) {
     bytes = await readFile(from);
   } else {
     const { width, height, quality } = PRESET[entry.preset];
-    // Alpha is preserved automatically; the headshot cutouts rely on it.
-    bytes = await sharp(from)
+    let pipeline = sharp(from);
+    // `crop` takes a precise source region when no fixed anchor frames the shot
+    // well — see the healthcare entry. Pixel values are tied to that source's
+    // dimensions, so re-check them if the source is ever replaced.
+    if (entry.crop) pipeline = pipeline.extract(entry.crop);
+    // Alpha is preserved automatically; the portrait cutouts rely on it.
+    bytes = await pipeline
       .resize({
         width,
         height: height ?? undefined,

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageHero } from "@/components/PageHero";
 import { CtaBand } from "@/components/CtaBand";
 import { IndustriesReveal } from "@/components/services/IndustriesReveal";
+import { IndustriesSchema } from "@/components/services/IndustriesSchema";
 import { ServicesToggle } from "@/components/services/ServicesToggle";
 
 export const metadata: Metadata = {
@@ -21,6 +22,7 @@ export default function ServicesPage() {
       />
 
       {/* What is offshoring / outsourcing — pinned industry scroll-reveal */}
+      <IndustriesSchema />
       <IndustriesReveal />
 
       {/* Front / back office — toggle between the two; the whole band
