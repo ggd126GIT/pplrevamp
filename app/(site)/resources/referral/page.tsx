@@ -41,7 +41,7 @@ export default function ReferralPage() {
         eyebrow="Referral Program"
         title="The best People is what we're all about."
         intro="Run right and staff up with .ppl Solutions, Inc. Be part of our growth — refer and earn rewards in 3 easy steps. Repeat steps 2 and 3 as often as you can."
-        image="/resources/ppl-how-to-header.jpg"
+        image="/resources/ppl-referral-hero-fist-bump.webp"
       />
 
       <Section bg="white">

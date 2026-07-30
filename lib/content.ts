@@ -77,8 +77,8 @@ export const threeEs: {
     key: "economical",
     title: "Economical",
     icon: PiggyBank,
-    image: "/home/ppl-highfive.png",
-    imageAlt: "A team celebrating together with a high five",
+    image: "/home/ppl-3es-economical-celebration.webp",
+    imageAlt: "An offshore team celebrating a project win around a laptop",
     short:
       "Outsourcing and offshoring target labor-cost effectiveness — savings you can reinvest to fuel other pursuits.",
     long: "Outsourcing or Offshoring targets the labor cost effectiveness of your business. It can result in savings that you are able to use to fuel other pursuits of your company. Hiring top caliber employees requires investment in a number of corporate functions including talent acquisition, human resources, training and facilities. You need to find the right partner that will handle hiring and retaining top talents which allows you to focus on core business functions.",
@@ -87,8 +87,8 @@ export const threeEs: {
     key: "efficient",
     title: "Efficient & Effective",
     icon: Gauge,
-    image: "/home/ppl-write.png",
-    imageAlt: "Two colleagues reviewing notes together at a desk",
+    image: "/home/ppl-3es-efficient-team-review.webp",
+    imageAlt: "Team members reviewing work together at a shared monitor",
     short:
       "Refine and enhance your processes — turning challenges into opportunities and unburdening your business from repetitive work.",
     long: ".ppl Solutions, Inc.'s team of experts are dedicated to improving your workflow. Business process improvements refine and enhance your processes by identifying problem areas and recommending modifications to turn challenges into opportunities. This constant improvement results in increased efficiency and productivity, ensuring a seamless transition to a more efficient and effective business model.",
@@ -97,8 +97,8 @@ export const threeEs: {
     key: "evolving",
     title: "Evolving & Elevating",
     icon: TrendingUp,
-    image: "/home/ppl-meet.png",
-    imageAlt: "Professionals collaborating in a meeting around a table",
+    image: "/home/ppl-3es-evolving-whiteboard.webp",
+    imageAlt: "Colleagues planning next steps at a whiteboard covered in notes",
     short:
       "Business process re-engineering drives growth — rethinking your paradigm and redesigning processes without compromising success.",
     long: "For long standing businesses, business process re-engineering drives growth. It looks into your whole business to identify areas of opportunity for increased proficiency — rethinking your paradigm, redesigning your processes, and reevaluating your strategies. The right partner is crucial to bringing your re-engineering vision to life without compromising your success and best practices.",
@@ -194,32 +194,32 @@ export const industryShowcase: {
 }[] = [
   {
     label: "IT, Software Development & Animation",
-    image: "/services/ppl-it.jpg",
+    image: "/services/ppl-it.webp",
     alt: "Software developers collaborating at their workstations",
   },
   {
     label: "Telecommunications",
-    image: "/services/ppl-comms.jpg",
+    image: "/services/ppl-comms.webp",
     alt: "Telecommunications network and connectivity",
   },
   {
     label: "Retail & e-Commerce",
-    image: "/services/ppl-ecom.png",
+    image: "/services/ppl-ecom.webp",
     alt: "Online retail and e-commerce fulfilment",
   },
   {
     label: "Healthcare",
-    image: "/services/ppl-health.jpg",
+    image: "/services/ppl-health.webp",
     alt: "Healthcare professionals supporting patients",
   },
   {
     label: "Banking, Financial Services & Insurance",
-    image: "/services/ppl-bank.jpg",
+    image: "/services/ppl-bank.webp",
     alt: "Banking and financial services",
   },
   {
     label: "Manufacturing",
-    image: "/services/ppl-manufacture.jpg",
+    image: "/services/ppl-manufacture.webp",
     alt: "Modern manufacturing operations",
   },
 ];

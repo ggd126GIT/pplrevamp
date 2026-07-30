@@ -2,6 +2,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Analytics } from "@/components/Analytics";
 import { InteractionTracker } from "@/components/analytics/InteractionTracker";
+import { OrganizationSchema } from "@/components/OrganizationSchema";
 
 export default function SiteLayout({
   children,
@@ -10,6 +11,7 @@ export default function SiteLayout({
 }) {
   return (
     <>
+      <OrganizationSchema />
       <Analytics />
       <InteractionTracker />
       <Header />

@@ -40,7 +40,7 @@ export default async function BlogPage() {
         eyebrow="Blog"
         title="Insights from our .ppl"
         intro="Perspectives on offshoring, outsourcing, and building high-performing teams."
-        image="/blog/ppl-blog-header.jpg"
+        image="/blog/ppl-blog-hero-team-overhead.webp"
       />
 
       <Section bg="white">
@@ -75,7 +75,7 @@ export default async function BlogPage() {
                       />
                     ) : (
                       <Image
-                        src="/blog/ppl-blog-placeholder.png"
+                        src="/blog/ppl-blog-placeholder-meeting.webp"
                         alt={post.title}
                         fill
                         sizes="(max-width: 768px) 100vw, 33vw"

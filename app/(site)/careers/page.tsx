@@ -36,7 +36,7 @@ export default async function CareersPage() {
         eyebrow="Careers"
         title="Join the playground of the best .ppl"
         intro="We open doors of opportunity through the right training and development. Explore our open roles below."
-        image="/careers/ppl-careers-header.jpg"
+        image="/careers/ppl-careers-hero-team-portrait.webp"
       />
 
       <Section bg="white">

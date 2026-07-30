@@ -269,8 +269,8 @@ export function AboutIntro() {
             <Reveal>
               <div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-full ring-1 ring-black/5">
                 <Image
-                  src="/about/ppl-laptop.png"
-                  alt=".ppl Solutions team collaborating at their laptops"
+                  src="/about/ppl-about-team-project-planning.webp"
+                  alt="A multicultural .ppl Solutions team mapping out a client project"
                   fill
                   sizes="(max-width: 1024px) 100vw, 40vw"
                   className="object-cover"
@@ -348,8 +348,8 @@ export function AboutIntro() {
                 className="relative aspect-square w-[17rem] overflow-hidden rounded-full ring-1 ring-black/5 shadow-xl shadow-purple/10"
               >
                 <Image
-                  src="/about/ppl-laptop.png"
-                  alt=".ppl Solutions team collaborating at their laptops"
+                  src="/about/ppl-about-team-project-planning.webp"
+                  alt="A multicultural .ppl Solutions team mapping out a client project"
                   fill
                   sizes="17rem"
                   className="object-cover"

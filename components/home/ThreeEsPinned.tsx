@@ -317,13 +317,20 @@ export function ThreeEsPinned() {
           <div className="relative mx-auto aspect-square w-full max-w-[28rem]">
             {threeEs.map((item, i) => (
               <div key={item.key} className="absolute inset-0">
-                <div data-img className="absolute inset-0">
+                {/* Clipped to a circle so it sits inside the comet ring. The
+                    earlier art was transparent PNG cutouts, which `object-contain`
+                    alone was enough for; full-bleed photos need the actual mask,
+                    matching the static variant in ThreeEs.tsx. */}
+                <div
+                  data-img
+                  className="absolute inset-0 overflow-hidden rounded-full"
+                >
                   <Image
                     src={item.image}
                     alt={item.imageAlt}
                     fill
                     sizes="(max-width: 1280px) 40vw, 28rem"
-                    className="object-contain"
+                    className="object-cover"
                     priority={i === 0}
                   />
                 </div>

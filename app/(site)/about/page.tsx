@@ -19,7 +19,7 @@ export default function AboutPage() {
       <PageHero
         eyebrow="About"
         title="Outstanding solutions delivered by amazing PEOPLE."
-        image="/about/ppl-about-header.png"
+        image="/about/ppl-about-hero-boardroom-meeting.webp"
       />
 
       <AboutIntro />

@@ -17,7 +17,7 @@ export default function ServicesPage() {
         eyebrow="Services"
         title="We power your business strategies"
         intro="From optimizing your business for growth to providing the right people to drive efficiency, we use our 3Ds framework to create tailored solutions that unlock the full potential of your business."
-        image="/services/ppl-services-header.png"
+        image="/services/ppl-services-hero-customer-service.webp"
       />
 
       {/* What is offshoring / outsourcing — pinned industry scroll-reveal */}

@@ -50,7 +50,7 @@ export default function HowToGetStartedPage() {
         eyebrow="How to Get Started"
         title="Your 3Ds journey with .ppl"
         intro="Discover, Design, and Deliver — a framework built to manage pitfalls, standardize processes, and put your plans into action."
-        image="/resources/ppl-how-to-header.jpg"
+        image="/resources/ppl-resources-hero-presentation.webp"
       />
 
       {/* Discover */}

@@ -172,7 +172,7 @@ export default function PrivacyPolicyPage() {
       <PageHero
         eyebrow="Legal"
         title="Privacy Policy"
-        image="/services/ppl-it.jpg"
+        image="/services/ppl-it.webp"
       />
 
       <Section bg="white">
@@ -223,9 +223,9 @@ export default function PrivacyPolicyPage() {
                     Address
                   </p>
                   <p className="mt-1">
-                    Jollibee Plaza, 12 Emerald Ave,
+                    32F One San Miguel Building., San Miguel Ave. corner Shaw Boulevard
                     <br />
-                    San Antonio, Pasig, 1605 Metro Manila
+                    Ortigas Center, Pasig City, 1605 Metro Manila
                   </p>
                   <p className="mt-4 text-sm font-semibold uppercase tracking-wide text-charcoal/50">
                     Email

@@ -10,7 +10,7 @@ export function Hero() {
       {/* Background photo — sits beneath the gradients at low opacity so it
           reads as a subtle texture rather than a full-bleed image. */}
       <Image
-        src="/home/ppl-test-header.png"
+        src="/home/ppl-hero-business-strategy-planning.webp"
         alt=""
         aria-hidden
         fill

@@ -49,7 +49,7 @@ export function CtaBand({
         >
           {/* Background photo — blurs and scales into focus as it loads in. */}
           <Image
-            src="/home/ppl-landing-header.png"
+            src="/home/ppl-cta-team-huddle.webp"
             alt=""
             aria-hidden
             fill
