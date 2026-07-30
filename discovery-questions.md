@@ -14,7 +14,7 @@ Our secondary audiences are professionals seeking employment opportunities with 
 
 Yes. 
 
-32nd Floor, One San Miguel Avenue Building, San Miguel Ave., corner Shaw Boulevard, Ortigas Center 1605 Pasig City National Capital Region 
+32F One San Miguel Building., San Miguel Ave. corner Shaw Boulevard, Ortigas Center, Pasig City, 1605, Metro Manila 
 
 +1.814.747.5335 
 
