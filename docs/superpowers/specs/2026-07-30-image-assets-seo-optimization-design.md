@@ -74,8 +74,11 @@ The six Industries photos (`ppl-bank`, `ppl-comms`, `ppl-ecom`, `ppl-health`, `p
 `ppl-manufacture`) keep their existing alt text and convert to webp at 1600px wide.
 `ppl-it` is also the `/privacy-policy` banner and keeps that role.
 
-The five leadership headshots convert to 600×600 webp. `apolpng.webp` keeps its
-off-convention filename — this was an explicit earlier request, not an oversight.
+**Superseded later the same day.** The five leadership portraits were originally
+re-encoded to 600×600 squares from mismatched sources (three were only 300×300, i.e.
+below the 394 CSS px the largest fan slot renders at). The client then supplied properly
+named 533×800 transparent webp cutouts, which are copied through untouched — see
+"Leadership portraits" below.
 
 `ppl-logo.png` stays PNG: 2.9 KB with alpha, already smaller than the churn is worth.
 
@@ -91,7 +94,7 @@ Uses sharp, already present transitively via Next.
 | About content | 900×900 webp q82 | Renders at 432px, 2× for retina |
 | Blog placeholder | 1200×800 webp q80 | |
 | Industries | 1600w webp q80 | From 1920px originals |
-| Headshots | 600×600 webp q85 | Alpha preserved |
+| Leadership portraits | copied through, no re-encode | 533×800, alpha required |
 
 Cropping banners to 2.13:1 from 3:2 originals trims roughly the top and bottom 15% of
 each frame. Crops are biased toward faces rather than centred.
@@ -174,3 +177,45 @@ are new files rather than replacements.
 Note on the JSON-LD URLs: they derive from `site.url`, i.e. `NEXT_PUBLIC_SITE_URL`.
 Locally they render as `localhost:3000`; production needs that env var pointing at the
 real domain (it already defaults to `https://www.pplsolutionsinc.com`).
+
+## Leadership portraits (follow-on, same day)
+
+The client supplied five correctly named 533×800 transparent webp cutouts, replacing the
+mismatched square headshots.
+
+**Copied through, not re-encoded.** The largest fan slot renders at 394 CSS px
+(`w-[22rem]` = 352 px × the centre slot's `scale(1.12)`), so 788 device px at DPR 2 —
+533×800 is already right, and a second lossy webp pass would only add generation loss.
+They arrive at 65–85 KB.
+
+**They must stay 2:3 and keep alpha.** `LeadershipShowcase` renders them with
+`object-contain object-bottom`; cropping them square or flattening them breaks the
+cut-out fan.
+
+Two files were renamed to match the supplied names: `apolpng.webp` → `apol-macaroyo.webp`
+and `karen-porras.webp` → `clari-porras.webp` (the component displays "Clari Porras").
+The earlier instruction to preserve the off-convention `apolpng` name no longer applies —
+its whole purpose was that no properly named file existed.
+
+**Alt text** moved from `Portrait of ${name}` to
+`${name}, ${title}, .ppl Solutions, Inc.` — "portrait" describes the format, not the
+content, and the old form produced five near-identical alts on one page.
+
+**`sizes` corrected** from `304px` to `394px`, matching the real rendered box.
+
+**Person structured data** (`components/about/LeadershipSchema.tsx`) is the "description"
+half of the ask: each portrait is tied to a named person, job title, employer, and
+verified LinkedIn profile, with the client-supplied first bio paragraph as `description`.
+This is what `alt` cannot express. The roster moved to `lib/leadership.ts` so the
+showcase and the schema share one source of truth and cannot drift.
+
+### Cache gotcha found during verification
+
+Three portraits kept their existing URLs, and Next served **stale optimized images** for
+them — old 600×600 and 300×300 outputs — while the two renamed files were correct. The
+optimizer cache in Next 16 lives at **`.next/dev/cache/images`**, not `.next/cache/images`.
+Clearing the latter appears to succeed and changes nothing.
+
+This matters for deployment: the CDN caches optimized images keyed by source URL, so
+replacing a file's *contents* without changing its *name* can serve the old image until
+the TTL expires. Renaming on content change avoids it.

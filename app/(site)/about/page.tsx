@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageHero } from "@/components/PageHero";
 import { AboutIntro } from "@/components/about/AboutIntro";
 import { LeadershipShowcase } from "@/components/about/LeadershipShowcase";
+import { LeadershipSchema } from "@/components/about/LeadershipSchema";
 import { MvvReveal } from "@/components/about/MvvReveal";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
@@ -30,6 +31,7 @@ export default function AboutPage() {
           just above, so the fan should sit close beneath it. */}
       <Section bg="white" trackSection="leadership" className="lg:pt-0 lg:pb-8">
         <Container size="wide">
+          <LeadershipSchema />
           <LeadershipShowcase />
         </Container>
       </Section>

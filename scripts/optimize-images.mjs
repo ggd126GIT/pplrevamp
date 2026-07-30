@@ -28,7 +28,6 @@ const PRESET = {
   square: { width: 900, height: 900, quality: 82 },
   card: { width: 1200, height: 800, quality: 80 },
   industry: { width: 1600, height: null, quality: 80 },
-  headshot: { width: 600, height: 600, quality: 85 },
 };
 
 /**
@@ -149,14 +148,21 @@ const MANIFEST = [
   { src: "ppl-IT.jpg", out: "services/ppl-it.webp", preset: "industry" },
   { src: "ppl-manufacture.jpg", out: "services/ppl-manufacture.webp", preset: "industry" },
 
-  // ---- Leadership headshots. Source filenames do not match the people; this
-  // mapping is deliberate and was face-matched against the live site.
-  // `apolpng` keeps its off-convention name by explicit earlier request.
-  { src: "ppl-joey.png", out: "team/joey-lianko.webp", preset: "headshot" },
-  { src: "ppl-ana.png", out: "team/tina-loneza.webp", preset: "headshot" },
-  { src: "apolpng.png", out: "team/apolpng.webp", preset: "headshot" },
-  { src: "ppl-raael.png", out: "team/rafael-dayalo.webp", preset: "headshot" },
-  { src: "ppl-claire.png", out: "team/karen-porras.webp", preset: "headshot" },
+  // ---- Leadership portraits (supplied 2026-07-30, correctly named at last).
+  //
+  // Copied through rather than re-encoded. They arrive as 533x800 transparent
+  // webp at 65-85 KB, and the largest slot in the fan renders at 394 CSS px —
+  // 788 device px at DPR 2 — so 800 tall is already the right size. Running them
+  // through sharp again would only add a second lossy webp generation.
+  //
+  // NEVER flatten these: LeadershipShowcase renders them with
+  // `object-contain object-bottom` and depends on the transparent cutout. They
+  // are 2:3 portraits, so they must not be cropped square either.
+  { src: "Joey Lianko.webp", out: "team/joey-lianko.webp", copy: true },
+  { src: "Tina Loneza.webp", out: "team/tina-loneza.webp", copy: true },
+  { src: "Apol Macaroyo.webp", out: "team/apol-macaroyo.webp", copy: true },
+  { src: "Rafael Dayalo.webp", out: "team/rafael-dayalo.webp", copy: true },
+  { src: "Clari Porras.webp", out: "team/clari-porras.webp", copy: true },
 
   // Logo stays PNG: 2.9 KB with alpha, already below what webp would save.
   { src: "ppl-logo.png", out: "ppl-logo.png", copy: true },
