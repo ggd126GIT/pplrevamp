@@ -96,8 +96,7 @@ Joey Lianko
 Data Protection Officer
 
 Address
-Jollibee Plaza, 12 Emerald Ave,
-San Antonio, Pasig, 1605 Metro Manila
+32F One San Miguel Building., San Miguel Ave. corner Shaw Boulevard, Ortigas Center, Pasig City, 1605, Metro Manila
 
 Or email us at
 sales@pplsolutionsinc.com

@@ -225,7 +225,7 @@ export default function PrivacyPolicyPage() {
                   <p className="mt-1">
                     32F One San Miguel Building., San Miguel Ave. corner Shaw Boulevard
                     <br />
-                    Ortigas Center, Pasig City, 1605 Metro Manila
+                    Ortigas Center, Pasig City, 1605, Metro Manila
                   </p>
                   <p className="mt-4 text-sm font-semibold uppercase tracking-wide text-charcoal/50">
                     Email
