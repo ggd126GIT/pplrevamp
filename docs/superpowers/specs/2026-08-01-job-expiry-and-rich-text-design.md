@@ -58,7 +58,9 @@ create policy "jobs public read open" on public.jobs for select to public
 ```
 
 Applied through `mcp__supabase__apply_migration` (this project keeps no local `supabase/migrations`
-directory), then `lib/database.types.ts` is regenerated.
+directory). `lib/database.types.ts` then gets `expires_at` added by hand to the `jobs` Row / Insert /
+Update blocks — a full regen churns unrelated tables and generator metadata, burying a three-line
+change in review noise.
 
 Enforcing expiry **in the RLS policy** rather than only in queries means an expired job is invisible
 to the anon key even if an app query forgets the filter. All three public read paths use the anon
@@ -121,9 +123,11 @@ can tell "cleared" from "typo" — see §4.4.
 
 ### 4.5 Rich-text editing
 
-- `RichTextEditor` gains an **Underline** toolbar button. Tiptap v3's StarterKit already registers
-  the Underline extension (`UnderlineOptions` appears in its options type) — confirm at
-  implementation time; if it is not enabled by default, add `@tiptap/extension-underline`.
+- `RichTextEditor` gains an **Underline** toolbar button. Verified 2026-08-01: StarterKit 3.28's
+  default extension list is `bold, blockquote, bulletList, code, codeBlock, doc, dropCursor,
+  gapCursor, hardBreak, heading, undoRedo, horizontalRule, italic, listItem, listKeymap, link,
+  orderedList, paragraph, strike, text, underline, trailingNode` — **`underline` and `strike` are
+  both already registered**, so no new dependency and no `configure` change.
 - `renderTiptap` in `lib/tiptap.ts` gains `underline → <u>` and `strike → <s>`. Strike is not on the
   toolbar, but StarterKit registers it and a paste can carry it; without the case it renders as
   unmarked text, losing the author's meaning silently.
