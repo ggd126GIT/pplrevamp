@@ -26,11 +26,34 @@ export function rateLimit(
   return { ok: true, retryAfter: 0 };
 }
 
-/** Best-effort client IP from proxy headers. */
+/**
+ * Headers set by our own infrastructure, in descending order of trust.
+ * `cf-connecting-ip` is written by Cloudflare, which discards any client-supplied
+ * copy; `x-real-ip` is written by nginx from `$remote_addr`, which the `real_ip`
+ * module has already corrected to the true client address.
+ */
+const TRUSTED_IP_HEADERS = ["cf-connecting-ip", "x-real-ip"] as const;
+
+/**
+ * Best-effort client IP from proxy headers, used to key rate-limit buckets.
+ *
+ * Order matters for abuse protection. `x-forwarded-for` is client-supplied, and
+ * nginx *appends* the real address rather than replacing it — so its first entry
+ * is attacker-controlled. Reading it first meant anyone could reset their own
+ * rate-limit bucket on every request by sending one extra header, which defeated
+ * the limiter entirely. It is therefore only a fallback, for environments that
+ * populate nothing better (e.g. some Vercel paths).
+ */
 export function clientIp(headers: Headers): string {
-  return (
-    headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    headers.get("x-real-ip") ||
-    "unknown"
-  );
+  for (const name of TRUSTED_IP_HEADERS) {
+    const value = headers.get(name)?.trim();
+    if (value) return value;
+  }
+
+  for (const entry of (headers.get("x-forwarded-for") ?? "").split(",")) {
+    const value = entry.trim();
+    if (value) return value;
+  }
+
+  return "unknown";
 }
