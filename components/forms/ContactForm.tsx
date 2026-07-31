@@ -108,6 +108,10 @@ export function ContactForm() {
           <>
             <Loader2 className="size-4 animate-spin" /> Sending…
           </>
+        ) : blocked ? (
+          <>
+            <Loader2 className="size-4 animate-spin" /> Verifying…
+          </>
         ) : (
           "Send Message"
         )}
