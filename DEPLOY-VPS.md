@@ -363,6 +363,12 @@ server {
         proxy_set_header Connection        'upgrade';
         proxy_set_header Host              $host;
         proxy_set_header X-Real-IP         $remote_addr;
+        # Overwrite, never forward, the client's copy. $remote_addr is already the
+        # true address: real_ip rewrites it from CF-Connecting-IP for Cloudflare
+        # ranges, and it is the actual peer otherwise. Without this line a client
+        # can forge CF-Connecting-IP by hitting the origin IP directly and bypass
+        # rate limiting entirely - see the note under C1.
+        proxy_set_header CF-Connecting-IP  $remote_addr;
         proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
@@ -376,6 +382,24 @@ sudo ln -s /etc/nginx/sites-available/ppl /etc/nginx/sites-enabled/
 sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl reload nginx
 ```
+
+> **Do not drop the `CF-Connecting-IP` override.** `clientIp()` in `lib/rateLimit.ts` keys the
+> rate-limit buckets on `cf-connecting-ip` → `x-real-ip` → `x-forwarded-for`. The first two are only
+> trustworthy because nginx overwrites both with `$remote_addr`; anything nginx merely forwards is
+> attacker-controlled. This was found by testing, not review: eight rapid POSTs to `/api/contact`
+> gave `200 ×5, 429 ×3` normally but `200 ×8` while rotating a forged header, i.e. no rate limiting
+> at all. Re-test after any change here with:
+>
+> ```bash
+> for i in $(seq 1 8); do curl -s -o /dev/null -w '%{http_code} ' -u ppl:PASS \
+>   -X POST -H 'content-type: application/json' \
+>   -H "CF-Connecting-IP: 198.51.100.$i" -H "X-Real-IP: 192.0.2.$i" -H "X-Forwarded-For: 203.0.113.$i" \
+>   -d '{"name":"t","email":"t@example.com","message":"t","company_url":"spam"}' \
+>   https://w2.pplsolutionsinc.com/api/contact; done
+> ```
+>
+> The `company_url` value is the honeypot, so these are discarded as spam and create no rows.
+> Expect 429s by the sixth request.
 
 ### C2. SSL for the Hostinger hostname
 
