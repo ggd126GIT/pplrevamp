@@ -88,6 +88,7 @@ export async function POST(request: Request) {
       .select("status, expires_at")
       .eq("id", jobId)
       .maybeSingle();
+    if (jobErr) console.error("[apply] job lookup failed:", jobErr.message);
     if (jobErr || !job || !acceptsApplications(job)) {
       return NextResponse.json(
         { ok: false, error: "This role is no longer accepting applications." },
