@@ -6,6 +6,7 @@ import Link from "@tiptap/extension-link";
 import {
   Bold,
   Italic,
+  Underline,
   Heading2,
   Heading3,
   List,
@@ -63,6 +64,13 @@ function Toolbar({ editor }: { editor: Editor }) {
         onClick={() => editor.chain().focus().toggleItalic().run()}
       >
         <Italic className="size-4" />
+      </ToolbarButton>
+      <ToolbarButton
+        label="Underline"
+        active={editor.isActive("underline")}
+        onClick={() => editor.chain().focus().toggleUnderline().run()}
+      >
+        <Underline className="size-4" />
       </ToolbarButton>
       <span className="mx-1 h-5 w-px bg-black/10" />
       <ToolbarButton
