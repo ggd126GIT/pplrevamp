@@ -9,6 +9,7 @@ import {
   MAX_MESSAGE_LENGTH,
   persistInquiry,
 } from "@/lib/forms";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 export async function POST(request: Request) {
   const ip = clientIp(request.headers);
@@ -53,6 +54,15 @@ export async function POST(request: Request) {
         ok: false,
         error: `Your goals message is too long. Please keep it under ${MAX_MESSAGE_LENGTH} characters.`,
       },
+      { status: 400 },
+    );
+  }
+
+  const turnstile = await verifyTurnstile(body["cf-turnstile-response"], ip);
+  if (!turnstile.ok) {
+    console.warn("[discovery] turnstile rejected:", turnstile.reason);
+    return NextResponse.json(
+      { ok: false, error: "Verification failed. Please try again." },
       { status: 400 },
     );
   }

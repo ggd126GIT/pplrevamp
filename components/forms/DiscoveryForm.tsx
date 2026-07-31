@@ -7,6 +7,7 @@ import { cn } from "@/lib/cn";
 import { Field, TextInput, Textarea, Select, Honeypot } from "./fields";
 import { HONEYPOT_FIELD, MAX_MESSAGE_LENGTH } from "@/lib/forms";
 import { getSessionId } from "@/lib/analytics/session";
+import { TurnstileWidget, useTurnstile } from "./Turnstile";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -49,6 +50,13 @@ export function DiscoveryForm() {
   const [data, setData] = useState(initial);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
+  const {
+    token,
+    setToken,
+    ref: turnstileRef,
+    reset: resetTurnstile,
+    blocked,
+  } = useTurnstile();
 
   const set = (key: keyof typeof initial) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -79,6 +87,7 @@ export function DiscoveryForm() {
           ? data.industryOther
           : data.industry,
       sessionId: getSessionId(),
+      "cf-turnstile-response": token,
     };
 
     try {
@@ -95,6 +104,7 @@ export function DiscoveryForm() {
     } catch (err) {
       setStatus("error");
       setError(err instanceof Error ? err.message : "Something went wrong.");
+      resetTurnstile();
     }
   }
 
@@ -243,6 +253,8 @@ export function DiscoveryForm() {
 
       {error && <p className="text-sm font-medium text-red-600">{error}</p>}
 
+      {step === 2 && <TurnstileWidget ref={turnstileRef} onToken={setToken} />}
+
       <div className="flex items-center justify-between gap-4">
         {step > 0 ? (
           <button
@@ -256,7 +268,10 @@ export function DiscoveryForm() {
           <span />
         )}
 
-        <Button type="submit" disabled={!canAdvance || status === "submitting"}>
+        <Button
+          type="submit"
+          disabled={!canAdvance || status === "submitting" || (step === 2 && blocked)}
+        >
           {status === "submitting" ? (
             <>
               <Loader2 className="size-4 animate-spin" /> Sending…
@@ -264,6 +279,10 @@ export function DiscoveryForm() {
           ) : step < 2 ? (
             <>
               Next <ArrowRight className="size-4" />
+            </>
+          ) : blocked ? (
+            <>
+              <Loader2 className="size-4 animate-spin" /> Verifying…
             </>
           ) : (
             "Request Consultation"
