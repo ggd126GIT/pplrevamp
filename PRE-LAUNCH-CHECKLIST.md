@@ -30,12 +30,19 @@ production site if not changed at cutover.
 
 ## 2. Email deliverability (🔴 blocker)
 
-- **Resend domain not verified** — blocked by DNS access (see §3). Until done, visitor
-  auto-replies bounce; only the signup inbox receives mail.
+- **Resend domain not verified** — blocked by DNS access (see §3). Re-confirmed `not_started` via
+  the Resend API on 2026-07-31. Until done, visitor auto-replies bounce; only the signup inbox
+  receives mail.
 - Plan: verify the **`send.pplsolutionsinc.com` subdomain** in Resend (isolates from the
-  company's Microsoft 365 root mail), add records in Cloudflare as **DNS-only (grey cloud)**.
-  Cloudflare's Name field is relative — enter the Name column verbatim, not the FQDN. The
-  subdomain does not exist yet = clean slate. **Do not touch root MX/SPF** (M365).
+  company's Microsoft 365 root mail). Cloudflare's Name field is relative — enter the Name column
+  verbatim, not the FQDN. The subdomain does not exist yet = clean slate. **Do not touch root
+  MX/SPF** (M365).
+
+> **Correction (2026-07-31):** earlier revisions of this file said to add these records as
+> "DNS-only / grey cloud". **That is not applicable.** Cloudflare only proxies `A`, `AAAA` and
+> `CNAME`; `TXT` and `MX` are always DNS-only and have no proxy toggle. Telling whoever adds them to
+> look for a grey cloud will just send them hunting for a control that isn't there. The grey-cloud
+> instruction *does* still apply to the `@`/`www` records at cutover — see §3.
 
 ### The three records (pulled from the Resend API 2026-07-30, domain id `edd36e88-a1c4-4770-aa24-7c2430e28453`)
 
@@ -62,27 +69,56 @@ than trying to check the mailboxes directly.
 
 ---
 
-## 3. DNS reality for `pplsolutionsinc.com` (🔴 blocker — access problem)
+## 3. DNS reality for `pplsolutionsinc.com` (🔴 THE ONLY REMAINING BLOCKER)
 
 - **Hostinger is registrar only** — its DNS panel says "DNS managed elsewhere".
   **Never accept its "switch nameservers to Hostinger" offer** — it would move the zone and can drop records.
 - **Authoritative NS = Cloudflare** (`yisroel` / `kristin.ns.cloudflare.com`), in a Cloudflare
-  account **the user does not currently control.** Adding the domain to your own Cloudflare only
+  account **the build team does not control.** Adding the domain to your own Cloudflare only
   opens the lossy onboarding scan — do not complete it / do not change nameservers.
 - Company mail = **Microsoft 365**; root SPF `v=spf1 include:spf.protection.outlook.com -all`.
-- **Action needed:** obtain access to the controlling Cloudflare account (or have its owner add
-  the records) before either Resend verification or DNS cutover can happen. This is the single
-  biggest external dependency.
+
+### Who has access (identified 2026-07-31)
+
+**Rafael Dayalo ("RD") set up the Microsoft 365 tenant and has offered to configure DNS.** That is
+almost certainly the route in: standing up M365 requires creating the MX, SPF, `autodiscover`,
+`enterpriseregistration` and `MS=` verification records, and all of those are in this zone.
+
+Corroborating evidence: the Let's Encrypt certificate for `w2.pplsolutionsinc.com` was issued
+**2026-07-05 05:07 GMT**, the hour the VPS was provisioned. An HTTP-01 challenge can only succeed if
+the name already resolves to the box, so **somebody wrote an A record into this live zone that day**.
+
+### Two separable asks — do not bundle them
+
+1. **Resend records (§2).** Purely additive, three new names under `send.`, cannot affect anything
+   live. **Push for this now**, independently of any launch decision — without it every contact
+   form submission and job application is collected silently with nobody notified.
+2. **Cutover records (`@` and `www`).** Modifies two existing records. Needs the client's go-ahead
+   and a recorded rollback target. These two *are* proxy-toggled records, so the grey-cloud/
+   orange-cloud ordering in `DEPLOY-VPS.md` Phase E genuinely matters here.
 
 ---
 
-## 4. Deployment target decision (🔴 blocker)
+## 4. Deployment target decision (✅ RESOLVED — VPS, and it is live)
 
-- **CLAUDE.md spec target = VPS** (Node 20, PM2, Nginx reverse proxy, Certbot SSL). **Not started.**
-- Current live environment is **Vercel (staging only)** — Hobby plan is licensed non-commercial,
-  fine for short-lived review, **not** for a long-term commercial production site.
-- **Decide:** VPS (per spec) vs. a paid Vercel plan. If VPS, the whole PM2/Nginx/Certbot/DNS
-  step still has to be built and tested.
+- **Decided and done 2026-07-31: the Hostinger VPS.** The site is deployed, serving and verified at
+  **`https://w2.pplsolutionsinc.com`**, gated and `noindex`. Node 22 · PM2 (systemd-persisted,
+  resurrection tested) · nginx · Let's Encrypt. Full record in `DEPLOY-VPS.md`.
+- **nginx already answers for `pplsolutionsinc.com` and `www`**, apex 301s to www in one hop, and
+  `/var/www/ppl/cutover.sh` performs the go-live as a single command with a DNS pre-flight guard
+  that refuses to half-apply. All inert until DNS moves.
+- **Release process:** `ssh gilbertd@187.127.121.54 '/var/www/ppl/deploy.sh'`. Note that pushing to
+  `master` does **not** deploy the VPS — it still auto-deploys Vercel. Expect a brief 502 right
+  after each deploy (`pm2 reload` on a single instance is not zero-downtime); retry before treating
+  it as a failure.
+- **Vercel staging is still live** and still auto-deploys. Two environments now run off the same
+  branch against the same Supabase project. **Decide when to retire the Vercel one** — the Hobby
+  plan is licensed non-commercial and is not a long-term home for a client site.
+
+> **§1 note:** the env-var table above is written against Vercel. On the VPS these live in
+> `/var/www/ppl/.env.production` (0600), and `cutover.sh` already handles the two that change at
+> go-live (`NEXT_PUBLIC_SITE_URL`, removing `STAGING_PASSWORD`). The Resend three still need
+> setting by hand once the domain verifies.
 
 ### VPS-specific gotcha — country tracking (✅ resolved)
 - `x-vercel-ip-country` only exists on Vercel and would go `null` on the VPS. Now handled by
@@ -91,6 +127,10 @@ than trying to check the mailboxes directly.
 - **Still needed on the VPS:** the country only populates if something upstream sets one of those
   headers — either Cloudflare proxying (orange cloud) or the Nginx GeoIP module writing
   `x-geoip-country`. Without either, `country` stays null (harmless; nothing displays it yet).
+- **Confirmed on the live VPS 2026-07-31:** a real tracked page view landed with
+  `country`/`region`/`city` all **null**, exactly as predicted — no Vercel headers, and no
+  `cf-ipcountry` while `w2` is grey-clouded. Country will start populating the moment the proxy goes
+  orange at cutover. Nothing to fix; noted so it isn't mistaken for a regression.
 - **City/region precision is Vercel-only for free.** `geoFromHeaders()` also reads
   `x-vercel-ip-city` / `x-vercel-ip-country-region` (Vercel) and `cf-ipcity` / `x-geoip-*`
   (Cloudflare Enterprise / Nginx GeoIP). Cloudflare's **free** tier gives country only — a VPS
@@ -184,13 +224,30 @@ Staging shares the **same Supabase project** as production, so real test data is
 
 ---
 
-## Quick priority summary
+## Quick priority summary *(rewritten 2026-07-31)*
 
-**Must do before public go-live:** unset `STAGING_PASSWORD` · fix `NEXT_PUBLIC_SITE_URL` ·
-verify Resend domain + set `RESEND_FROM` · set real `CONTACT_NOTIFY_EMAIL` · rotate admin password ·
-resolve Cloudflare DNS access · pick & build the deploy target (VPS vs paid Vercel) · clean staging test data.
+**The only external blocker left is Cloudflare DNS access (§3).** Everything the build team can do
+without it is done.
 
-**Done (2026-07-23):** `Promise.allSettled` email fix · per-form `JOBS_NOTIFY_EMAIL` routing ·
-country-header fallback chain · inquiries `_staging`/subtitle cleanups.
+**Handled automatically by `cutover.sh`** — no longer things to remember: unset `STAGING_PASSWORD` ·
+`NEXT_PUBLIC_SITE_URL` · certificate for the real domain · rebuild.
 
-**Strongly recommended alongside:** leadership bios · referral conditions copy.
+**Still to do by hand, and possible today (no Cloudflare needed):**
+- Rotate the `admin12345` password (§5)
+- Staging data cleanup SQL (§8) — inquiries, page_views, events, test applications + orphaned CVs
+- Delete junk posts (`hello-blog-test-1`, `test-post-july-21-2026`, `test`, the EV-battery article)
+  and test jobs
+- Referral conditions copy — still "being checked by lawyer" (§9)
+- The 60-vs-100 years figure — still unconfirmed by the client
+- Tina's second bio paragraph is missing from server-rendered HTML (crawlers don't see it; ~15 min)
+- Decide when to retire Vercel staging (§4)
+
+**Needs Cloudflare, in this order:**
+1. Resend's three `send.` records → then set `RESEND_FROM`, `CONTACT_NOTIFY_EMAIL=sales@`,
+   `JOBS_NOTIFY_EMAIL=careers@` and redeploy. **Ask for this now — it is additive and risk-free.**
+2. Record the current `@`/`www` values (the only rollback to WordPress), then cutover per
+   `DEPLOY-VPS.md` Phase E.
+
+**Done:** deploy target chosen and built (§4) · `Promise.allSettled` email fix · per-form
+`JOBS_NOTIFY_EMAIL` routing · country-header fallback chain · inquiries `_staging`/subtitle
+cleanups · leadership bios · server port exposure closed.

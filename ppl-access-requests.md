@@ -1,68 +1,67 @@
-# .ppl Website — Three Requests
+# .ppl Website — One Remaining Request
 
-**To:** Joey Lianko
+**To:** Joey Lianko (and Rafael Dayalo)
 **From:** Gilbert
-**Date:** 30 July 2026
-**Summary:** One security issue on your server, and two access permissions that are currently
-holding up the website launch.
+**Date:** 31 July 2026 *(supersedes the 30 July version, which listed three requests)*
+**Summary:** The website is now built, deployed and running on your server. One access permission
+is left before it can go live.
 
 ---
 
-## 1. Your server has a security issue
+## Where things stand
 
-The Hostinger server is running a database system that came pre-installed with it. That database
-is currently **reachable from the public internet**, and installations like this normally ship with
-well-known default passwords. If those were never changed, anyone could read or change the data in
-it.
+**The new website is live on your Hostinger server and ready to review:**
 
-We don't use this database — the website runs on a separate, properly secured one — so the safest
-fix is simply to switch it off and remove it. That also frees up about half the server's memory and
-around 18 GB of disk space, which the website will need.
+**https://w2.pplsolutionsinc.com** — username `ppl`, password `Jaax4PvOUvE9`
 
-**What I need from you:** server access (request 2 below). Once I have it, this takes a few minutes.
+It is password-protected on purpose, and hidden from Google, so nothing is public until you say so.
+Your current WordPress site at www.pplsolutionsinc.com is untouched and still running normally.
 
----
+Two of the three requests from the 30 July note are now resolved:
 
-## 2. Full access to the Hostinger account
-
-I'm currently managing your Hostinger account in a limited "impersonate" mode. Hostinger blocks
-security settings in that mode, so I can't reach the server's command line or manage its access
-settings — which is everything the deployment needs.
-
-**Two ways to solve it. Either works:**
-
-**Option A — add me as a user on the account.** Cleanest, because it prevents this coming up again
-at every step.
-
-**Option B — run three commands yourself.** In Hostinger: your VPS → Browser terminal → paste the
-block in the appendix. Takes about two minutes. Note that this grants me command-line access to the
-server.
+- ✅ **Server access** — sorted. No further action needed from you.
+- ✅ **The server security issue** — fixed. The pre-installed database on your server was reachable
+  from the public internet; it is now locked to the server itself and confirmed closed from outside.
+  We left it running rather than removing it, in case something of yours depends on it. If nothing
+  does, tell us and we'll remove it — that would free up roughly half the server's memory.
 
 ---
 
-## 3. Access to the Cloudflare account
+## The one thing still needed: Cloudflare DNS
 
-Your domain `pplsolutionsinc.com` has its DNS settings hosted at **Cloudflare**, in an account that
-nobody on our side can get into. Hostinger is only the registrar — the actual settings live at
-Cloudflare.
+Your domain's DNS settings are hosted at **Cloudflare**, in an account nobody on our side can sign
+in to. Hostinger is only the registrar — the actual settings live at Cloudflare.
 
-Most likely it was set up by whoever configured your Microsoft 365 email, since that same account
-also holds your email and device-management settings.
+**Rafael is the most likely person to have this.** Setting up Microsoft 365 requires creating
+several DNS records, and those records are sitting in that Cloudflare account. There's also a
+specific clue: on 5 July, when the server was set up, someone added a record to that same account.
 
-**Until we get access, two things cannot happen:**
+Rafael — if you have access, this is the ask. If not, could you point us to who does?
 
-- **Pointing `pplsolutionsinc.com` at the new website.** The domain still shows the old WordPress
-  site and we have no way to change that.
-- **Turning on the contact and careers form emails.** Enquiries are being saved to the database, but
-  no notification email can be sent until we add three records at Cloudflare.
+### Part A — three records to switch on website email (small, safe, ready now)
 
-**What I need from you:** either access to that account, or an introduction to whoever manages it —
-they only need to paste in three records, which I'll supply.
+Right now, when someone submits the contact form or applies for a job, **the enquiry is saved but
+nobody gets notified**. Three DNS records fix that.
 
-> One important note: please **don't** let Hostinger move the domain's nameservers to Hostinger, and
-> don't accept any prompt offering to do so. Your Microsoft 365 email settings live in that
-> Cloudflare account, and moving things carelessly can take company email offline. This needs to be
-> done deliberately, in the right order.
+They are all new entries on a `send.` prefix that doesn't currently exist. **They do not touch
+Microsoft 365** — not the mail routing, not the sender policy, not autodiscover, nothing that
+currently carries company email. That separation is deliberate.
+
+This part can be done now, independently of the launch decision. It cannot affect anything live.
+
+### Part B — pointing the domain at the new site (when you're ready to launch)
+
+Two existing records get changed so `pplsolutionsinc.com` shows the new website instead of the old
+WordPress one. This is the actual go-live moment, so it happens only on your say-so, and we'd want
+to do it together on a call — it takes a few minutes and there's a specific order to follow.
+
+**Before that call, one thing matters a lot:** we need to write down the current settings for those
+two records first. They're the only way back to the WordPress site if anything goes wrong, and that
+information exists nowhere except inside the Cloudflare account.
+
+> **Please don't let Hostinger move the domain's nameservers to Hostinger**, and don't accept any
+> prompt offering to do so. Your Microsoft 365 email settings live in that Cloudflare account, and
+> moving them carelessly can take company email offline.
 
 ---
 
@@ -70,33 +69,15 @@ they only need to paste in three records, which I'll supply.
 
 | | Status |
 |---|---|
-| Website built and tested | ✅ Done — reviewable on the staging site |
+| Website built, tested, and deployed to your server | ✅ Done — reviewable at the link above |
 | Content and design changes from your feedback | ✅ Done |
-| Deploying to your server | ⛔ Blocked by request 2 |
-| Switching the domain over | ⛔ Blocked by request 3 |
-| Contact form emails | ⛔ Blocked by request 3 |
+| Server access | ✅ Resolved |
+| Server security issue | ✅ Fixed |
+| Contact and careers form emails | ⛔ Needs Part A |
+| Switching the domain over | ⛔ Needs Part B, and your go-ahead |
 
-**Requests 2 and 3 are the only things holding up launch.** Everything else is finished and waiting.
-
-Request 3 is likely the slower one, since it depends on finding whoever set up Cloudflare — so it's
-worth starting that conversation first, even before the server access.
+**Part A is the one worth starting today** — it's small, carries no risk to anything currently
+running, and it's the difference between enquiries being silently collected and someone actually
+being told about them.
 
 Happy to jump on a quick call for any of this.
-
----
-
-## Appendix — commands for Option B
-
-Only needed if you'd rather not add me as a user. In Hostinger: your VPS → **Browser terminal** →
-paste this whole block and press Enter. It should print `OK`.
-
-```bash
-usermod -aG sudo gilbertd
-mkdir -p /root/.ssh
-echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC9UuSAs+wciHosFDZwQdOpIMqmSgM1uRkfbF1nmsULI gilbert-ppl-vps" >> /root/.ssh/authorized_keys
-chmod 700 /root/.ssh && chmod 600 /root/.ssh/authorized_keys
-echo OK
-```
-
-What it does, in plain terms: gives my existing server account administrator rights, and installs a
-secure key so I can log in without a password being shared over email or chat.
