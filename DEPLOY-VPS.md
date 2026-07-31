@@ -461,26 +461,51 @@ This phase is fully independent of the VPS — it can be done before, during or 
 
 ## Phase E — Domain cutover (needs Cloudflare)
 
-Only once Phase C passes and you are ready to retire WordPress.
+### The server side is already staged (2026-07-31)
 
-1. **Record the rollback target.** Note the current `@` and `www` record values in Cloudflare
-   *before* editing — that is the WordPress origin and your one-click way back.
+Everything that can be done without the zone has been done. nginx already answers for
+`pplsolutionsinc.com` and `www.pplsolutionsinc.com`, apex already 301s to `www` in a single hop, and
+**`/var/www/ppl/cutover.sh`** performs the rest as one command. It refuses to run until DNS actually
+points here, so it cannot half-apply — that guard has been tested against the current (still
+WordPress) DNS and correctly declined, changing nothing.
+
+Two things deliberately **not** pre-applied, because both would take effect immediately on the
+public `w2` hostname:
+
+- **`STAGING_PASSWORD` is still set.** Removing it drops the gate *and* the `noindex` header, which
+  would expose the site and let Google index `w2.pplsolutionsinc.com` before launch.
+- **The certificate does not yet cover the real domain.** Certbot's HTTP-01 challenge needs the name
+  to resolve here, which it will not until the records move.
+
+### Correction to the ordering: grey cloud first, then the cert, then orange
+
+The obvious sequence — repoint proxied, then run certbot — **does not work**, for two compounding
+reasons:
+
+1. Certbot's HTTP-01 challenge cannot complete through Cloudflare's proxy; it needs to reach the
+   origin directly.
+2. Under **Full (strict)** Cloudflare validates the origin certificate. Proxying to an origin whose
+   cert covers only `w2` gives a **526** on the real hostname.
+
+So:
+
+1. **Record the rollback target.** Note the current `@` and `www` values in Cloudflare *before*
+   editing. They are proxied, so the WordPress origin is **not** discoverable from outside — the
+   dashboard is the only place it exists. Without it there is no way back.
 2. **Lower TTL** on `@` and `www` to 60s a few hours ahead.
-3. **Pre-flight the app:** run the `PRE-LAUNCH-CHECKLIST.md` §8 cleanup SQL (staging-tagged
-   inquiries, page_views, events; test applications and their orphaned CVs; junk posts and jobs),
-   rotate the `admin12345` password, then set `NEXT_PUBLIC_SITE_URL=https://www.pplsolutionsinc.com`,
-   **remove `STAGING_PASSWORD`**, and `./deploy.sh`.
-4. **Set SSL/TLS mode to Full (strict)** in Cloudflare *before* repointing. If it is currently
-   "Flexible", leaving it there once traffic reaches an HTTPS origin produces a redirect loop.
-5. **Repoint** `@` and `www` to `187.127.121.54`, proxy **on** (orange cloud) — that is what supplies
-   `cf-ipcountry`, which `geoFromHeaders()` already reads, so country analytics keeps working. City
-   and region go null on the free tier; accepted.
-6. **Extend the certificate:** `sudo certbot --nginx -d srv1799389.hstgr.cloud -d pplsolutionsinc.com -d www.pplsolutionsinc.com`
-   (works once DNS resolves to the VPS).
-7. **Verify** the full `PRE-LAUNCH-CHECKLIST.md` §10 list against the real domain — especially that
-   `robots.txt` no longer says `Disallow: /`, that the `x-robots-tag: noindex` header is gone, and
-   that `sitemap.xml` and canonical tags use the real domain.
-8. **Keep WordPress running** for at least a few days. Rollback is one DNS edit.
+3. **Pre-flight the app:** `PRE-LAUNCH-CHECKLIST.md` §8 cleanup SQL, rotate the `admin12345`
+   password, delete the junk posts and test jobs.
+4. **Repoint** `@` and `www` to `187.127.121.54` as **DNS-only (grey cloud)**.
+5. **Run `/var/www/ppl/cutover.sh`.** It verifies DNS, expands the certificate to all three names,
+   sets `NEXT_PUBLIC_SITE_URL`, removes `STAGING_PASSWORD`, rebuilds (required — `NEXT_PUBLIC_*` is
+   inlined at build time) and reloads. **This is the moment the site goes public.**
+6. **Set SSL/TLS to Full (strict), then turn the proxy on** (orange cloud) for `@` and `www`. The
+   proxy is what supplies `cf-ipcountry`, which `geoFromHeaders()` reads, so country analytics
+   starts working. City and region stay null on the free tier; accepted.
+7. **Re-verify after enabling the proxy** — going through Cloudflare can change the answers. Then
+   work through `PRE-LAUNCH-CHECKLIST.md` §10 against the real domain: `robots.txt` no longer
+   `Disallow: /`, no `x-robots-tag: noindex`, canonical and sitemap on the real host.
+8. **Keep WordPress running** for at least a few days. Rollback is one DNS edit — *if* you did step 1.
 
 ---
 
