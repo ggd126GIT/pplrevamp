@@ -5,6 +5,7 @@ import { CheckCircle2, Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Field, TextInput, Honeypot } from "@/components/forms/fields";
 import { HONEYPOT_FIELD } from "@/lib/forms";
+import { TurnstileWidget, useTurnstile } from "@/components/forms/Turnstile";
 
 const ACCEPT = ".pdf,.doc,.docx,.jpg,.jpeg,.png";
 const MAX_BYTES = 2 * 1024 * 1024;
@@ -21,6 +22,12 @@ export function ApplicationForm({
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const {
+    setToken,
+    ref: turnstileRef,
+    reset: resetTurnstile,
+    blocked,
+  } = useTurnstile();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -53,6 +60,7 @@ export function ApplicationForm({
     } catch (err) {
       setStatus("error");
       setError(err instanceof Error ? err.message : "Something went wrong.");
+      resetTurnstile();
     }
   }
 
@@ -106,10 +114,20 @@ export function ApplicationForm({
 
       {error && <p className="text-sm font-medium text-red-600">{error}</p>}
 
-      <Button type="submit" disabled={status === "submitting"} className="w-full sm:w-auto">
+      <TurnstileWidget ref={turnstileRef} onToken={setToken} />
+
+      <Button
+        type="submit"
+        disabled={status === "submitting" || blocked}
+        className="w-full sm:w-auto"
+      >
         {status === "submitting" ? (
           <>
             <Loader2 className="size-4 animate-spin" /> Submitting…
+          </>
+        ) : blocked ? (
+          <>
+            <Loader2 className="size-4 animate-spin" /> Verifying…
           </>
         ) : (
           "Submit Application"

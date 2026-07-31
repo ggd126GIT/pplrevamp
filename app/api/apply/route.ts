@@ -5,6 +5,7 @@ import { sendInternalNotification, sendAutoReply, settleSends } from "@/lib/emai
 import { HONEYPOT_FIELD, isEmail, isNonEmpty } from "@/lib/forms";
 import { slugify } from "@/lib/slug";
 import { acceptsApplications } from "@/lib/jobs";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 const ALLOWED_EXT = ["pdf", "doc", "docx", "jpg", "jpeg", "png"];
@@ -81,7 +82,9 @@ export async function POST(request: Request) {
   // A closed or expired role must not take applications. The public pages
   // filter it out and RLS hides it from the anon key, but this route uses the
   // service client — which bypasses RLS — on a jobId taken from the request.
-  // Checked before the upload so a rejected submission leaves no file behind.
+  // Checked before the upload so a rejected submission leaves no file behind,
+  // and before Turnstile so a doomed submission does not burn a single-use
+  // token on a role that stopped accepting applications anyway.
   if (jobId) {
     const { data: job, error: jobErr } = await supabase
       .from("jobs")
@@ -95,6 +98,17 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
+  }
+
+  // Before the upload specifically: an unverified submission must never put a
+  // file in storage.
+  const turnstile = await verifyTurnstile(form.get("cf-turnstile-response"), ip);
+  if (!turnstile.ok) {
+    console.warn("[apply] turnstile rejected:", turnstile.reason);
+    return NextResponse.json(
+      { ok: false, error: "Verification failed. Please try again." },
+      { status: 400 },
+    );
   }
 
   // Upload CV to the private bucket.
