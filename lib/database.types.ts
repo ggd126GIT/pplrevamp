@@ -159,6 +159,7 @@ export type Database = {
           created_by: string | null
           department: string | null
           description: Json | null
+          expires_at: string | null
           id: string
           location: string | null
           short_description: string | null
@@ -174,6 +175,7 @@ export type Database = {
           created_by?: string | null
           department?: string | null
           description?: Json | null
+          expires_at?: string | null
           id?: string
           location?: string | null
           short_description?: string | null
@@ -189,6 +191,7 @@ export type Database = {
           created_by?: string | null
           department?: string | null
           description?: Json | null
+          expires_at?: string | null
           id?: string
           location?: string | null
           short_description?: string | null
