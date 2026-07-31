@@ -615,10 +615,11 @@ Add the import:
 import { TurnstileWidget, useTurnstile } from "./Turnstile";
 ```
 
-Add the hook beside the existing `status` / `error` state:
+Add the hook beside the existing `status` / `error` state. **Unlike the other two forms, this one destructures `token` as well**, because it needs the raw value for its hand-built payload:
 
 ```tsx
   const {
+    token,
     setToken,
     ref: turnstileRef,
     reset: resetTurnstile,
