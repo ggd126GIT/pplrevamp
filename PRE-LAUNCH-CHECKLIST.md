@@ -189,13 +189,34 @@ the name already resolves to the box, so **somebody wrote an A record into this 
 
 ## 5. Security / auth (🔴)
 
-- **Rotate the admin password.** Dev/staging login `admin@ppl.com` / `admin12345` is weak and
-  known. Rotate before any wider sharing and before go-live. (Second seed
-  `admin@pplsolutionsinc.com` also exists.)
+- ~~**Rotate the admin password.**~~ ✅ **DONE 2026-07-31.** `admin@ppl.com` no longer accepts
+  `admin12345` (verified rejected: *"Invalid login credentials"*); a 38-character password replaced
+  it. **Consider deleting the account entirely** — it serves no purpose now that named staff accounts
+  exist. Credentials live in `Desktop\ppl-admin-credentials.txt`, outside the repo.
+- **Second seed `admin@pplsolutionsinc.com` is still un-rotated** and its password is unknown to the
+  build team. Reset from the Supabase dashboard or delete the account.
+- **Staff accounts: 6 total, every one `role = 'admin'`.** Joey, Tina, Clari, Bianca Jumarang (added
+  2026-07-31, for careers) plus the two dev logins.
+- 🔴 **`role` is decorative — there is no careers-only or editor-only permission.**
+  `handle_new_user()` hardcodes `role = 'admin'` for *every* new auth user, and nothing in the admin
+  actions or RLS checks it. So Bianca, hired for careers, can also publish and delete blog posts, and
+  any staff member can delete another's work. Scoping this properly means enforcing roles in the
+  server actions *and* the RLS policies — not a config toggle.
+- 🟠 **`handle_new_user()` is `SECURITY DEFINER` and callable by `anon`** via
+  `/rest/v1/rpc/handle_new_user` (flagged by Supabase's own linter). It returns `trigger`, so calling
+  it directly should error out rather than do anything — but combined with the hardcoded
+  `role = 'admin'`, **the open question is whether public signup is disabled on this project.** If
+  signup is open, anyone holding the public anon key could create a staff-level account. **Unverified
+  — check `/auth/v1/settings` for `disable_signup`.**
+- 🟠 **Leaked-password protection is disabled** (Supabase advisor). Free to enable; checks new
+  passwords against HaveIBeenPwned.
 - Confirm Supabase RLS is intact in prod: `page_views` staff-read-only / no anon insert;
   published-posts + open-jobs public select; inquiries/applications staff-only.
 - `analytics_summary()` SQL function is **SECURITY INVOKER** by design — do **not** switch it to
-  DEFINER; RLS is what keeps analytics staff-only.
+  DEFINER; RLS is what keeps analytics staff-only. Same for `section_reach()` and `geo_summary()`.
+- 🟡 Advisor warnings left alone, all low-risk: mutable `search_path` on the three analytics
+  functions; unindexed FKs on `activity`/`applications`/`jobs`/`posts`; `auth.<fn>()` re-evaluated
+  per row in several RLS policies (wrap in `(select …)` if analytics ever gets slow).
 
 ---
 
@@ -272,9 +293,16 @@ delete from events     where is_staging = true;
 
 - **Applications have no jsonb tag** — covered by the date cut above. Clear the orphaned CV files from
   the private `cvs` storage bucket too; deleting the rows does not remove the uploads.
-- Verify no test blog posts / jobs remain published (e.g. `hello-blog-test-1`,
-  `test-post-july-21-2026`, `test`, the unrelated EV-battery article; test jobs `lawyer` and
-  `marketing-associate`).
+- ~~Verify no test blog posts / jobs remain published.~~ ✅ **DONE 2026-07-31.** Deleted: 4 test posts
+  (`hello-blog-test-1`, `test-post-july-21-2026`, `test-7-29-2026`, an unrelated EV-battery article),
+  **all 8 jobs** (owner confirmed every one was a test), all 3 applications, all 6 CV files, all 5
+  orphaned blog images. Remaining content: **1 post** (`why-the-philippines-for-bpo`, kept as a
+  placeholder so `/blog` isn't empty — note this is *our* sample copy, not the client's) and **zero
+  jobs**. Verified on both environments.
+- **Storage leaks silently, in two ways** — worth a sweep at cutover and ideally automating (§11 F5):
+  deleting a post does **not** delete its cover image, and a CV upload whose `applications` insert
+  fails leaves the file behind. Three of the six CVs found today were orphans of exactly that kind,
+  and all five blog images were unreferenced.
 - **Do not delete the `activity` table's rows** — it is append-only by design and its history of who
   edited what is worth keeping across cutover.
 
@@ -282,7 +310,26 @@ delete from events     where is_staging = true;
 
 ## 9. Content still outstanding (🟡)
 
-### 🔴 Job postings are duplicated and need real client copy (found 2026-07-31)
+### 🔴 There are NO job postings at all (as of 2026-07-31)
+
+**Every job was deleted** — the owner confirmed all of them were tests. `jobs` is empty, `applications`
+is empty, and the `cvs` bucket is empty. `/careers` now renders its empty state, which reads: *"We
+don't have any open roles right now — but we'd still love to hear from driven, outstanding people.
+Send your CV to careers@pplsolutionsinc.com"* plus a **Get in Touch** button. Verified live on both
+`w2` and Vercel; all former job URLs 404.
+
+**So .ppl must supply real openings before launch** — or launch with the empty state, which is
+presentable and arguably better than placeholder roles. Their call, but it needs to be a decision
+rather than an oversight.
+
+The formatting bug that made pasted job copy unreadable **is fixed** (commit `fe1df94` on `master`),
+so the next real posting will render its bullets and line breaks correctly. Detail of the original
+diagnosis is kept below because it explains what to watch for when copy is pasted from Word.
+
+<details>
+<summary>Original finding: seven jobs sharing identical copy (now moot — all deleted)</summary>
+
+### Job postings are duplicated and need real client copy (found 2026-07-31)
 
 **All seven open jobs were carrying the same content.** Diagnosed as data entry from 2026-07-28, not
 a code bug: `app/(site)/careers/page.tsx` maps and renders per job correctly. The giveaway was
@@ -320,10 +367,15 @@ Ask them for:
 **Attribution is unavailable for this batch:** `created_by` is `null` on everything from 07-28,
 because the attribution columns shipped 07-29. Only `lawyer` carries an `updated_by` (Tina Loneza).
 
-> **Editing job data by direct SQL does not refresh the site.** `/careers` and `/careers/[slug]` are
-> ISR with `export const revalidate = 60`; `revalidatePath` is only called by the admin actions in
-> `app/admin/jobs/actions.ts`. A raw DB write therefore shows up only after the 60s window, and ISR
-> serves stale-then-regenerates, so expect to load the page twice. Prefer editing through `/admin/jobs`.
+</details>
+
+> **Editing job or post data by direct SQL does not refresh the site.** `/careers`, `/careers/[slug]`,
+> `/blog` and `/blog/[slug]` are ISR with `export const revalidate = 60`; `revalidatePath` is only
+> called by the admin server actions. A raw DB write therefore appears only after the 60s window, and
+> ISR serves stale-then-regenerates, so **load the page twice** before concluding anything failed.
+> Each URL caches independently, so a detail page nobody requests stays stale indefinitely.
+> **The two environments hold separate caches:** `deploy.sh` wipes the VPS cache outright, while
+> Vercel only clears on a push or per-URL revalidation. Prefer editing through `/admin`.
 
 - ~~**Leadership bios**~~ — ✅ **RESOLVED 2026-07-29.** Client-supplied bios for all five leaders
   are live in `components/about/LeadershipShowcase.tsx`; no placeholder copy remains. LinkedIn URLs
@@ -355,6 +407,27 @@ because the attribution columns shipped 07-29. Only `lawyer` carries an `updated
 
 ---
 
+## 11. Requested features not yet built (backlog, 2026-07-31)
+
+Transcribed from the client/owner notes in `Desktop\ppl-admin-credentials.txt` so they stop living in
+a loose text file. **None of these are started.** None block launch — decide per item whether it ships
+before or after cutover.
+
+| # | Ask | Notes / rough shape |
+|---|---|---|
+| F1 | **Share button on blog posts** ("WordPress style preview") | Social share links on `/blog/[slug]`. The OG cards already exist (`lib/og-card.tsx`), so link previews will render — this is the share *buttons*. Cheapest version is plain `https://www.facebook.com/sharer/…` / LinkedIn / X links plus copy-link; no third-party script, so no new cookie or consent question. |
+| F2 | **Share button on job postings** | Same treatment on `/careers/[slug]`. Do F1 and F2 together — one shared component. |
+| F3 | **Images on the careers page** | Needs client-supplied photography, or reuse from `assets/`. Note the alt-text principle in the image spec: decorative banners take `alt=""`, only genuine content images get descriptive alt. |
+| F4 | **Job expiry date, auto-hide once passed** | New nullable `expires_at` on `jobs`, a field in `JobForm`, and the public queries filtered to `expires_at is null or expires_at > now()`. **Do not delete on expiry** — hide it, so the row and its applications survive. Interacts with ISR: an expiry that passes does not re-render anything until revalidation, so a job can linger up to the 60s window (fine) — but a *long* `revalidate` would make expiry look broken. |
+| F5 | **Purge applications after 3 months** | Retention rule. Two halves that must both happen: delete the `applications` row **and** its file from the private `cvs` bucket — row deletion does **not** remove the upload (proven: 6 CVs were found in storage with only 3 rows, 3 of them orphans from failed inserts). Needs a scheduled job (Supabase cron / pg_cron) — nothing scheduled exists in this project yet. Also a privacy-policy question: a stated retention period should be reflected in the policy text. |
+| F6 | **"Expiration & purging = role_expiration × 2"** | The owner's note, meaning CV retention should be twice the job's expiry rather than a flat 3 months. **Ambiguous as written** — confirm which rule wins before building, since F5 and F6 conflict. Depends on F4 existing first. |
+
+**Related gap worth folding in:** nothing in the app reaps a CV when the application insert fails, so
+storage leaks on every failed submission. F5's cleanup job is the natural place to sweep orphans —
+files in `cvs` with no matching `applications.cv_url`.
+
+---
+
 ## Quick priority summary *(rewritten 2026-07-31, second revision)*
 
 **There is no longer an external access blocker.** Cloudflare zone access exists (§3) and email is
@@ -364,18 +437,27 @@ verified and configured (§2). **The remaining gate is the client's go-ahead on 
 `NEXT_PUBLIC_SITE_URL` · certificate for the real domain · rebuild.
 
 **Still to do by hand before cutover:**
-- Rotate the `admin12345` password (§5)
-- Staging data cleanup SQL (§8) — inquiries, page_views, events, test applications + orphaned CVs
-- Delete junk posts (`hello-blog-test-1`, `test-post-july-21-2026`, `test`, the EV-battery article)
-  and test jobs
-- Confirm a form submission actually reaches `sales@` / `careers@` (§2) — the one part of email that
-  is configured but unproven
-- Merge and deploy the `feat/turnstile` branch (12 commits, currently on neither environment), then
+- 🔴 **Decide about job postings (§9)** — there are now **zero**. Either .ppl supplies real openings
+  or launch on the empty state, deliberately.
+- 🔴 **Confirm a form submission actually reaches `sales@` / `careers@` (§2)** — configured, verified
+  as far as Resend, but delivery into those inboxes is unproven and needs a .ppl staffer
+- 🟠 **Verify public signup is disabled on Supabase (§5)** — every new auth user is created
+  `role = 'admin'`, so an open signup endpoint would be a staff-access hole
+- Merge and deploy `feat/turnstile` (15 commits, pushed as a backup but on neither environment), then
   create Turnstile keys — those need **no** client Cloudflare access, any account works
+- Staging data cleanup by **date cut**, not the staging flag (§8)
 - Referral conditions copy — still "being checked by lawyer" (§9)
 - The 60-vs-100 years figure — still unconfirmed by the client
 - Tina's second bio paragraph is missing from server-rendered HTML (crawlers don't see it; ~15 min)
-- Decide when to retire Vercel staging (§4) — note it still runs the sandbox email sender
+- Decide when to retire Vercel staging (§4) — it still runs the **sandbox email sender**, so form
+  mail from Vercel goes nowhere; only the VPS is correctly configured
+- Consider deleting `admin@ppl.com` outright, and reset-or-delete `admin@pplsolutionsinc.com` (§5)
+- Triage the six backlog features in **§11** (share buttons, careers images, job expiry, CV
+  retention) into before/after launch
+
+**Done 2026-07-31 (later):** `admin12345` rotated and verified dead · Bianca Jumarang account created
+and sign-in tested · all test posts/jobs/applications/CVs/blog-images deleted on both environments ·
+job description formatting bug fixed and deployed · `feat/turnstile` pushed to GitHub.
 
 **Cutover itself** (client sign-off on timing, then ~15 minutes): grey-cloud `@`/`www` →
 `187.127.121.54` · run `cutover.sh` · SSL **Full (strict)** · orange-cloud. Rollback is one edit back
