@@ -6,6 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { createPublicClient } from "@/lib/supabase/public";
+import { notExpiredFilter } from "@/lib/jobs";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -28,6 +29,7 @@ export default async function CareersPage() {
     .from("jobs")
     .select("id, slug, title, department, location, work_mode, short_description")
     .eq("status", "open")
+    .or(notExpiredFilter())
     .order("created_at", { ascending: false });
 
   return (

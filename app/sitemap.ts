@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { createPublicClient } from "@/lib/supabase/public";
+import { notExpiredFilter } from "@/lib/jobs";
 
 const BASE =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.pplsolutionsinc.com";
@@ -32,7 +33,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .from("posts")
       .select("slug, updated_at")
       .eq("status", "published"),
-    supabase.from("jobs").select("slug, updated_at").eq("status", "open"),
+    supabase
+      .from("jobs")
+      .select("slug, updated_at")
+      .eq("status", "open")
+      .or(notExpiredFilter()),
   ]);
 
   const postEntries: MetadataRoute.Sitemap = (posts ?? []).map((p) => ({

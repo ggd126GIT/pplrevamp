@@ -6,6 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { ApplicationForm } from "@/components/careers/ApplicationForm";
 import { createPublicClient } from "@/lib/supabase/public";
+import { notExpiredFilter } from "@/lib/jobs";
 import { renderTiptap } from "@/lib/tiptap";
 
 export const revalidate = 60;
@@ -21,7 +22,8 @@ export async function generateStaticParams() {
   const { data } = await supabase
     .from("jobs")
     .select("slug")
-    .eq("status", "open");
+    .eq("status", "open")
+    .or(notExpiredFilter());
   return (data ?? []).map((j) => ({ slug: j.slug }));
 }
 
@@ -32,6 +34,7 @@ async function getJob(slug: string) {
     .select("*")
     .eq("slug", slug)
     .eq("status", "open")
+    .or(notExpiredFilter())
     .single();
   return data;
 }
