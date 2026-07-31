@@ -271,11 +271,14 @@ git commit -m "Add Turnstile verification, failing open when Cloudflare is unrea
 **Interfaces:**
 - Consumes: nothing.
 - Produces:
-  - `TURNSTILE_ENABLED: boolean` — true when `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is set. Forms use this to decide whether to gate their submit button.
+  - `TURNSTILE_ENABLED: boolean` — true when `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is set.
   - `TurnstileWidget` — props `{ onToken: (token: string | null) => void; ref?: React.Ref<TurnstileHandle> }`.
   - `type TurnstileHandle = { reset: () => void }`.
+  - **`useTurnstile()`** — returns `{ token, setToken, ref, reset, blocked }`. This is what Tasks 3–5 actually consume; they should not touch `TURNSTILE_ENABLED` or `TurnstileHandle` directly.
 
-Both are used by Tasks 3, 4 and 5.
+All used by Tasks 3, 4 and 5.
+
+> **Why the hook exists.** Reset-after-failed-submit is the rule this feature breaks on if forgotten. Duplicating it across three forms is three chances to get it wrong, and three places to miss when changing it. The hook makes it exist once.
 
 - [ ] **Step 1: Write the component**
 
@@ -410,17 +413,52 @@ export function TurnstileWidget({
 }
 ```
 
-- [ ] **Step 2: Typecheck**
+- [ ] **Step 2: Add the consumer hook**
+
+Append to the same file, `components/forms/Turnstile.tsx`:
+
+```tsx
+/**
+ * Everything a form needs to use Turnstile.
+ *
+ * `reset()` exists here rather than in each form because resetting after a
+ * failed submit is the one rule this feature breaks on if forgotten: tokens are
+ * single-use, so without it a visitor who mistypes their email is trapped in a
+ * loop where every retry fails.
+ */
+export function useTurnstile() {
+  const [token, setToken] = useState<string | null>(null);
+  const ref = useRef<TurnstileHandle>(null);
+
+  const reset = useCallback(() => {
+    ref.current?.reset();
+    setToken(null);
+  }, []);
+
+  return {
+    token,
+    setToken,
+    ref,
+    reset,
+    /** True when a token is required but not yet available — gate submit on this. */
+    blocked: TURNSTILE_ENABLED && !token,
+  };
+}
+```
+
+Add `useCallback` to the React import at the top of the file.
+
+- [ ] **Step 3: Typecheck**
 
 Run: `npx tsc --noEmit`
 Expected: exit 0.
 
-- [ ] **Step 3: Verify it is genuinely inert without a site key**
+- [ ] **Step 4: Verify it is genuinely inert without a site key**
 
 Run: `npx vitest run && npm run build`
 Expected: 111 tests pass; build succeeds. With no `NEXT_PUBLIC_TURNSTILE_SITE_KEY` in the environment, `TURNSTILE_ENABLED` compiles to `false` and the component returns `null`.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add components/forms/Turnstile.tsx
@@ -436,7 +474,7 @@ git commit -m "Add the Turnstile widget, inert until a site key is configured"
 - Modify: `app/api/contact/route.ts`
 
 **Interfaces:**
-- Consumes: `verifyTurnstile` (Task 1); `TURNSTILE_ENABLED`, `TurnstileWidget`, `TurnstileHandle` (Task 2); existing `clientIp` from `lib/rateLimit.ts`.
+- Consumes: `verifyTurnstile` (Task 1); `TurnstileWidget`, `useTurnstile` (Task 2); existing `clientIp` from `lib/rateLimit.ts`.
 - Produces: the wiring pattern Tasks 4 and 5 repeat.
 
 - [ ] **Step 1: Wire the form**
@@ -446,21 +484,18 @@ In `components/forms/ContactForm.tsx`:
 Add to the imports after line 8:
 
 ```tsx
-import { useRef } from "react";
-import {
-  TURNSTILE_ENABLED,
-  TurnstileWidget,
-  type TurnstileHandle,
-} from "./Turnstile";
+import { TurnstileWidget, useTurnstile } from "./Turnstile";
 ```
 
-(Merge `useRef` into the existing `import { useState } from "react";` line rather than adding a second React import.)
-
-Add state below line 14:
+Add the hook below line 14:
 
 ```tsx
-  const [token, setToken] = useState<string | null>(null);
-  const turnstileRef = useRef<TurnstileHandle>(null);
+  const {
+    setToken,
+    ref: turnstileRef,
+    reset: resetTurnstile,
+    blocked,
+  } = useTurnstile();
 ```
 
 The token rides along automatically — `Object.fromEntries(new FormData(form))` on line 23 already picks up the hidden `cf-turnstile-response` input Turnstile injects. No change to the request body is needed.
@@ -472,8 +507,7 @@ Reset the widget whenever a submit fails, so a corrected resubmission carries a 
       setStatus("error");
       setError(err instanceof Error ? err.message : "Something went wrong.");
       // The token was consumed (or rejected) server-side; a retry needs a new one.
-      turnstileRef.current?.reset();
-      setToken(null);
+      resetTurnstile();
     }
 ```
 
@@ -488,7 +522,7 @@ Replace the submit button's `disabled` on line 91:
 ```tsx
       <Button
         type="submit"
-        disabled={status === "submitting" || (TURNSTILE_ENABLED && !token)}
+        disabled={status === "submitting" || blocked}
         className="w-full sm:w-auto"
       >
 ```
@@ -553,7 +587,7 @@ git commit -m "Verify Turnstile on the contact form"
 - Modify: `app/api/discovery/route.ts`
 
 **Interfaces:**
-- Consumes: `verifyTurnstile` (Task 1); `TURNSTILE_ENABLED`, `TurnstileWidget`, `TurnstileHandle` (Task 2).
+- Consumes: `verifyTurnstile` (Task 1); `TurnstileWidget`, `useTurnstile` (Task 2).
 - Produces: nothing new.
 
 **This is the one form that does NOT pick the token up automatically** — it hand-builds `payload`, so the token must be added explicitly.
@@ -562,21 +596,21 @@ git commit -m "Verify Turnstile on the contact form"
 
 In `components/forms/DiscoveryForm.tsx`:
 
-Add imports (merging `useRef` into the existing React import):
+Add the import:
 
 ```tsx
-import {
-  TURNSTILE_ENABLED,
-  TurnstileWidget,
-  type TurnstileHandle,
-} from "./Turnstile";
+import { TurnstileWidget, useTurnstile } from "./Turnstile";
 ```
 
-Add state beside the existing `status` / `error` state:
+Add the hook beside the existing `status` / `error` state:
 
 ```tsx
-  const [token, setToken] = useState<string | null>(null);
-  const turnstileRef = useRef<TurnstileHandle>(null);
+  const {
+    setToken,
+    ref: turnstileRef,
+    reset: resetTurnstile,
+    blocked,
+  } = useTurnstile();
 ```
 
 Add the token to `payload` — it is built by hand here, so unlike the contact form it will NOT arrive on its own:
@@ -599,8 +633,7 @@ Reset on failure, in the existing `catch`:
     } catch (err) {
       setStatus("error");
       setError(err instanceof Error ? err.message : "Something went wrong.");
-      turnstileRef.current?.reset();
-      setToken(null);
+      resetTurnstile();
     }
 ```
 
@@ -613,7 +646,7 @@ Add the widget immediately before the form's submit button:
 And add to that button's existing `disabled` expression:
 
 ```tsx
-        disabled={status === "submitting" || (TURNSTILE_ENABLED && !token)}
+        disabled={status === "submitting" || blocked}
 ```
 
 - [ ] **Step 2: Wire the route**
@@ -668,28 +701,28 @@ git commit -m "Verify Turnstile on the discovery form"
 - Modify: `app/api/apply/route.ts`
 
 **Interfaces:**
-- Consumes: `verifyTurnstile` (Task 1); `TURNSTILE_ENABLED`, `TurnstileWidget`, `TurnstileHandle` (Task 2).
+- Consumes: `verifyTurnstile` (Task 1); `TurnstileWidget`, `useTurnstile` (Task 2).
 - Produces: nothing new.
 
 This route is `multipart/form-data`, so the token is read with `form.get(...)` rather than from a JSON body.
 
 - [ ] **Step 1: Wire the form**
 
-In `components/careers/ApplicationForm.tsx`, add imports (merging `useRef` into the existing React import):
+In `components/careers/ApplicationForm.tsx`, add the import:
 
 ```tsx
-import {
-  TURNSTILE_ENABLED,
-  TurnstileWidget,
-  type TurnstileHandle,
-} from "@/components/forms/Turnstile";
+import { TurnstileWidget, useTurnstile } from "@/components/forms/Turnstile";
 ```
 
-Add state beside the existing `status` / `error` / `fileName` state:
+Add the hook beside the existing `status` / `error` / `fileName` state:
 
 ```tsx
-  const [token, setToken] = useState<string | null>(null);
-  const turnstileRef = useRef<TurnstileHandle>(null);
+  const {
+    setToken,
+    ref: turnstileRef,
+    reset: resetTurnstile,
+    blocked,
+  } = useTurnstile();
 ```
 
 No change to the request body: `new FormData(form)` already includes the hidden `cf-turnstile-response` input.
@@ -700,8 +733,7 @@ Reset on failure, in the existing `catch`:
     } catch (err) {
       setStatus("error");
       setError(err instanceof Error ? err.message : "Something went wrong.");
-      turnstileRef.current?.reset();
-      setToken(null);
+      resetTurnstile();
     }
 ```
 
@@ -714,7 +746,7 @@ Add the widget immediately before the submit button, and extend that button's `d
 ```
 
 ```tsx
-        disabled={status === "submitting" || (TURNSTILE_ENABLED && !token)}
+        disabled={status === "submitting" || blocked}
 ```
 
 - [ ] **Step 2: Wire the route**
@@ -934,7 +966,7 @@ git push origin master
 >   <>
 >     <Loader2 className="size-4 animate-spin" /> Sending…
 >   </>
-> ) : TURNSTILE_ENABLED && !token ? (
+> ) : blocked ? (
 >   <>
 >     <Loader2 className="size-4 animate-spin" /> Verifying…
 >   </>
