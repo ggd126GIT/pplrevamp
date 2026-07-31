@@ -6,12 +6,19 @@ import { Button } from "@/components/ui/Button";
 import { Field, TextInput, Textarea, Honeypot } from "./fields";
 import { HONEYPOT_FIELD, MAX_MESSAGE_LENGTH } from "@/lib/forms";
 import { getSessionId } from "@/lib/analytics/session";
+import { TurnstileWidget, useTurnstile } from "./Turnstile";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
 export function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
+  const {
+    setToken,
+    ref: turnstileRef,
+    reset: resetTurnstile,
+    blocked,
+  } = useTurnstile();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -39,6 +46,8 @@ export function ContactForm() {
     } catch (err) {
       setStatus("error");
       setError(err instanceof Error ? err.message : "Something went wrong.");
+      // The token was consumed (or rejected) server-side; a retry needs a new one.
+      resetTurnstile();
     }
   }
 
@@ -88,7 +97,13 @@ export function ContactForm() {
         <p className="text-sm font-medium text-red-600">{error}</p>
       )}
 
-      <Button type="submit" disabled={status === "submitting"} className="w-full sm:w-auto">
+      <TurnstileWidget ref={turnstileRef} onToken={setToken} />
+
+      <Button
+        type="submit"
+        disabled={status === "submitting" || blocked}
+        className="w-full sm:w-auto"
+      >
         {status === "submitting" ? (
           <>
             <Loader2 className="size-4 animate-spin" /> Sending…

@@ -9,6 +9,7 @@ import {
   MAX_MESSAGE_LENGTH,
   persistInquiry,
 } from "@/lib/forms";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 export async function POST(request: Request) {
   const ip = clientIp(request.headers);
@@ -66,6 +67,17 @@ export async function POST(request: Request) {
         ok: false,
         error: `Your message is too long. Please keep it under ${MAX_MESSAGE_LENGTH} characters.`,
       },
+      { status: 400 },
+    );
+  }
+
+  // Last gate before any side effect. Runs after validation so a correctable
+  // mistake (bad email, empty message) never consumes the single-use token.
+  const turnstile = await verifyTurnstile(body["cf-turnstile-response"], ip);
+  if (!turnstile.ok) {
+    console.warn("[contact] turnstile rejected:", turnstile.reason);
+    return NextResponse.json(
+      { ok: false, error: "Verification failed. Please try again." },
       { status: 400 },
     );
   }
