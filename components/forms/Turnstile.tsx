@@ -43,9 +43,9 @@ function loadScript(): Promise<void> {
     const el = document.createElement("script");
     el.src = SCRIPT_SRC;
     el.async = true;
-    el.defer = true;
     el.onload = () => resolve();
     el.onerror = () => {
+      el.remove(); // don't leave a dead <script> tag behind for the next retry
       scriptPromise = null; // let a later mount retry
       reject(new Error("Turnstile script failed to load"));
     };
@@ -68,14 +68,18 @@ export function TurnstileWidget({
   const widgetIdRef = useRef<string | null>(null);
   const [failed, setFailed] = useState(false);
 
-  useImperativeHandle(ref, () => ({
-    reset() {
-      if (widgetIdRef.current && window.turnstile) {
-        window.turnstile.reset(widgetIdRef.current);
-        onToken(null);
-      }
-    },
-  }));
+  useImperativeHandle(
+    ref,
+    () => ({
+      reset() {
+        if (widgetIdRef.current && window.turnstile) {
+          window.turnstile.reset(widgetIdRef.current);
+          onToken(null);
+        }
+      },
+    }),
+    [],
+  );
 
   useEffect(() => {
     if (!SITE_KEY) return;
@@ -124,7 +128,8 @@ export function TurnstileWidget({
       <div ref={containerRef} />
       {failed && (
         <p className="mt-2 text-sm text-charcoal/70">
-          The verification check could not load. You can still submit the form.
+          Verification could not load, so this form cannot be submitted. Please
+          refresh the page, or disable your ad blocker and try again.
         </p>
       )}
     </div>
