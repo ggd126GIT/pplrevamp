@@ -4,10 +4,23 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slug";
-import { textToDoc } from "@/lib/tiptap";
 import { deriveAction, logActivity } from "@/lib/activity";
+import type { Json } from "@/lib/database.types";
 
 export type JobFormState = { error?: string } | undefined;
+
+const EMPTY_DOC = { type: "doc", content: [{ type: "paragraph" }] } as unknown as Json;
+
+/** The editor posts its document as JSON; fall back to empty rather than throwing. */
+function parseDoc(raw: string): Json {
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object") return parsed as Json;
+  } catch {
+    // A malformed body should not 500 the whole save.
+  }
+  return EMPTY_DOC;
+}
 
 function parse(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
@@ -22,7 +35,7 @@ function parse(formData: FormData) {
     : null;
   const status =
     String(formData.get("status") ?? "open") === "closed" ? "closed" : "open";
-  const description = textToDoc(String(formData.get("description") ?? ""));
+  const description = parseDoc(String(formData.get("description") ?? ""));
   const slug = slugify(slugInput || title);
   return {
     title,

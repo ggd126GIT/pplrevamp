@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { JobForm } from "@/components/admin/JobForm";
 import { createClient } from "@/lib/supabase/server";
-import { docToText } from "@/lib/tiptap";
 import { updateJob, deleteJob } from "../actions";
 
 export default async function EditJobPage({
@@ -57,7 +56,7 @@ export default async function EditJobPage({
             work_mode: job.work_mode,
             status: job.status,
             short_description: job.short_description,
-            description: docToText(job.description),
+            description: job.description,
           }}
         />
       </div>

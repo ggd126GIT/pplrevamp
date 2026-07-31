@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import {
@@ -9,7 +9,9 @@ import {
   Textarea,
   Select,
 } from "@/components/forms/fields";
+import { RichTextEditor } from "./RichTextEditor";
 import type { JobFormState } from "@/app/admin/jobs/actions";
+import type { Json } from "@/lib/database.types";
 
 type Values = {
   title?: string;
@@ -19,7 +21,7 @@ type Values = {
   work_mode?: string | null;
   status?: string;
   short_description?: string | null;
-  description?: string;
+  description?: Json | null;
 };
 
 export function JobForm({
@@ -34,6 +36,9 @@ export function JobForm({
   const [state, formAction, pending] = useActionState<JobFormState, FormData>(
     action,
     undefined,
+  );
+  const [description, setDescription] = useState<Json>(
+    values.description ?? { type: "doc", content: [{ type: "paragraph" }] },
   );
 
   return (
@@ -96,15 +101,17 @@ export function JobForm({
         />
       </Field>
 
-      <Field label="Description" htmlFor="description">
-        <Textarea
-          id="description"
+      <div>
+        <span className="mb-1.5 block text-sm font-medium text-charcoal">
+          Description
+        </span>
+        <input
+          type="hidden"
           name="description"
-          defaultValue={values.description}
-          className="min-h-48"
-          placeholder="Separate paragraphs with a blank line."
+          value={JSON.stringify(description)}
         />
-      </Field>
+        <RichTextEditor value={description} onChange={setDescription} />
+      </div>
 
       {state?.error && (
         <p className="text-sm font-medium text-red-600">{state.error}</p>
