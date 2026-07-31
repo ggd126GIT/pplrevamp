@@ -114,7 +114,7 @@ describe("verifyTurnstile", () => {
 
     await verifyTurnstile("tok", "192.0.2.1");
 
-    const [, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
+    const [, init] = fetchSpy.mock.calls[0] as unknown as [string, RequestInit];
     const body = init.body as URLSearchParams;
     expect(body.get("secret")).toBe("test-secret");
     expect(body.get("response")).toBe("tok");
@@ -127,7 +127,7 @@ describe("verifyTurnstile", () => {
 
     await verifyTurnstile("tok", "unknown");
 
-    const [, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
+    const [, init] = fetchSpy.mock.calls[0] as unknown as [string, RequestInit];
     expect((init.body as URLSearchParams).has("remoteip")).toBe(false);
   });
 
