@@ -8,10 +8,22 @@ Legend: 🔴 blocker (site is wrong/broken in prod without it) · 🟠 should-fi
 
 ---
 
-## 1. Environment variables (🔴 blockers)
+## 1. Environment variables (🔴 partially resolved)
 
 These are currently set for **Vercel staging** and will produce a broken or leaky
 production site if not changed at cutover.
+
+> **VPS status 2026-07-31 — read this before acting on the table below.** The three email vars are
+> **already correctly set on the VPS** (`/var/www/ppl/.env.production`, 0600): `RESEND_FROM` =
+> `noreply@send.pplsolutionsinc.com`, `CONTACT_NOTIFY_EMAIL` = `sales@`, `JOBS_NOTIFY_EMAIL` =
+> `careers@`. Ignore the "cannot be set until verified" caveats — the domain **is** verified (§2).
+>
+> Still outstanding on the VPS, and both handled automatically by `/var/www/ppl/cutover.sh`:
+> **`STAGING_PASSWORD` must be removed** and **`NEXT_PUBLIC_SITE_URL` set to
+> `https://www.pplsolutionsinc.com`**. The latter *does* need a rebuild (`NEXT_PUBLIC_*` is inlined at
+> build time); the email vars did not.
+>
+> The table's "Staging value now" column describes **Vercel**, which still runs the sandbox sender.
 
 | Var | Staging value now | Production action |
 |---|---|---|
@@ -28,7 +40,22 @@ production site if not changed at cutover.
 
 ---
 
-## 2. Email deliverability (🔴 blocker)
+## 2. Email deliverability (✅ RESOLVED 2026-07-31)
+
+**`send.pplsolutionsinc.com` is VERIFIED and the VPS is configured and reloaded.** The three records
+below are live in the zone; `RESEND_FROM=".ppl Solutions <noreply@send.pplsolutionsinc.com>"`,
+`CONTACT_NOTIFY_EMAIL=sales@pplsolutionsinc.com` and `JOBS_NOTIFY_EMAIL=careers@pplsolutionsinc.com`
+are set in `/var/www/ppl/.env.production`. A live send to an `@pplsolutionsinc.com` M365 mailbox
+returned `last_event: delivered`. Full detail in `DEPLOY-VPS.md` Phase D.
+
+**Still unproven:** an end-to-end form submission actually landing in `sales@` / `careers@` — nobody
+on the build team can read those mailboxes. Confirm routing via `/admin` → *Where form notifications
+go*, and get a .ppl staffer to confirm first receipt. Also tell them traffic is about to start.
+
+> ⚠ These vars are **not** set on Vercel, only on the VPS. If Vercel staging is kept alive, it still
+> runs the sandbox sender.
+
+### Historical (the blocker, now cleared)
 
 - **Resend domain not verified** — blocked by DNS access (see §3). Re-confirmed `not_started` via
   the Resend API on 2026-07-31. Until done, visitor auto-replies bounce; only the signup inbox
@@ -69,7 +96,27 @@ than trying to check the mailboxes directly.
 
 ---
 
-## 3. DNS reality for `pplsolutionsinc.com` (🔴 THE ONLY REMAINING BLOCKER)
+## 3. DNS reality for `pplsolutionsinc.com` (✅ ACCESS RESOLVED 2026-07-31)
+
+**The live zone is reachable** in **Rafael Dayalo's Cloudflare account
+`454ea7705ae85d1d070d68fe918a93d9`** — confirmed live by its SOA (`kristin.ns.cloudflare.com`) and by
+containing `w2 A 187.127.121.54`. Authoritative export committed at
+`docs/dns/pplsolutionsinc.com-zone-export-2026-07-31.txt`.
+
+- **Rollback target for cutover: `46.202.186.187`** (WordPress on Hostinger shared hosting). Cutover
+  is reversible with one DNS edit — earlier revisions of this file and `DEPLOY-VPS.md` wrongly said
+  otherwise.
+- **`@`/`www` TTL is Auto (~5 min)** — no need to pre-lower TTL before cutover.
+- **Do not touch the four `*.eoidentity.com` CNAMEs** (`56832594`, `eo._domainkey`, `eom`, `eot`).
+  They are **EmailOctopus**, running .ppl's email marketing: `eom` is its Return-Path domain, `eot`
+  its click tracking. Keep all four **DNS-only** — see the SSL/TLS warning in `DEPLOY-VPS.md` Phase E
+  step 6.
+- **An obsolete duplicate zone** exists in the build team's own account (`697abb73…`,
+  `rocky`/`rosemary`). Inert. Never edit or activate it; consider deleting it.
+
+**What remains is no longer access — it is the client's go-ahead on cutover timing.**
+
+### Historical (the access blocker, now cleared)
 
 - **Hostinger is registrar only** — its DNS panel says "DNS managed elsewhere".
   **Never accept its "switch nameservers to Hostinger" offer** — it would move the zone and can drop records.
@@ -224,30 +271,33 @@ Staging shares the **same Supabase project** as production, so real test data is
 
 ---
 
-## Quick priority summary *(rewritten 2026-07-31)*
+## Quick priority summary *(rewritten 2026-07-31, second revision)*
 
-**The only external blocker left is Cloudflare DNS access (§3).** Everything the build team can do
-without it is done.
+**There is no longer an external access blocker.** Cloudflare zone access exists (§3) and email is
+verified and configured (§2). **The remaining gate is the client's go-ahead on cutover timing.**
 
 **Handled automatically by `cutover.sh`** — no longer things to remember: unset `STAGING_PASSWORD` ·
 `NEXT_PUBLIC_SITE_URL` · certificate for the real domain · rebuild.
 
-**Still to do by hand, and possible today (no Cloudflare needed):**
+**Still to do by hand before cutover:**
 - Rotate the `admin12345` password (§5)
 - Staging data cleanup SQL (§8) — inquiries, page_views, events, test applications + orphaned CVs
 - Delete junk posts (`hello-blog-test-1`, `test-post-july-21-2026`, `test`, the EV-battery article)
   and test jobs
+- Confirm a form submission actually reaches `sales@` / `careers@` (§2) — the one part of email that
+  is configured but unproven
+- Merge and deploy the `feat/turnstile` branch (12 commits, currently on neither environment), then
+  create Turnstile keys — those need **no** client Cloudflare access, any account works
 - Referral conditions copy — still "being checked by lawyer" (§9)
 - The 60-vs-100 years figure — still unconfirmed by the client
 - Tina's second bio paragraph is missing from server-rendered HTML (crawlers don't see it; ~15 min)
-- Decide when to retire Vercel staging (§4)
+- Decide when to retire Vercel staging (§4) — note it still runs the sandbox email sender
 
-**Needs Cloudflare, in this order:**
-1. Resend's three `send.` records → then set `RESEND_FROM`, `CONTACT_NOTIFY_EMAIL=sales@`,
-   `JOBS_NOTIFY_EMAIL=careers@` and redeploy. **Ask for this now — it is additive and risk-free.**
-2. Record the current `@`/`www` values (the only rollback to WordPress), then cutover per
-   `DEPLOY-VPS.md` Phase E.
+**Cutover itself** (client sign-off on timing, then ~15 minutes): grey-cloud `@`/`www` →
+`187.127.121.54` · run `cutover.sh` · SSL **Full (strict)** · orange-cloud. Rollback is one edit back
+to `46.202.186.187`. No TTL pre-lowering needed. Per `DEPLOY-VPS.md` Phase E.
 
-**Done:** deploy target chosen and built (§4) · `Promise.allSettled` email fix · per-form
-`JOBS_NOTIFY_EMAIL` routing · country-header fallback chain · inquiries `_staging`/subtitle
+**Done:** deploy target chosen and built (§4) · **Resend domain verified + VPS email configured
+(§2)** · **live zone access + authoritative zone export (§3)** · `Promise.allSettled` email fix ·
+per-form `JOBS_NOTIFY_EMAIL` routing · country-header fallback chain · inquiries `_staging`/subtitle
 cleanups · leadership bios · server port exposure closed.

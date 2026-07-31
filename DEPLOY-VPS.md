@@ -11,7 +11,19 @@
 
 **The site is live on the VPS at `https://w2.pplsolutionsinc.com`**, password-gated
 (`ppl` / `Jaax4PvOUvE9`), `noindex`, with valid TLS. WordPress on the real domain is untouched.
-Phases D (Resend records) and E (domain cutover) remain, and both still need Cloudflare.
+
+**Phase D (Resend email) is COMPLETE as of 2026-07-31.** **Only Phase E (domain cutover) remains.**
+
+**LIVE CLOUDFLARE ACCESS EXISTS — the long-standing blocker is gone.** The zone is reachable in
+**Rafael Dayalo's Cloudflare account, `454ea7705ae85d1d070d68fe918a93d9`**. Confirmed live rather
+than a duplicate: the SOA names `kristin.ns.cloudflare.com` and the zone contains
+`w2 A 187.127.121.54`. A full BIND export of all 23 records is committed at
+**`docs/dns/pplsolutionsinc.com-zone-export-2026-07-31.txt`** — that file is the authoritative
+inventory; do not rely on external probing again.
+
+> Note: a *second*, obsolete `pplsolutionsinc.com` zone exists in the build team's own Cloudflare
+> account (`697abb73…`, nameservers `rocky`/`rosemary`). It is scan-built, inert and **must not be
+> edited or activated**. Consider deleting it so it cannot be mistaken for the live zone.
 
 Reality differed from the plan below in ways worth knowing:
 
@@ -62,7 +74,8 @@ deploy the complete production site, with valid SSL and live Supabase, reachable
 `https://srv1799389.hstgr.cloud` — with **zero Cloudflare access required**.
 
 Only Phase D (Resend email records) and Phase E (pointing the real domain) need the Cloudflare zone.
-Do A–C now; do D and E whenever dashboard access is sorted.
+**Both are now unblocked — zone access exists (see STATUS above); D is done, E awaits client
+sign-off on timing.**
 
 Throughout A–C, keep `STAGING_PASSWORD` **set**, so the box stays password-gated and `noindex` while
 you test. WordPress on the real domain is untouched the entire time.
@@ -464,14 +477,19 @@ Vercel's automatic build-on-push — pushing to `master` no longer deploys anyth
 
 ---
 
-## Phase D — Resend email (needs Cloudflare)
+## Phase D — Resend email ✅ COMPLETE 2026-07-31
 
-Add the three records recorded verbatim in `PRE-LAUNCH-CHECKLIST.md` §2 — all under `send.`, none
-touching the Microsoft 365 root MX/SPF — as **DNS-only (grey cloud)**. Cloudflare's Name field is
-relative to the zone, so enter it exactly as written, without the domain suffix.
+The three records were added to the live zone and **`send.pplsolutionsinc.com` verified in Resend**
+(`not_started` → `pending` → `verified`, ~90 seconds). What is now in the zone:
 
-Verify in Resend (`not_started` → `pending` → `verified`), then and only then add to
-`.env.production` and rebuild:
+| Type | Name | Content | Priority |
+|---|---|---|---|
+| TXT | `resend._domainkey.send` | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDXuuFuB8+PI8tfU0JmpdXQqj4hu1AKENYxIpZB6SPdvnbXzXiVf47HyJXvR/AqDi5s4wswMhP0WW3L4XMtAGZl5Y93fTMhlLFlyosCXdW5QS+Lu5QAwREqUNTOd3LwfyccBuZ5zKLSnAAJDzR9kSBg5e7NaWlPyKbFTQu6HXZZpQIDAQAB` | — |
+| MX | `send.send` | `feedback-smtp.ap-northeast-1.amazonses.com` | 10 |
+| TXT | `send.send` | `v=spf1 include:amazonses.com ~all` | — |
+
+Applied to `/var/www/ppl/.env.production` (0600; previous file kept as
+`.env.production.bak-20260731-cutover`) followed by `pm2 reload ppl`:
 
 ```ini
 RESEND_FROM=".ppl Solutions <noreply@send.pplsolutionsinc.com>"
@@ -479,7 +497,21 @@ CONTACT_NOTIFY_EMAIL=sales@pplsolutionsinc.com
 JOBS_NOTIFY_EMAIL=careers@pplsolutionsinc.com
 ```
 
-This phase is fully independent of the VPS — it can be done before, during or after Phases A–C.
+**No rebuild is needed for these** — they are server-only vars read at startup, unlike `NEXT_PUBLIC_*`
+which is inlined at build time. `pm2 reload` is sufficient.
+
+**Verified:** a live send from `noreply@send.pplsolutionsinc.com` to an `@pplsolutionsinc.com`
+(Microsoft 365) mailbox returned `last_event: delivered` — a send that was impossible under the
+sandbox sender. **Not yet verified: an end-to-end form submission arriving in `sales@`/`careers@`**,
+because nobody on the build team can read those mailboxes. Use the `/admin` → *Where form
+notifications go* panel to confirm routing, and have a .ppl staffer confirm first receipt.
+
+Notes worth keeping:
+- These records were **not** added as "grey cloud" — Cloudflare only proxies A/AAAA/CNAME. TXT and MX
+  have no proxy toggle at all. (Earlier revisions of this doc wrongly said otherwise.)
+- `send.send` is correct, not a typo: Cloudflare's Name field is relative, so it becomes
+  `send.send.pplsolutionsinc.com`.
+- Root MX / SPF / DMARC were re-checked afterwards and are unchanged — M365 mail is unaffected.
 
 ---
 
@@ -513,10 +545,14 @@ reasons:
 
 So:
 
-1. **Record the rollback target.** Note the current `@` and `www` values in Cloudflare *before*
-   editing. They are proxied, so the WordPress origin is **not** discoverable from outside — the
-   dashboard is the only place it exists. Without it there is no way back.
-2. **Lower TTL** on `@` and `www` to 60s a few hours ahead.
+1. **The rollback target is known: `46.202.186.187`** (Hostinger shared hosting, where WordPress
+   lives). `@`, `www` and `ftp` all point there, proxied. **Rollback is a single DNS edit back to
+   that IP.** It is also recorded in the committed zone export. *(Earlier revisions of this doc said
+   the origin was unrecoverable and cutover was one-way — that was wrong. It is only undiscoverable
+   from outside, because the orange cloud hides it; the dashboard shows it plainly.)*
+2. **No TTL pre-lowering needed.** `@` and `www` are TTL **Auto** (exports as `1`), so DNS-only
+   propagation is ~5 minutes. Cutover *and* rollback are both ~5-minute operations. *(Earlier
+   revisions said to drop TTL to 60s hours ahead — unnecessary.)*
 3. **Pre-flight the app:** `PRE-LAUNCH-CHECKLIST.md` §8 cleanup SQL, rotate the `admin12345`
    password, delete the junk posts and test jobs.
 4. **Repoint** `@` and `www` to `187.127.121.54` as **DNS-only (grey cloud)**.
@@ -526,6 +562,13 @@ So:
 6. **Set SSL/TLS to Full (strict), then turn the proxy on** (orange cloud) for `@` and `www`. The
    proxy is what supplies `cf-ipcountry`, which `geoFromHeaders()` reads, so country analytics
    starts working. City and region stay null on the free tier; accepted.
+
+   > ⚠ **SSL/TLS mode is zone-wide, and this zone hosts someone else's email marketing.**
+   > `eom`, `eot`, `eo._domainkey` and `56832594` belong to **EmailOctopus** (`*.eoidentity.com`) —
+   > `eom` is their Return-Path domain, `eot` their click-tracking domain. All four are **DNS-only**,
+   > so Full (strict) does not touch them. Keep them that way: EmailOctopus documents that the
+   > tracking domain expects SSL mode **Full**, so if anyone ever orange-clouds `eot`, Full (strict)
+   > could silently break .ppl's campaign click tracking. Leave all four grey.
 7. **Re-verify after enabling the proxy** — going through Cloudflare can change the answers. Then
    work through `PRE-LAUNCH-CHECKLIST.md` §10 against the real domain: `robots.txt` no longer
    `Disallow: /`, no `x-robots-tag: noindex`, canonical and sitemap on the real host.
@@ -534,6 +577,12 @@ So:
 ---
 
 ## Appendix — externally discoverable DNS inventory (captured 2026-07-30)
+
+> **SUPERSEDED 2026-07-31.** A real BIND export of the live zone is now committed at
+> **`docs/dns/pplsolutionsinc.com-zone-export-2026-07-31.txt`** — use that. The table below is kept
+> only to show what guessing *missed*: it omitted `ftp`, `autoconfig`, both Teams SRV records, and
+> the four **EmailOctopus** CNAMEs (`56832594`, `eo._domainkey`, `eom`, `eot`). Four unknown records
+> out of 23 is the margin of error on probing a zone you cannot read.
 
 Queried from outside via 1.1.1.1. **This is not a complete zone dump** — DNS has no enumeration, so
 only record names that were guessed appear here. Treat it as a safety net, never as an authoritative
@@ -559,10 +608,10 @@ export.
 
 **Three consequences that matter:**
 
-1. **The WordPress origin IP is not externally discoverable.** `@` and `www` resolve to Cloudflare's
-   proxy, which is the point of the orange cloud. The rollback target therefore exists *only* inside
-   the Cloudflare dashboard — record it there before editing anything (Phase E step 1). Without it,
-   a failed cutover has no fast way back.
+1. **The WordPress origin IP is not externally discoverable — but it IS known now: `46.202.186.187`.**
+   `@` and `www` resolve to Cloudflare's proxy from outside, which is the point of the orange cloud;
+   the dashboard and the committed export both show the real origin. **Rollback is one DNS edit back
+   to `46.202.186.187`.** Cutover is *not* one-way, contrary to what this doc previously claimed.
 2. **The zone carries live Microsoft 365 mail plus Intune/Entra device management.** Root MX, SPF,
    `autodiscover`, `enterpriseregistration` and `enterpriseenrollment` are all load-bearing for the
    client's email and device enrolment. Breaking any of them is a company-wide outage, not a website

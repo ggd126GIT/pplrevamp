@@ -1,0 +1,66 @@
+;;
+;; Domain:     pplsolutionsinc.com.
+;; Exported:   2026-07-31 09:34:50
+;;
+;; This file is intended for use for informational and archival
+;; purposes ONLY and MUST be edited before use on a production
+;; DNS server.  In particular, you must:
+;;   -- update the SOA record with the correct authoritative name server
+;;   -- update the SOA record with the contact e-mail address information
+;;   -- update the NS record(s) with the authoritative name servers for this domain.
+;;
+;; For further information, please consult the BIND documentation
+;; located on the following website:
+;;
+;; http://www.isc.org/
+;;
+;; And RFC 1035:
+;;
+;; http://www.ietf.org/rfc/rfc1035.txt
+;;
+;; Please note that we do NOT offer technical support for any use
+;; of this zone data, the BIND name server, or any other third-party
+;; DNS software.
+;;
+;; Use at your own risk.
+;; SOA Record
+pplsolutionsinc.com	3600	IN	SOA	kristin.ns.cloudflare.com. dns.cloudflare.com. 2053715709 10000 2400 604800 3600
+
+;; NS Records
+pplsolutionsinc.com.	86400	IN	NS	kristin.ns.cloudflare.com.
+pplsolutionsinc.com.	86400	IN	NS	yisroel.ns.cloudflare.com.
+
+;; A Records
+ftp.pplsolutionsinc.com.	1	IN	A	46.202.186.187 ; cf_tags=cf-proxied:true
+pplsolutionsinc.com.	1	IN	A	46.202.186.187 ; cf_tags=cf-proxied:true
+w2.pplsolutionsinc.com.	1	IN	A	187.127.121.54 ; cf_tags=cf-proxied:false
+www.pplsolutionsinc.com.	1	IN	A	46.202.186.187 ; cf_tags=cf-proxied:true
+
+;; AAAA Records
+pplsolutionsinc.com.	1	IN	AAAA	2a02:4780:1d:4e4d:4be5:daba:4f62:584c ; cf_tags=cf-proxied:true
+
+;; CNAME Records
+56832594.pplsolutionsinc.com.	1	IN	CNAME	56832594.1d2f3d8487.australis.eoidentity.com. ; cf_tags=cf-proxied:false
+autoconfig.pplsolutionsinc.com.	1	IN	CNAME	autoconfig.mail.hostinger.com. ; cf_tags=cf-proxied:true
+autodiscover.pplsolutionsinc.com.	3600	IN	CNAME	autodiscover.outlook.com. ; cf_tags=cf-proxied:false
+enterpriseenrollment.pplsolutionsinc.com.	3600	IN	CNAME	enterpriseenrollment-s.manage.microsoft.com. ; cf_tags=cf-proxied:false
+enterpriseregistration.pplsolutionsinc.com.	3600	IN	CNAME	enterpriseregistration.windows.net. ; cf_tags=cf-proxied:false
+eo._domainkey.pplsolutionsinc.com.	1	IN	CNAME	eo._domainkey.1d2f3d8487.australis.eoidentity.com. ; cf_tags=cf-proxied:false
+eom.pplsolutionsinc.com.	1	IN	CNAME	eom.1d2f3d8487.australis.eoidentity.com. ; cf_tags=cf-proxied:false
+eot.pplsolutionsinc.com.	1	IN	CNAME	eot.1d2f3d8487.australis.eoidentity.com. ; cf_tags=cf-proxied:false
+lyncdiscover.pplsolutionsinc.com.	3600	IN	CNAME	webdir.online.lync.com. ; cf_tags=cf-proxied:false
+sip.pplsolutionsinc.com.	3600	IN	CNAME	sipdir.online.lync.com. ; cf_tags=cf-proxied:false
+
+;; MX Records
+pplsolutionsinc.com.	3600	IN	MX	0 pplsolutionsinc-com.mail.protection.outlook.com.
+
+;; SRV Records
+_sipfederationtls._tcp.pplsolutionsinc.com.	3600	IN	SRV	100 1 5061 sipfed.online.lync.com.
+_sip._tls.pplsolutionsinc.com.	3600	IN	SRV	100 1 443 sipdir.online.lync.com.
+
+;; TXT Records
+_dmarc.pplsolutionsinc.com.	1	IN	TXT	"v=DMARC1; p=none;"
+pplsolutionsinc.com.	3600	IN	TXT	"google-site-verification=IZIejwU-Z4dVceiC4xRBlYcUmoSJXWz6lmWm7KHURJk"
+pplsolutionsinc.com.	3600	IN	TXT	"v=spf1 include:spf.protection.outlook.com -all"
+pplsolutionsinc.com.	1	IN	TXT	"ahrefs-site-verification_d0630dda0dff3645bfb0fe5930a16218b62a7b800ed3535fceb36e4d77c94d2b"
+pplsolutionsinc.com.	1	IN	TXT	"MS=ms32013859"
