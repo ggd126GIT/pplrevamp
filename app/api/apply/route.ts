@@ -4,6 +4,7 @@ import { getServiceClient } from "@/lib/supabase/service";
 import { sendInternalNotification, sendAutoReply, settleSends } from "@/lib/email";
 import { HONEYPOT_FIELD, isEmail, isNonEmpty } from "@/lib/forms";
 import { slugify } from "@/lib/slug";
+import { acceptsApplications } from "@/lib/jobs";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 const ALLOWED_EXT = ["pdf", "doc", "docx", "jpg", "jpeg", "png"];
@@ -75,6 +76,24 @@ export async function POST(request: Request) {
       { ok: false, error: "Applications are temporarily unavailable." },
       { status: 503 },
     );
+  }
+
+  // A closed or expired role must not take applications. The public pages
+  // filter it out and RLS hides it from the anon key, but this route uses the
+  // service client — which bypasses RLS — on a jobId taken from the request.
+  // Checked before the upload so a rejected submission leaves no file behind.
+  if (jobId) {
+    const { data: job, error: jobErr } = await supabase
+      .from("jobs")
+      .select("status, expires_at")
+      .eq("id", jobId)
+      .maybeSingle();
+    if (jobErr || !job || !acceptsApplications(job)) {
+      return NextResponse.json(
+        { ok: false, error: "This role is no longer accepting applications." },
+        { status: 400 },
+      );
+    }
   }
 
   // Upload CV to the private bucket.
