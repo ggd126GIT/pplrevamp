@@ -518,7 +518,7 @@ Insert the widget immediately before the submit button (before line 91):
       <TurnstileWidget ref={turnstileRef} onToken={setToken} />
 ```
 
-Replace the submit button's `disabled` on line 91:
+Replace the whole submit button. **Both** the `disabled` prop and the label must change — a disabled button with no explanation reads as a broken form, so the label has to say why:
 
 ```tsx
       <Button
@@ -526,6 +526,18 @@ Replace the submit button's `disabled` on line 91:
         disabled={status === "submitting" || blocked}
         className="w-full sm:w-auto"
       >
+        {status === "submitting" ? (
+          <>
+            <Loader2 className="size-4 animate-spin" /> Sending…
+          </>
+        ) : blocked ? (
+          <>
+            <Loader2 className="size-4 animate-spin" /> Verifying…
+          </>
+        ) : (
+          "Send Message"
+        )}
+      </Button>
 ```
 
 - [ ] **Step 2: Wire the route**
@@ -638,16 +650,37 @@ Reset on failure, in the existing `catch`:
     }
 ```
 
-Add the widget immediately before the form's submit button:
+**This form is multi-step, and that changes the wiring.** Its button reads "Next" on steps 0–1 and only submits on the final step (`step < 2 ? "Next" : "Request Consultation"`), and it is already gated by `!canAdvance`. Turnstile must gate **only the final submit** — adding `blocked` to the shared expression would disable the Next button and trap the visitor on step 1.
+
+Render the widget only on the final step, immediately above the button row:
 
 ```tsx
-      <TurnstileWidget ref={turnstileRef} onToken={setToken} />
+      {step === 2 && <TurnstileWidget ref={turnstileRef} onToken={setToken} />}
 ```
 
-And add to that button's existing `disabled` expression:
+Then replace the whole submit button, gating on `blocked` only when `step === 2`:
 
 ```tsx
-        disabled={status === "submitting" || blocked}
+        <Button
+          type="submit"
+          disabled={!canAdvance || status === "submitting" || (step === 2 && blocked)}
+        >
+          {status === "submitting" ? (
+            <>
+              <Loader2 className="size-4 animate-spin" /> Sending…
+            </>
+          ) : step < 2 ? (
+            <>
+              Next <ArrowRight className="size-4" />
+            </>
+          ) : blocked ? (
+            <>
+              <Loader2 className="size-4 animate-spin" /> Verifying…
+            </>
+          ) : (
+            "Request Consultation"
+          )}
+        </Button>
 ```
 
 - [ ] **Step 2: Wire the route**
@@ -740,14 +773,32 @@ Reset on failure, in the existing `catch`:
 
 Also reset on the two **early returns** that bail before `fetch` (missing CV, oversized CV). Those never reach the server, so the token is untouched and must NOT be reset — leave those two `return` statements exactly as they are. Only the `catch` resets.
 
-Add the widget immediately before the submit button, and extend that button's `disabled`:
+Add the widget immediately before the submit button:
 
 ```tsx
       <TurnstileWidget ref={turnstileRef} onToken={setToken} />
 ```
 
+Then replace the whole submit button. **Both** the `disabled` prop and the label must change — a disabled button with no explanation reads as a broken form:
+
 ```tsx
+      <Button
+        type="submit"
         disabled={status === "submitting" || blocked}
+        className="w-full sm:w-auto"
+      >
+        {status === "submitting" ? (
+          <>
+            <Loader2 className="size-4 animate-spin" /> Submitting…
+          </>
+        ) : blocked ? (
+          <>
+            <Loader2 className="size-4 animate-spin" /> Verifying…
+          </>
+        ) : (
+          "Submit Application"
+        )}
+      </Button>
 ```
 
 - [ ] **Step 2: Wire the route**
@@ -958,25 +1009,22 @@ git push origin master
 | Ships inert; rebuild required to enable | 1, 2, 7 |
 | Out of scope: login, honeypot removal, shared-store limiter | not planned — correct |
 
-**Gap found and closed:** the spec calls for a `"Verifying…"` submit-button state, but Tasks 3–5 as first drafted only disabled the button. Disabling with no explanation looks like a broken form. The button label must reflect it — resolved by the note below rather than a new task, since it is one expression per form.
+**Gap found and closed:** the spec calls for a `"Verifying…"` submit-button state, but Tasks 3–5 as first drafted only disabled the button. Disabling with no explanation looks like a broken form.
 
-> **Applies to Tasks 3, 4 and 5.** Where the submit button renders its idle label, show a waiting label while Turnstile has not yet produced a token. For the contact form the button body becomes:
+> **This was originally written here, as a note appended after the tasks — and that was the defect.**
+> Tasks are extracted and handed to implementers one at a time, so anything living outside a task
+> body never reaches the person doing the work. Task 3 shipped without the `"Verifying…"` state for
+> exactly this reason, and its review caught it. The complete button code now lives **inside** Task 3,
+> 4 and 5 Step 1, where it will actually be read.
 >
-> ```tsx
-> {status === "submitting" ? (
->   <>
->     <Loader2 className="size-4 animate-spin" /> Sending…
->   </>
-> ) : blocked ? (
->   <>
->     <Loader2 className="size-4 animate-spin" /> Verifying…
->   </>
-> ) : (
->   "Send Message"
-> )}
-> ```
->
-> Apply the same shape to the discovery and application buttons, keeping each form's own idle label.
+> **Rule for this plan and any future one: a requirement that is not inside a task body does not exist.**
+
+**Second gap, found while fixing the first:** Task 4's button is not like the others. The discovery
+form is **multi-step** — the same button reads "Next" on steps 0–1 and only submits on step 2, and it
+is already gated by `!canAdvance`. Adding `blocked` to that shared expression would have disabled
+*Next* and trapped visitors on step 1. Task 4 now renders the widget only on the final step and gates
+on `step === 2 && blocked`. This would not have been caught by the Task 3 pattern, because the two
+forms are not actually the same shape.
 
 **Placeholder scan:** none — every step carries literal code or a literal command.
 
