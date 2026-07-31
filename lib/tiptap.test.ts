@@ -128,4 +128,41 @@ describe("renderTiptap", () => {
       "<p>&lt;script&gt;x&lt;/script&gt;<br/>safe</p>",
     );
   });
+
+  it("renders underline and strike marks", () => {
+    const doc = {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            { type: "text", text: "under", marks: [{ type: "underline" }] },
+            { type: "text", text: "struck", marks: [{ type: "strike" }] },
+          ],
+        },
+      ],
+    };
+    expect(renderTiptap(doc as never)).toBe(
+      "<p><u>under</u><s>struck</s></p>",
+    );
+  });
+
+  it("nests bold and underline on the same run", () => {
+    const doc = {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "both",
+              marks: [{ type: "bold" }, { type: "underline" }],
+            },
+          ],
+        },
+      ],
+    };
+    expect(renderTiptap(doc as never)).toBe("<p><u><strong>both</strong></u></p>");
+  });
 });

@@ -26,6 +26,8 @@ function renderText(node: Node): string {
   for (const mark of node.marks ?? []) {
     if (mark.type === "bold") html = `<strong>${html}</strong>`;
     else if (mark.type === "italic") html = `<em>${html}</em>`;
+    else if (mark.type === "underline") html = `<u>${html}</u>`;
+    else if (mark.type === "strike") html = `<s>${html}</s>`;
     else if (mark.type === "code") html = `<code>${html}</code>`;
     else if (mark.type === "link") {
       const href = escapeHtml(String(mark.attrs?.href ?? "#"));
