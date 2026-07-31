@@ -5,6 +5,8 @@ import { cn } from "@/lib/cn";
 import { Pagination } from "@/components/admin/Pagination";
 import { Attribution } from "@/components/admin/Attribution";
 import { pageCount, pageRange, parsePage } from "@/lib/pagination";
+import { isExpired } from "@/lib/jobs";
+import { toDateInput } from "@/lib/dates";
 
 export default async function AdminJobsPage({
   searchParams,
@@ -68,9 +70,19 @@ export default async function AdminJobsPage({
                   >
                     {job.status}
                   </span>
+                  {isExpired(job.expires_at) && (
+                    <span className="shrink-0 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
+                      expired
+                    </span>
+                  )}
                 </div>
                 <p className="mt-0.5 truncate text-sm text-charcoal/60">
-                  {[job.department, job.location, job.work_mode]
+                  {[
+                    job.department,
+                    job.location,
+                    job.work_mode,
+                    job.expires_at && `expires ${toDateInput(job.expires_at)}`,
+                  ]
                     .filter(Boolean)
                     .join(" · ") || "—"}
                 </p>

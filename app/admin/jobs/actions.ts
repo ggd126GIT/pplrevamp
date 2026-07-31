@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slug";
 import { deriveAction, logActivity } from "@/lib/activity";
+import { manilaEndOfDay } from "@/lib/dates";
 import type { Json } from "@/lib/database.types";
 
 export type JobFormState = { error?: string } | undefined;
@@ -37,6 +38,9 @@ function parse(formData: FormData) {
     String(formData.get("status") ?? "open") === "closed" ? "closed" : "open";
   const description = parseDoc(String(formData.get("description") ?? ""));
   const slug = slugify(slugInput || title);
+  // null = cleared, undefined = malformed. The callers reject undefined so a
+  // typo never silently wipes an expiry date.
+  const expires_at = manilaEndOfDay(String(formData.get("expires_at") ?? ""));
   return {
     title,
     slug,
@@ -46,6 +50,7 @@ function parse(formData: FormData) {
     work_mode,
     status,
     description,
+    expires_at,
   };
 }
 
@@ -56,6 +61,8 @@ export async function createJob(
   const data = parse(formData);
   if (!data.title) return { error: "Title is required." };
   if (!data.slug) return { error: "A valid slug is required." };
+  if (data.expires_at === undefined)
+    return { error: "Enter a valid expiry date." };
 
   const supabase = await createClient();
   const {
@@ -99,6 +106,8 @@ export async function updateJob(
   const data = parse(formData);
   if (!data.title) return { error: "Title is required." };
   if (!data.slug) return { error: "A valid slug is required." };
+  if (data.expires_at === undefined)
+    return { error: "Enter a valid expiry date." };
 
   const supabase = await createClient();
   const {

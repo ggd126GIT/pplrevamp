@@ -22,6 +22,7 @@ type Values = {
   status?: string;
   short_description?: string | null;
   description?: Json | null;
+  expires_at?: string;
 };
 
 export function JobForm({
@@ -88,6 +89,18 @@ export function JobForm({
             <option value="open">Open</option>
             <option value="closed">Closed</option>
           </Select>
+        </Field>
+        <Field label="Expires on" htmlFor="expires_at">
+          <TextInput
+            id="expires_at"
+            name="expires_at"
+            type="date"
+            defaultValue={values.expires_at ?? ""}
+          />
+          <p className="mt-1.5 text-xs text-charcoal/60">
+            Leave blank for no expiry. The role hides from /careers at the end of
+            this day, Manila time.
+          </p>
         </Field>
       </div>
 
