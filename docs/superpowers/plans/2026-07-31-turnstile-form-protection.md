@@ -405,7 +405,8 @@ export function TurnstileWidget({
       <div ref={containerRef} />
       {failed && (
         <p className="mt-2 text-sm text-charcoal/70">
-          The verification check could not load. You can still submit the form.
+          Verification could not load, so this form cannot be submitted. Please
+          refresh the page, or disable your ad blocker and try again.
         </p>
       )}
     </div>
