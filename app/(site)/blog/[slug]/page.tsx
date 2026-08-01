@@ -9,6 +9,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 import { renderTiptap } from "@/lib/tiptap";
 import { ShareLinks } from "@/components/ShareLinks";
 import { absoluteUrl } from "@/lib/share";
+import { site } from "@/lib/site";
 
 export const revalidate = 60;
 
@@ -40,14 +41,31 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await getPost(slug);
   if (!post) return { title: "Post not found" };
+  const url = absoluteUrl(`/blog/${slug}`);
+  const description = post.excerpt ?? undefined;
+  // A real cover wins; when there is none the file-convention
+  // `opengraph-image` route supplies a generated card (Task 7).
+  const images = post.cover_image_url ? [post.cover_image_url] : undefined;
+
   return {
     title: post.title,
-    description: post.excerpt ?? undefined,
+    description,
+    alternates: { canonical: url },
     openGraph: {
       title: post.title,
-      description: post.excerpt ?? undefined,
+      description,
       type: "article",
-      images: post.cover_image_url ? [post.cover_image_url] : undefined,
+      url,
+      siteName: site.name,
+      publishedTime: post.published_at ?? undefined,
+      images,
+    },
+    twitter: {
+      // Without this the card renders as a small square thumbnail.
+      card: "summary_large_image",
+      title: post.title,
+      description,
+      images,
     },
   };
 }
