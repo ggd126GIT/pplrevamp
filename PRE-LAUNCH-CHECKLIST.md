@@ -416,10 +416,17 @@ because the attribution columns shipped 07-29. Only `lawyer` carries an `updated
       GET/HEAD on individual records only — no listing pages, no `/admin`, no state change — and
       every response still carries `x-robots-tag: noindex, nofollow`, with no search engine named
       in the allowlist.
-      **Untested assumption to check first if a card comes back empty despite a 200:**
-      `proxy.ts` still stamps `x-robots-tag: noindex, nofollow` on the exempted crawler
-      response. Facebook and LinkedIn are believed to ignore it for preview generation (it is
-      an indexing directive), but nobody has verified that here. It is the first suspect.
+      **RESOLVED 2026-08-01 — `noindex` does NOT suppress previews.** This was flagged as an
+      untested assumption; it is now tested. With `x-robots-tag: noindex, nofollow` on every
+      response, **LinkedIn Post Inspector rendered both a blog post and a job posting** (it
+      even mirrored the image to `media.licdn.com`, so it fetched the file), and **Facebook's
+      Sharing Debugger returned Response Code 200 with a full Link Preview** for the blog post.
+      Card crawlers treat `noindex` as an indexing directive and ignore it for previews, as
+      expected. Both platforms verified against `w2` while it is `noindex`.
+      **Not proven:** Facebook rendering the *generated* Satori card. Its debugger would not
+      complete a scrape of the job URL across three attempts (a Facebook-side UI failure — the
+      origin serves `facebookexternalhit` a 200 page and a 200 `image/png` card on direct
+      request, and LinkedIn renders that same card fine). Re-check after cutover.
 
 ---
 
