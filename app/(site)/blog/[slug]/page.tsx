@@ -42,7 +42,7 @@ export async function generateMetadata({
   const post = await getPost(slug);
   if (!post) return { title: "Post not found" };
   const url = absoluteUrl(`/blog/${slug}`);
-  const description = post.excerpt ?? undefined;
+  const description = post.excerpt ?? `Insights from ${site.name}.`;
   // A real cover wins; when there is none, omit the `images` key entirely
   // (not just set it to `undefined`) so Next's file-convention merge kicks
   // in — it checks `hasOwnProperty('images')`, not the value, so a present-

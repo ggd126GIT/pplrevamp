@@ -58,6 +58,9 @@ export async function generateMetadata({
     title: `${job.title} — Careers`,
     description,
     alternates: { canonical: url },
+    // No images key here — see the note in blog/[slug]/page.tsx. Its ABSENCE
+    // is what lets the generated opengraph-image route merge in; images:
+    // undefined would suppress it.
     openGraph: {
       title: job.title,
       description,
