@@ -10,7 +10,7 @@ import {
 import { shareLinks } from "@/lib/share";
 
 const CONTROL =
-  "inline-flex size-10 items-center justify-center rounded-full border border-black/[0.08] text-charcoal/70 transition-colors hover:border-purple hover:text-purple";
+  "inline-flex size-10 items-center justify-center rounded-full border border-black/[0.08] text-charcoal/70 transition-colors hover:border-purple hover:text-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple/60 focus-visible:ring-offset-2";
 
 /**
  * Share row. `url` is absolute and supplied by the server so the links follow
