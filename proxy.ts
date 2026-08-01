@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
+import { allowCardCrawler } from "@/lib/crawlers";
 
 /**
  * Staging gate. Active only while STAGING_PASSWORD is set, so production
@@ -8,6 +9,18 @@ import { updateSession } from "@/lib/supabase/middleware";
 function stagingGate(request: NextRequest) {
   const password = process.env.STAGING_PASSWORD;
   if (!password) return null;
+
+  // Social card crawlers may read a single post or job so link previews can be
+  // shown before cutover. Narrow by design — see lib/crawlers.ts.
+  if (
+    allowCardCrawler(
+      request.method,
+      request.nextUrl.pathname,
+      request.headers.get("user-agent"),
+    )
+  ) {
+    return null;
+  }
 
   const user = process.env.STAGING_USER ?? "ppl";
   const header = request.headers.get("authorization");

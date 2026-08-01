@@ -405,8 +405,16 @@ because the attribution columns shipped 07-29. Only `lawyer` carries an `updated
 - [ ] SSL valid (Certbot if VPS); `www` vs apex redirect behaves.
 - [ ] Keep WordPress live until DNS cutover is confirmed working; export any needed WP content first.
 - [ ] Paste a live blog post URL and a live job URL into LinkedIn, Facebook and Slack and confirm the
-      card renders with title, image and snippet. **This cannot be checked before cutover** — while
-      `STAGING_PASSWORD` is set every crawler receives a 401.
+      card renders with title, image and snippet. **Checkable before cutover as of 2026-08-01** —
+      card crawlers are now exempted from the staging gate on `/blog/<slug>` and `/careers/<slug>`
+      (`lib/crawlers.ts`, wired into `proxy.ts` and `app/robots.ts`). Use each platform's own debug
+      tool against the `w2` URLs. The exemption self-disables at cutover: the gate exits before
+      reaching it once `STAGING_PASSWORD` is unset, so there is nothing to remove.
+      **Accepted trade-off:** a User-Agent header is forgeable, so anyone sending e.g.
+      `User-Agent: Twitterbot` can read a post or job page on `w2` without the password. Scope is
+      GET/HEAD on individual records only — no listing pages, no `/admin`, no state change — and
+      every response still carries `x-robots-tag: noindex, nofollow`, with no search engine named
+      in the allowlist.
 
 ---
 
