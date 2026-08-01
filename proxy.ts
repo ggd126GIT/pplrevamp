@@ -46,9 +46,23 @@ function safeEqual(a: string, b: string) {
   return diff === 0;
 }
 
+/**
+ * The password prompt and the de-indexing controls are independent switches.
+ * `STAGING_PUBLIC=1` drops only the prompt, so shared links are clickable by
+ * anyone, while `STAGING_PASSWORD` stays set to keep `robots.txt`, the
+ * `noindex` header, and the `_staging` / `is_staging` stamping on inquiries
+ * and page views. Unsetting `STAGING_PASSWORD` is still the single switch that
+ * makes this a real production deployment.
+ */
+function passwordPromptDisabled() {
+  return process.env.STAGING_PUBLIC === "1";
+}
+
 export async function proxy(request: NextRequest) {
-  const blocked = stagingGate(request);
-  if (blocked) return blocked;
+  if (!passwordPromptDisabled()) {
+    const blocked = stagingGate(request);
+    if (blocked) return blocked;
+  }
 
   const path = request.nextUrl.pathname;
   const response =

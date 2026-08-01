@@ -2,9 +2,12 @@ import { afterEach, describe, expect, it } from "vitest";
 import robots from "@/app/robots";
 
 const original = process.env.STAGING_PASSWORD;
+const originalPublic = process.env.STAGING_PUBLIC;
 afterEach(() => {
   if (original === undefined) delete process.env.STAGING_PASSWORD;
   else process.env.STAGING_PASSWORD = original;
+  if (originalPublic === undefined) delete process.env.STAGING_PUBLIC;
+  else process.env.STAGING_PUBLIC = originalPublic;
 });
 
 function rulesFor(agent: string) {
@@ -44,6 +47,33 @@ describe("robots on staging", () => {
     const agents = (Array.isArray(rules) ? rules : [rules]).map((r) => r.userAgent);
     expect(agents).not.toContain("Googlebot");
     expect(agents).not.toContain("bingbot");
+  });
+});
+
+describe("robots on public staging (STAGING_PUBLIC=1)", () => {
+  // The password prompt is off, so the gate restricts nobody and the per-path
+  // allowlist would only suppress previews for pages outside /blog|/careers.
+  it("lets card crawlers reach the whole site", () => {
+    process.env.STAGING_PASSWORD = "secret";
+    process.env.STAGING_PUBLIC = "1";
+    expect(rulesFor("LinkedInBot")).toEqual({
+      userAgent: "LinkedInBot",
+      allow: "/",
+    });
+  });
+
+  // This is the half that must NOT relax — it is the only reason the password
+  // can come off without the client's staging box entering the index.
+  it("still shuts search engines out entirely", () => {
+    process.env.STAGING_PASSWORD = "secret";
+    process.env.STAGING_PUBLIC = "1";
+    expect(rulesFor("*")).toEqual({ userAgent: "*", disallow: "/" });
+  });
+
+  it("has no effect once STAGING_PASSWORD is unset", () => {
+    delete process.env.STAGING_PASSWORD;
+    process.env.STAGING_PUBLIC = "1";
+    expect(Array.isArray(robots().rules)).toBe(false);
   });
 });
 
