@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import { ogCard, OG_SIZE } from "@/lib/og-card";
 import { createPublicClient } from "@/lib/supabase/public";
 import { notExpiredFilter } from "@/lib/jobs";
@@ -21,9 +22,11 @@ export default async function Image({
     .or(notExpiredFilter())
     .single();
 
+  if (!data) notFound();
+
   return ogCard({
-    eyebrow: data?.department ?? "Careers",
-    title: data?.title ?? "Join our team",
+    eyebrow: data.department || "Careers",
+    title: data.title,
     photo: "careers.jpg",
   });
 }

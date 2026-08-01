@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import { ogCard, OG_SIZE } from "@/lib/og-card";
 import { createPublicClient } from "@/lib/supabase/public";
 
@@ -19,9 +20,11 @@ export default async function Image({
     .eq("status", "published")
     .single();
 
+  if (!data) notFound();
+
   return ogCard({
     eyebrow: "Insights",
-    title: data?.title ?? "Perspectives on offshoring, outsourcing, and BPO",
+    title: data.title,
     photo: "blog.jpg",
   });
 }
