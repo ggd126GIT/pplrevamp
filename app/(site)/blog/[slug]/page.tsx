@@ -43,8 +43,11 @@ export async function generateMetadata({
   if (!post) return { title: "Post not found" };
   const url = absoluteUrl(`/blog/${slug}`);
   const description = post.excerpt ?? undefined;
-  // A real cover wins; when there is none the file-convention
-  // `opengraph-image` route supplies a generated card (Task 7).
+  // A real cover wins; when there is none, omit the `images` key entirely
+  // (not just set it to `undefined`) so Next's file-convention merge kicks
+  // in — it checks `hasOwnProperty('images')`, not the value, so a present-
+  // but-undefined key would silently suppress the generated
+  // `opengraph-image` route (Task 7).
   const images = post.cover_image_url ? [post.cover_image_url] : undefined;
 
   return {
@@ -58,14 +61,14 @@ export async function generateMetadata({
       url,
       siteName: site.name,
       publishedTime: post.published_at ?? undefined,
-      images,
+      ...(images ? { images } : {}),
     },
     twitter: {
       // Without this the card renders as a small square thumbnail.
       card: "summary_large_image",
       title: post.title,
       description,
-      images,
+      ...(images ? { images } : {}),
     },
   };
 }
