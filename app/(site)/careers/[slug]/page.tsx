@@ -10,6 +10,7 @@ import { notExpiredFilter } from "@/lib/jobs";
 import { renderTiptap } from "@/lib/tiptap";
 import { ShareLinks } from "@/components/ShareLinks";
 import { absoluteUrl } from "@/lib/share";
+import { site } from "@/lib/site";
 
 export const revalidate = 60;
 
@@ -49,9 +50,26 @@ export async function generateMetadata({
   const { slug } = await params;
   const job = await getJob(slug);
   if (!job) return { title: "Role not found" };
+  const url = absoluteUrl(`/careers/${slug}`);
+  const description =
+    job.short_description ?? `Apply for ${job.title} at ${site.name}.`;
+
   return {
     title: `${job.title} — Careers`,
-    description: `Apply for ${job.title} at .ppl Solutions, Inc.`,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title: job.title,
+      description,
+      type: "article",
+      url,
+      siteName: site.name,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: job.title,
+      description,
+    },
   };
 }
 
