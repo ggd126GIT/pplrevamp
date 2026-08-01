@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import robots from "@/app/robots";
 
 const original = process.env.STAGING_PASSWORD;
@@ -51,29 +51,45 @@ describe("robots on staging", () => {
 });
 
 describe("robots on public staging (STAGING_PUBLIC=1)", () => {
-  // The password prompt is off, so the gate restricts nobody and the per-path
-  // allowlist would only suppress previews for pages outside /blog|/careers.
-  it("lets card crawlers reach the whole site", () => {
+  beforeEach(() => {
     process.env.STAGING_PASSWORD = "secret";
     process.env.STAGING_PUBLIC = "1";
-    expect(rulesFor("LinkedInBot")).toEqual({
-      userAgent: "LinkedInBot",
+  });
+
+  // The load-bearing assertion. Disallow blocks the FETCH, not the indexing:
+  // a blocked Googlebot never receives the x-robots-tag: noindex header, and
+  // can still list a bare URL discovered from an inbound social link. Allowing
+  // the crawl is what makes the noindex directive reachable.
+  it("allows the crawl so the noindex header can actually be read", () => {
+    expect(rulesFor("*")).toEqual({
+      userAgent: "*",
       allow: "/",
+      disallow: ["/admin", "/login", "/api/", "/auth/", "/_next/"],
     });
   });
 
-  // This is the half that must NOT relax — it is the only reason the password
-  // can come off without the client's staging box entering the index.
-  it("still shuts search engines out entirely", () => {
-    process.env.STAGING_PASSWORD = "secret";
-    process.env.STAGING_PUBLIC = "1";
-    expect(rulesFor("*")).toEqual({ userAgent: "*", disallow: "/" });
+  // Those asset responses bypass the proxy matcher, so they carry no noindex
+  // header of their own and must not be crawled.
+  it("holds back /_next/ assets", () => {
+    const rule = rulesFor("*");
+    expect(rule?.disallow).toContain("/_next/");
+  });
+
+  it("still advertises no sitemap", () => {
+    expect(robots().sitemap).toBeUndefined();
+  });
+
+  // Everyone is allowed here, so per-agent groups would be noise — and a named
+  // group silently replaces the `*` group, which is how they would drift.
+  it("emits no per-agent groups", () => {
+    const { rules } = robots();
+    expect(Array.isArray(rules)).toBe(false);
+    expect(rulesFor("LinkedInBot")).toBeUndefined();
   });
 
   it("has no effect once STAGING_PASSWORD is unset", () => {
     delete process.env.STAGING_PASSWORD;
-    process.env.STAGING_PUBLIC = "1";
-    expect(Array.isArray(robots().rules)).toBe(false);
+    expect(robots().sitemap).toBeDefined();
   });
 });
 

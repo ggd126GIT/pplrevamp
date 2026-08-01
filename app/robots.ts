@@ -5,26 +5,43 @@ const BASE =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.pplsolutionsinc.com";
 
 export default function robots(): MetadataRoute.Robots {
-  // Staging deployments disallow everything; production uses the real rules.
   if (process.env.STAGING_PASSWORD) {
-    // Card crawlers honour robots.txt, so the proxy.ts gate exemption alone
-    // would never be exercised — they would not issue the request. A named
-    // group replaces the `*` group entirely for that agent, and the longer
-    // Allow wins over the shorter Disallow on these paths.
+    // Publicly readable staging that is being linked to from social posts.
     //
-    // With STAGING_PUBLIC the prompt is off and the gate restricts nobody, so
-    // the per-path allowlist that mirrored it would serve only to suppress
-    // previews for pages outside /blog and /careers. Widen it to the site.
-    const cardCrawlerRules = CARD_CRAWLER_AGENTS.map((userAgent) =>
-      process.env.STAGING_PUBLIC === "1"
-        ? { userAgent, allow: "/" }
-        : { userAgent, allow: ["/blog/", "/careers/"], disallow: "/" },
-    );
+    // Counterintuitively this must ALLOW the crawl. `Disallow` stops the
+    // fetch, not the indexing — a blocked Googlebot never receives the page,
+    // so it never sees the `x-robots-tag: noindex` header, and it can still
+    // list the bare URL it discovered from an inbound link. Letting it fetch
+    // is what makes the noindex directive reachable and the exclusion real.
+    //
+    // `/_next/` is held back because those asset responses bypass the proxy
+    // matcher and so carry no noindex header of their own.
+    if (process.env.STAGING_PUBLIC === "1") {
+      return {
+        rules: {
+          userAgent: "*",
+          allow: "/",
+          disallow: ["/admin", "/login", "/api/", "/auth/", "/_next/"],
+        },
+        // No sitemap: nothing should actively advertise staging URLs.
+      };
+    }
 
+    // Password-gated staging. Nothing can be fetched without the credential
+    // and there are no public inbound links, so a blanket Disallow is right.
+    // Card crawlers honour robots.txt, so they get named groups — without them
+    // the proxy.ts gate exemption would never be exercised, because they would
+    // not issue the request at all. A named group replaces the `*` group for
+    // that agent, and the longer Allow wins over the shorter Disallow.
     return {
-      // Search engines stay in the `*` group and remain fully disallowed, on
-      // top of the `x-robots-tag: noindex` header set in proxy.ts.
-      rules: [...cardCrawlerRules, { userAgent: "*", disallow: "/" }],
+      rules: [
+        ...CARD_CRAWLER_AGENTS.map((userAgent) => ({
+          userAgent,
+          allow: ["/blog/", "/careers/"],
+          disallow: "/",
+        })),
+        { userAgent: "*", disallow: "/" },
+      ],
     };
   }
 
