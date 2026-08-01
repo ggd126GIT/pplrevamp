@@ -8,6 +8,8 @@ import { ApplicationForm } from "@/components/careers/ApplicationForm";
 import { createPublicClient } from "@/lib/supabase/public";
 import { notExpiredFilter } from "@/lib/jobs";
 import { renderTiptap } from "@/lib/tiptap";
+import { ShareLinks } from "@/components/ShareLinks";
+import { absoluteUrl } from "@/lib/share";
 
 export const revalidate = 60;
 
@@ -110,6 +112,13 @@ export default async function JobDetailPage({
                 the details.
               </p>
             )}
+
+            <div className="mt-10 border-t border-black/[0.06] pt-6">
+              <ShareLinks
+                url={absoluteUrl(`/careers/${job.slug}`)}
+                title={job.title}
+              />
+            </div>
           </div>
 
           {/* Application form */}

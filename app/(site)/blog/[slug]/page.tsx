@@ -7,6 +7,8 @@ import { Container } from "@/components/ui/Container";
 import { CtaBand } from "@/components/CtaBand";
 import { createPublicClient } from "@/lib/supabase/public";
 import { renderTiptap } from "@/lib/tiptap";
+import { ShareLinks } from "@/components/ShareLinks";
+import { absoluteUrl } from "@/lib/share";
 
 export const revalidate = 60;
 
@@ -109,6 +111,13 @@ export default async function BlogPostPage({
             className="rich-content mt-10"
             dangerouslySetInnerHTML={{ __html: html }}
           />
+
+          <div className="mt-12 border-t border-black/[0.06] pt-6">
+            <ShareLinks
+              url={absoluteUrl(`/blog/${post.slug}`)}
+              title={post.title}
+            />
+          </div>
         </Container>
       </article>
 
