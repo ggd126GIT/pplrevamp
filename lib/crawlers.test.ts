@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { allowCardCrawler, isCardCrawler, isShareablePath } from "@/lib/crawlers";
+import {
+  CARD_CRAWLER_AGENTS,
+  allowCardCrawler,
+  isCardCrawler,
+  isCrawlerReadable,
+  isShareablePath,
+} from "@/lib/crawlers";
 
 describe("isCardCrawler", () => {
   const real = {
@@ -45,12 +51,23 @@ describe("isShareablePath", () => {
   it.each([
     "/blog/why-the-philippines-for-bpo",
     "/careers/customer-service-associate",
-    // Real emitted shapes: Next appends a hash suffix to the file-convention
-    // image route, verified against the running server.
-    "/blog/why-the-philippines-for-bpo/opengraph-image-1ejm5s",
+    // Next appends a content-hash suffix to the file-convention image route.
+    // This shape was read off the running server for /careers/project-manager;
+    // each route has its own hash, so treat the suffix as opaque.
     "/careers/project-manager/opengraph-image-1ejm5s",
+    "/blog/why-the-philippines-for-bpo/opengraph-image-fx5gi7",
+    // A pasted trailing slash still reaches the page: the gate runs before
+    // Next can redirect it.
+    "/blog/why-the-philippines-for-bpo/",
   ])("allows %s", (path) => {
     expect(isShareablePath(path)).toBe(true);
+  });
+
+  // Anchored so a route added under [slug] later does not inherit the
+  // exemption just by existing.
+  it("refuses an unknown nested route under a record", () => {
+    expect(isShareablePath("/blog/some-post/edit")).toBe(false);
+    expect(isShareablePath("/careers/some-job/apply")).toBe(false);
   });
 
   // Only individual records are shareable. Widening this to the listing pages
@@ -71,6 +88,34 @@ describe("isShareablePath", () => {
   });
 });
 
+describe("isCrawlerReadable", () => {
+  // Without this the per-agent groups in app/robots.ts can never be read, and
+  // these agents honour robots.txt — so the whole exemption goes unexercised.
+  it("includes robots.txt", () => {
+    expect(isCrawlerReadable("/robots.txt")).toBe(true);
+  });
+
+  it("does not widen beyond robots.txt and the records", () => {
+    expect(isCrawlerReadable("/sitemap.xml")).toBe(false);
+    expect(isCrawlerReadable("/")).toBe(false);
+    expect(isCrawlerReadable("/admin")).toBe(false);
+  });
+});
+
+describe("the two crawler lists cannot drift", () => {
+  // A robots.txt group naming an agent the proxy refuses would advertise a URL
+  // and then 401 it; an agent the proxy admits with no group never requests.
+  it("admits every agent it advertises in robots.txt", () => {
+    for (const agent of CARD_CRAWLER_AGENTS) {
+      expect(isCardCrawler(agent)).toBe(true);
+    }
+  });
+
+  it("advertises no search engine", () => {
+    expect(CARD_CRAWLER_AGENTS as readonly string[]).not.toContain("Googlebot");
+  });
+});
+
 describe("allowCardCrawler", () => {
   const fb = "facebookexternalhit/1.1";
   const post = "/blog/why-the-philippines-for-bpo";
@@ -81,6 +126,16 @@ describe("allowCardCrawler", () => {
 
   it("allows HEAD, which some crawlers send first", () => {
     expect(allowCardCrawler("HEAD", post, fb)).toBe(true);
+  });
+
+  it("lets a card crawler read robots.txt", () => {
+    expect(allowCardCrawler("GET", "/robots.txt", fb)).toBe(true);
+  });
+
+  it("still refuses a browser on robots.txt", () => {
+    expect(allowCardCrawler("GET", "/robots.txt", "Mozilla/5.0 Chrome/120")).toBe(
+      false,
+    );
   });
 
   // A crawler UA is trivially forged, so the exemption must never carry a

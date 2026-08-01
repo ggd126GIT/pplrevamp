@@ -27,7 +27,7 @@ production site if not changed at cutover.
 
 | Var | Staging value now | Production action |
 |---|---|---|
-| `STAGING_PASSWORD` | set (`ppl` / `Jaax4PvOUvE9`) | **UNSET IT.** While set it (a) basic-auth-gates the whole site, (b) forces `robots.txt` → `Disallow: /`, (c) adds `x-robots-tag: noindex`, (d) stamps every inquiry `_staging:true` and every page_view `is_staging:true`. Leaving it set = production stays private and de-indexed. |
+| `STAGING_PASSWORD` | set (`ppl` / `Jaax4PvOUvE9`) | **UNSET IT, then rebuild.** While set it (a) basic-auth-gates the whole site, (b) forces `robots.txt` → `Disallow: /` plus the per-agent card-crawler groups, (c) adds `x-robots-tag: noindex`, (d) stamps every inquiry `_staging:true` and every page_view `is_staging:true`, (e) enables the card-crawler gate exemption (`lib/crawlers.ts`). Leaving it set = production stays private and de-indexed. **`/robots.txt` is prerendered at build time**, so unsetting the var and restarting PM2 without a rebuild still serves `Disallow: /` — `cutover.sh` already rebuilds (`DEPLOY-VPS.md` §560), but a manual cutover must too. |
 | `NEXT_PUBLIC_SITE_URL` | `https://pplrevamp.vercel.app` | Set to `https://www.pplsolutionsinc.com`. Consumed by `app/layout.tsx` (canonical/OG), `app/sitemap.ts`, `app/robots.ts`, `lib/site.ts`, `app/api/track/route.ts`, `lib/share.ts`. Wrong value = canonical tags + sitemap point at Vercel, and every share button and the copy-link control also hand out the wrong host. **No trailing slash** (consumers string-concat `/sitemap.xml`). |
 | `RESEND_FROM` | unset → defaults to `onboarding@resend.dev` (`lib/email.ts:3`) | Set to a verified `@pplsolutionsinc.com` (or `@send.pplsolutionsinc.com`) sender. Until the domain is verified in Resend, auto-replies to visitors are rejected (test mode only delivers to the signup inbox). |
 | `CONTACT_NOTIFY_EMAIL` | `gilbert.dayalo@pplsolutionsinc.com` (monitored test inbox) | **Client-confirmed 2026-07-30 → `sales@pplsolutionsinc.com`.** Cannot be set until the domain is verified: while the sandbox sender is in use Resend rejects any other recipient and the notification is lost. **If unset, internal notifications silently no-op** (`lib/email.ts`). |
@@ -415,6 +415,10 @@ because the attribution columns shipped 07-29. Only `lawyer` carries an `updated
       GET/HEAD on individual records only — no listing pages, no `/admin`, no state change — and
       every response still carries `x-robots-tag: noindex, nofollow`, with no search engine named
       in the allowlist.
+      **Untested assumption to check first if a card comes back empty despite a 200:**
+      `proxy.ts` still stamps `x-robots-tag: noindex, nofollow` on the exempted crawler
+      response. Facebook and LinkedIn are believed to ignore it for preview generation (it is
+      an indexing directive), but nobody has verified that here. It is the first suspect.
 
 ---
 

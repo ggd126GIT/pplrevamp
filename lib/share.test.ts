@@ -1,5 +1,36 @@
 import { describe, expect, it } from "vitest";
-import { absoluteUrl, shareLinks } from "./share";
+import { absoluteUrl, previewDescription, shareLinks } from "./share";
+
+describe("previewDescription", () => {
+  it("leaves text that already fits untouched", () => {
+    expect(previewDescription("Short and sweet.")).toBe("Short and sweet.");
+  });
+
+  it("collapses newlines and runs of whitespace", () => {
+    expect(previewDescription("Pasted\n\nfrom   Word\ttoo")).toBe(
+      "Pasted from Word too",
+    );
+  });
+
+  it("clamps to a whole word, never mid-word", () => {
+    const text = `${"alpha ".repeat(60)}omega`;
+    const out = previewDescription(text);
+    expect(out.length).toBeLessThanOrEqual(201); // 200 + the ellipsis
+    expect(out.endsWith("…")).toBe(true);
+    expect(out).not.toMatch(/alph…$/);
+  });
+
+  it("does not leave dangling punctuation before the ellipsis", () => {
+    const text = `${"word ".repeat(38)}end. more text follows here`;
+    expect(previewDescription(text)).not.toMatch(/[.,;:]…$/);
+  });
+
+  // A single unbroken token has no word boundary to fall back to.
+  it("still clamps text with no spaces", () => {
+    const out = previewDescription("x".repeat(400));
+    expect(out).toBe(`${"x".repeat(200)}…`);
+  });
+});
 
 describe("absoluteUrl", () => {
   it("joins a root-relative path onto the site origin", () => {

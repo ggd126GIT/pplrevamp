@@ -8,7 +8,7 @@ import { CtaBand } from "@/components/CtaBand";
 import { createPublicClient } from "@/lib/supabase/public";
 import { renderTiptap } from "@/lib/tiptap";
 import { ShareLinks } from "@/components/ShareLinks";
-import { absoluteUrl } from "@/lib/share";
+import { absoluteUrl, previewDescription } from "@/lib/share";
 import { site } from "@/lib/site";
 
 export const revalidate = 60;
@@ -42,7 +42,9 @@ export async function generateMetadata({
   const post = await getPost(slug);
   if (!post) return { title: "Post not found" };
   const url = absoluteUrl(`/blog/${slug}`);
-  const description = post.excerpt ?? `Insights from ${site.name}.`;
+  const description = previewDescription(
+    post.excerpt ?? `Insights from ${site.name}.`,
+  );
   // A real cover wins; when there is none, omit the `images` key entirely
   // (not just set it to `undefined`) so Next's file-convention merge kicks
   // in — it checks `hasOwnProperty('images')`, not the value, so a present-

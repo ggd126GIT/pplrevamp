@@ -9,7 +9,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 import { notExpiredFilter } from "@/lib/jobs";
 import { renderTiptap } from "@/lib/tiptap";
 import { ShareLinks } from "@/components/ShareLinks";
-import { absoluteUrl } from "@/lib/share";
+import { absoluteUrl, previewDescription } from "@/lib/share";
 import { site } from "@/lib/site";
 
 export const revalidate = 60;
@@ -51,8 +51,11 @@ export async function generateMetadata({
   const job = await getJob(slug);
   if (!job) return { title: "Role not found" };
   const url = absoluteUrl(`/careers/${slug}`);
-  const description =
-    job.short_description ?? `Apply for ${job.title} at ${site.name}.`;
+  // short_description is a pasted paragraph with no length cap, and an
+  // over-long card description gets truncated or dropped by the crawlers.
+  const description = previewDescription(
+    job.short_description ?? `Apply for ${job.title} at ${site.name}.`,
+  );
 
   return {
     title: `${job.title} — Careers`,

@@ -16,15 +16,36 @@
  */
 
 /**
- * Matched against the User-Agent header. Substrings, not anchored patterns —
- * these agents append versions and contact URLs, and some (TelegramBot) also
- * name another bot in the same string.
+ * The single source of truth, used both to match the User-Agent header and to
+ * emit the per-agent `robots.txt` groups in `app/robots.ts`. One list because
+ * the two must not drift: an agent named in robots.txt that the proxy refuses
+ * would advertise a URL and then 401 it, and an agent the proxy admits without
+ * a robots.txt group falls into `*` → `Disallow: /` and never requests at all.
+ *
+ * Entries are matched as case-insensitive substrings, so they must be plain
+ * tokens with no regex metacharacters.
  */
-const CARD_CRAWLERS =
-  /facebookexternalhit|facebookcatalog|linkedinbot|twitterbot|slackbot|whatsapp|discordbot|telegrambot|redditbot|pinterest/i;
+export const CARD_CRAWLER_AGENTS = [
+  "facebookexternalhit",
+  "LinkedInBot",
+  "Twitterbot",
+  "Slackbot",
+  "WhatsApp",
+  "Discordbot",
+  "TelegramBot",
+] as const;
 
-/** Individual posts and job postings, including their `opengraph-image` route. */
-const SHAREABLE = /^\/(blog|careers)\/[^/]+/;
+/** Substrings, not anchored: these agents append versions and contact URLs. */
+const CARD_CRAWLERS = new RegExp(CARD_CRAWLER_AGENTS.join("|"), "i");
+
+/**
+ * A single post or job, optionally its `opengraph-image` route — Next serves
+ * that with a content-hash suffix (`/opengraph-image-1ejm5s`), hence the loose
+ * tail on that segment. Anchored so a future nested route under `[slug]` does
+ * not silently inherit the exemption; the optional trailing slash keeps a
+ * pasted `…/slug/` URL working, since the gate runs before Next can redirect.
+ */
+const SHAREABLE = /^\/(blog|careers)\/[^/]+(\/opengraph-image[^/]*)?\/?$/;
 
 /** Read-only methods. A crawler UA is a forgeable header, so nothing else. */
 const SAFE_METHODS = new Set(["GET", "HEAD"]);
@@ -38,8 +59,20 @@ export function isShareablePath(pathname: string): boolean {
 }
 
 /**
+ * Everything a card crawler must reach. `/robots.txt` is included because
+ * these agents honour it: behind the gate it answers 401, and a crawler that
+ * cannot read the file either ignores robots entirely (RFC 9309 §2.3.1.3) or
+ * treats the 401 as a blanket disallow — so the per-agent groups would never
+ * be seen and the exemption would never be exercised. Exposing it costs
+ * nothing; on staging it says `Disallow: /` to everyone else by construction.
+ */
+export function isCrawlerReadable(pathname: string): boolean {
+  return pathname === "/robots.txt" || isShareablePath(pathname);
+}
+
+/**
  * True when a request may skip the staging gate. Deliberately narrow: a safe
- * method, on a single post or job, from a known card crawler.
+ * method, on a crawler-readable path, from a known card crawler.
  */
 export function allowCardCrawler(
   method: string,
@@ -48,18 +81,7 @@ export function allowCardCrawler(
 ): boolean {
   return (
     SAFE_METHODS.has(method.toUpperCase()) &&
-    isShareablePath(pathname) &&
+    isCrawlerReadable(pathname) &&
     isCardCrawler(userAgent)
   );
 }
-
-/** The same agents, for the per-user-agent groups in `robots.txt`. */
-export const CARD_CRAWLER_AGENTS = [
-  "facebookexternalhit",
-  "LinkedInBot",
-  "Twitterbot",
-  "Slackbot",
-  "WhatsApp",
-  "Discordbot",
-  "TelegramBot",
-] as const;
