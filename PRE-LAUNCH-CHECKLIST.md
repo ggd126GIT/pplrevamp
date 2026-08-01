@@ -404,19 +404,22 @@ because the attribution columns shipped 07-29. Only `lawyer` carries an `updated
 - [ ] Mobile responsiveness + `prefers-reduced-motion` sanity check; custom 404.
 - [ ] SSL valid (Certbot if VPS); `www` vs apex redirect behaves.
 - [ ] Keep WordPress live until DNS cutover is confirmed working; export any needed WP content first.
+- [ ] Paste a live blog post URL and a live job URL into LinkedIn, Facebook and Slack and confirm the
+      card renders with title, image and snippet. **This cannot be checked before cutover** — while
+      `STAGING_PASSWORD` is set every crawler receives a 401.
 
 ---
 
 ## 11. Requested features not yet built (backlog, 2026-07-31)
 
 Transcribed from the client/owner notes in `Desktop\ppl-admin-credentials.txt` so they stop living in
-a loose text file. **F4 is done** (see its row below); the other five are not started. None block
-launch — decide per item whether it ships before or after cutover.
+a loose text file. **F1, F2, and F4 are done** (see their rows below); the other three are not started.
+None block launch — decide per item whether it ships before or after cutover.
 
 | # | Ask | Notes / rough shape |
 |---|---|---|
-| F1 | **Share button on blog posts** ("WordPress style preview") | Social share links on `/blog/[slug]`. The OG cards already exist (`lib/og-card.tsx`), so link previews will render — this is the share *buttons*. Cheapest version is plain `https://www.facebook.com/sharer/…` / LinkedIn / X links plus copy-link; no third-party script, so no new cookie or consent question. |
-| F2 | **Share button on job postings** | Same treatment on `/careers/[slug]`. Do F1 and F2 together — one shared component. |
+| F1 | **Share button on blog posts** ("WordPress style preview") ✅ **DONE** — implemented on branch `feat/post-sharing`, not yet merged to `master` | Social share links on `/blog/[slug]`. The OG cards already exist (`lib/og-card.tsx`), so link previews will render — this is the share *buttons*. Cheapest version is plain `https://www.facebook.com/sharer/…` / LinkedIn / X links plus copy-link; no third-party script, so no new cookie or consent question. |
+| F2 | **Share button on job postings** ✅ **DONE** — implemented on branch `feat/post-sharing`, not yet merged to `master` | Same treatment on `/careers/[slug]`. Do F1 and F2 together — one shared component. |
 | F3 | **Images on the careers page** | Needs client-supplied photography, or reuse from `assets/`. Note the alt-text principle in the image spec: decorative banners take `alt=""`, only genuine content images get descriptive alt. |
 | F4 | **Job expiry date, auto-hide once passed** ✅ **DONE** — implemented on branch `feat/job-expiry`, not yet merged to `master` | New nullable `expires_at` on `jobs`, a field in `JobForm`, and the public queries filtered to `expires_at is null or expires_at > now()`. **Do not delete on expiry** — hide it, so the row and its applications survive. Interacts with ISR: an expiry that passes does not re-render anything until revalidation, so a job can linger up to the 60s window (fine) — but a *long* `revalidate` would make expiry look broken. |
 | F5 | **Purge applications after 3 months** | Retention rule. Two halves that must both happen: delete the `applications` row **and** its file from the private `cvs` bucket — row deletion does **not** remove the upload (proven: 6 CVs were found in storage with only 3 rows, 3 of them orphans from failed inserts). Needs a scheduled job (Supabase cron / pg_cron) — nothing scheduled exists in this project yet. Also a privacy-policy question: a stated retention period should be reflected in the policy text. |
