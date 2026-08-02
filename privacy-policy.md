@@ -33,7 +33,7 @@ To be able to provide the appropriate action that a data subject may require con
 Moreover, we may collect other personal data that are relevant and necessary to provide data subject assistance.
 
 Methods utilized for automated access
-The Company uses third-party services, namely WordPress Statistics and Google Analytics, to analyze our web traffic data, facilitate in gauging our website’s engagement, and enhance our website services and features. This service employs cookies. The data produced is not disclosed to any other entity.
+The Company uses its own first-party, cookieless analytics to understand website traffic and improve our services. We record an approximate location (country and city) derived from your IP address at the network edge; we do not store your IP address. No data is disclosed to any other entity, and no cookies are used for this purpose.
 
 The following web traffic data are processed for this purpose:
 
@@ -45,7 +45,7 @@ The referring site or platform (if any) through which you accessed this site
 Your operating system
 Web browser type
 Disclosure of Personal Data
-Personal data processed by the Company is not shared with any other party unless such disclosure is legally allowed under Section 12 or 13 of the DPA which in some instances require court orders.
+Personal data processed by the Company is not shared with any other party, except for the service providers described in this Policy who process data on our behalf to operate and secure this website, or unless such disclosure is legally allowed under Section 12 or 13 of the DPA which in some instances require court orders.
 
 Risks Involved
 Risk refers to the potential of an incident to result in harm or danger to a data subject or organization. Risks may lead to the unauthorized collection, use, disclosure, or access to personal data. It includes risks involving the confidentiality, integrity, and availability of personal data or the risk that processing will violate the general data privacy principles and the rights of data subjects.
@@ -63,6 +63,7 @@ End-to-end encryption and data classification whenever suitable.
 Security measures against natural disasters, power disturbances, external access, and similar threats.
 Technical measures to protect our computers and databases against accidental, unlawful, or unauthorized usage, interference, or access.
 Third-party services contracted to support data security and infrastructure.
+We use Cloudflare Turnstile to protect our online forms from automated abuse. When you submit a form, Cloudflare receives technical information about your browser and connection solely to distinguish human visitors from automated traffic. Turnstile does not use cookies and is not used to track you across websites.
 Storage and Retention
 The Company stores files containing personal information in our computers and servers, which are kept in a secure environment. We may also store your personal information with cloud-based third-party data storage providers. We shall ensure that proper measures are adopted to protect your information.
 

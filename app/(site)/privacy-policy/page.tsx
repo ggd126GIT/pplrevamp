@@ -82,7 +82,7 @@ const sections: { heading: string; body: Block[] }[] = [
   {
     heading: "Disclosure of Personal Data",
     body: [
-      "Personal data processed by the Company is not shared with any other party unless such disclosure is legally allowed under Section 12 or 13 of the DPA which in some instances require court orders.",
+      "Personal data processed by the Company is not shared with any other party, except for the service providers described in this Policy who process data on our behalf to operate and secure this website, or unless such disclosure is legally allowed under Section 12 or 13 of the DPA which in some instances require court orders.",
     ],
   },
   {
@@ -105,6 +105,7 @@ const sections: { heading: string; body: Block[] }[] = [
           "Security measures against natural disasters, power disturbances, external access, and similar threats.",
           "Technical measures to protect our computers and databases against accidental, unlawful, or unauthorized usage, interference, or access.",
           "Third-party services contracted to support data security and infrastructure.",
+          "We use Cloudflare Turnstile to protect our online forms from automated abuse. When you submit a form, Cloudflare receives technical information about your browser and connection solely to distinguish human visitors from automated traffic. Turnstile does not use cookies and is not used to track you across websites.",
         ],
       },
     ],
