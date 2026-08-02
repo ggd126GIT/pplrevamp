@@ -47,13 +47,10 @@ export function Header() {
       )}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 sm:px-8">
-        <div
-          className={cn(
-            "flex items-center transition-all duration-300",
-            scrolled ? "h-16" : "h-20",
-          )}
-        >
-          <Logo className={scrolled ? "text-xl" : "text-2xl"} />
+        {/* Height and logo size stay fixed on scroll (client request, 08/02):
+            only the shadow below marks the sticky state. */}
+        <div className="flex h-20 items-center">
+          <Logo className="text-2xl" />
         </div>
 
         {/* Desktop nav */}
