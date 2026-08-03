@@ -522,8 +522,30 @@ Notes worth keeping:
 Everything that can be done without the zone has been done. nginx already answers for
 `pplsolutionsinc.com` and `www.pplsolutionsinc.com`, apex already 301s to `www` in a single hop, and
 **`/var/www/ppl/cutover.sh`** performs the rest as one command. It refuses to run until DNS actually
-points here, so it cannot half-apply — that guard has been tested against the current (still
-WordPress) DNS and correctly declined, changing nothing.
+points here — that guard has been tested against the current (still WordPress) DNS and correctly
+declined, changing nothing.
+
+> **Two defects were found in this and fixed on 2026-08-03 (commit `6690d29`).** Both would have
+> failed silently mid-cutover, and the earlier claim here that the script "cannot half-apply" was
+> **wrong**:
+>
+> 1. **The pre-flight only checked `A` records.** Let's Encrypt *prefers IPv6* when an `AAAA` exists,
+>    and the apex still had one pointing at the WordPress box — so the challenge would have gone
+>    there and the certificate expansion would have failed with a perfect-looking `A` record. The
+>    guard now checks `AAAA` too, and **the stale apex `AAAA` has been deleted from the zone**
+>    (value preserved in `docs/dns/…-zone-export-2026-07-31.txt` if it ever needs restoring —
+>    deleting it changed nothing for visitors, since Cloudflare serves its own IPv6 anycast for any
+>    proxied name; verified with a `curl -6` returning 200 after the deletion).
+> 2. **`npm run build` and `pm2 reload` ran as whoever invoked the script.** It needs root for
+>    certbot, but pm2 is per-user and root's daemon has no `ppl` process, so `pm2 reload` exited
+>    non-zero under `set -e` *after* `.env.production` had been rewritten and the build had run.
+>    A root-run build also leaves root-owned files in `.next`, breaking later `deploy.sh` runs.
+>    Both now drop to `gilbertd` via a login shell. The env file is additionally chowned back and
+>    asserted readable — it is mode `600` and owned by `gilbertd`, and a root-owned copy would make
+>    the build read **no** environment and ship a bundle with no Supabase keys or site URL.
+>
+> All three guard branches are tested (no `AAAA` → pass; `AAAA` pointing here → pass; `AAAA`
+> elsewhere → refuse), exercised against the real script with a stubbed resolver.
 
 Two things deliberately **not** pre-applied, because both would take effect immediately on the
 public `w2` hostname:
@@ -555,7 +577,9 @@ So:
    revisions said to drop TTL to 60s hours ahead — unnecessary.)*
 3. **Pre-flight the app:** `PRE-LAUNCH-CHECKLIST.md` §8 cleanup SQL, rotate the `admin12345`
    password, delete the junk posts and test jobs.
-4. **Repoint** `@` and `www` to `187.127.121.54` as **DNS-only (grey cloud)**.
+4. **Repoint** `@` and `www` to `187.127.121.54` as **DNS-only (grey cloud)**. The apex `AAAA` that
+   used to sit alongside these was deleted on 2026-08-03 — do **not** re-add one unless it points at
+   this server's IPv6 (`2a02:4780:5e:efd9::1`); `cutover.sh` now refuses either way.
 5. **Run `/var/www/ppl/cutover.sh`.** It verifies DNS, expands the certificate to all three names,
    sets `NEXT_PUBLIC_SITE_URL`, removes `STAGING_PASSWORD`, rebuilds (required — `NEXT_PUBLIC_*` is
    inlined at build time) and reloads. **This is the moment the site goes public.**
