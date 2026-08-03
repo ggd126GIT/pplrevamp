@@ -464,18 +464,18 @@ verified and configured (§2). **The remaining gate is the client's go-ahead on 
   or launch on the empty state, deliberately.
 - 🔴 **Confirm a form submission actually reaches `sales@` / `careers@` (§2)** — configured, verified
   as far as Resend, but delivery into those inboxes is unproven and needs a .ppl staffer
-- 🔴 **Disable public signup on Supabase (§5)** — CHECKED 2026-08-03 and it is **OPEN**
-  (`/auth/v1/settings` → `"disable_signup": false`). Every new auth user is created `role = 'admin'`,
-  so anyone with the public anon key can self-provision a staff account; only mail confirmation
-  stands in the way. Fix: Authentication → Sign In / Providers → Email → turn off "Allow new users
-  to sign up". All six staff accounts were made via the Admin API, which that toggle does not affect.
-- 🔴 **Set `FORM_TOKEN_SECRET`** in `/var/www/ppl/.env.production` (any long random string,
-  `openssl rand -hex 32`) and redeploy. Without it the form timing check is inert. Server-only, so a
-  restart is enough — but `deploy.sh` rebuilds anyway.
-- Turnstile is **merged** (`09a5b4d`); what remains is creating the keys in the owner's own Cloudflare
-  account — those need **no** client Cloudflare access. Set `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and
-  `TURNSTILE_SECRET_KEY` **together**; the secret alone rejects every submission as `missing`, and
-  the site key is inlined at build time so it needs a rebuild.
+- ✅ **DONE 2026-08-03 — public Supabase signup disabled (§5).** It had been open, letting anyone with
+  the public anon key self-provision a `role = 'admin'` account. Verified: `POST /auth/v1/signup`
+  now returns **422 `signup_disabled`**; roster unchanged at 6 users / 6 profiles / 6 admins.
+- ✅ **DONE 2026-08-03 — `FORM_TOKEN_SECRET` set** on the VPS and deployed, so the form timing check
+  (rejects submissions under 2s old) is live along with the tightened enquiry rate limits
+  (3 per 10 min on contact/discovery, 5/min on apply).
+- ✅ **DONE 2026-08-03 — Turnstile is LIVE on w2.** Widget `ppl-solutions-forms` (Managed) created in
+  the owner's own Cloudflare account with hostnames `w2.` / `www.` / apex / `localhost`; both keys set
+  together and rebuilt. Verified: a valid submission with no token is refused, a forged token is
+  refused, and a real browser token validates at Cloudflare with
+  `hostname: w2.pplsolutionsinc.com, interactive: false`. **Vercel staging does NOT have the keys**,
+  so Turnstile stays disabled there — set them if Vercel is ever used for real traffic.
 - Staging data cleanup by **date cut**, not the staging flag (§8)
 - Referral conditions copy — still "being checked by lawyer" (§9)
 - The 60-vs-100 years figure — still unconfirmed by the client
