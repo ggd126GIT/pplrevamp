@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { clientIp, rateLimit } from "@/lib/rateLimit";
+import { clientIp, rateLimit, FORM_LIMITS } from "@/lib/rateLimit";
 import { sendAutoReply, sendInternalNotification, settleSends } from "@/lib/email";
 import {
   HONEYPOT_FIELD,
@@ -10,10 +10,11 @@ import {
   persistInquiry,
 } from "@/lib/forms";
 import { verifyTurnstile } from "@/lib/turnstile";
+import { verifyFormToken } from "@/lib/formToken";
 
 export async function POST(request: Request) {
   const ip = clientIp(request.headers);
-  const limit = rateLimit(`discovery:${ip}`, { limit: 5, windowMs: 60_000 });
+  const limit = rateLimit(`discovery:${ip}`, FORM_LIMITS.discovery);
   if (!limit.ok) {
     return NextResponse.json(
       { ok: false, error: "Too many requests. Please try again shortly." },
@@ -30,6 +31,23 @@ export async function POST(request: Request) {
 
   if (isNonEmpty(body[HONEYPOT_FIELD])) {
     return NextResponse.json({ ok: true });
+  }
+
+  // This form is multi-step, so the token is comfortably older than the minimum
+  // by the time the final step is reached.
+  const timing = verifyFormToken(body.formToken);
+  if (!timing.ok) {
+    console.warn("[discovery] form token rejected:", timing.reason);
+    return NextResponse.json(
+      {
+        ok: false,
+        error:
+          timing.reason === "expired"
+            ? "This page has been open a while. Please refresh and try again."
+            : "We couldn't verify your submission. Please refresh the page and try again.",
+      },
+      { status: 400 },
+    );
   }
 
   const b = body as Record<string, string>;

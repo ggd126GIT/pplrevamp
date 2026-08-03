@@ -7,6 +7,7 @@ import { Field, TextInput, Textarea, Honeypot } from "./fields";
 import { HONEYPOT_FIELD, MAX_MESSAGE_LENGTH } from "@/lib/forms";
 import { getSessionId } from "@/lib/analytics/session";
 import { TurnstileWidget, useTurnstile } from "./Turnstile";
+import { FormTokenField } from "./FormToken";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -67,6 +68,7 @@ export function ContactForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
       <Honeypot name={HONEYPOT_FIELD} />
+      <FormTokenField />
 
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="First name" htmlFor="firstName" required>

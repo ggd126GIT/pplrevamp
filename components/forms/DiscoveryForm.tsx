@@ -8,6 +8,7 @@ import { Field, TextInput, Textarea, Select, Honeypot } from "./fields";
 import { HONEYPOT_FIELD, MAX_MESSAGE_LENGTH } from "@/lib/forms";
 import { getSessionId } from "@/lib/analytics/session";
 import { TurnstileWidget, useTurnstile } from "./Turnstile";
+import { useFormToken } from "./FormToken";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -57,6 +58,9 @@ export function DiscoveryForm() {
     reset: resetTurnstile,
     blocked,
   } = useTurnstile();
+  // This form posts an explicit payload rather than serialising the DOM, so it
+  // reads the token directly instead of using the hidden field.
+  const formToken = useFormToken();
 
   const set = (key: keyof typeof initial) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -87,6 +91,7 @@ export function DiscoveryForm() {
           ? data.industryOther
           : data.industry,
       sessionId: getSessionId(),
+      formToken,
       "cf-turnstile-response": token,
     };
 

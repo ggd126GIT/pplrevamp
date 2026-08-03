@@ -1,18 +1,19 @@
 import { NextResponse } from "next/server";
-import { clientIp, rateLimit } from "@/lib/rateLimit";
+import { clientIp, rateLimit, FORM_LIMITS } from "@/lib/rateLimit";
 import { getServiceClient } from "@/lib/supabase/service";
 import { sendInternalNotification, sendAutoReply, settleSends } from "@/lib/email";
 import { HONEYPOT_FIELD, isEmail, isNonEmpty } from "@/lib/forms";
 import { slugify } from "@/lib/slug";
 import { acceptsApplications } from "@/lib/jobs";
 import { verifyTurnstile } from "@/lib/turnstile";
+import { verifyFormToken } from "@/lib/formToken";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 const ALLOWED_EXT = ["pdf", "doc", "docx", "jpg", "jpeg", "png"];
 
 export async function POST(request: Request) {
   const ip = clientIp(request.headers);
-  const limit = rateLimit(`apply:${ip}`, { limit: 5, windowMs: 60_000 });
+  const limit = rateLimit(`apply:${ip}`, FORM_LIMITS.apply);
   if (!limit.ok) {
     return NextResponse.json(
       { ok: false, error: "Too many requests. Please try again shortly." },
@@ -29,6 +30,21 @@ export async function POST(request: Request) {
 
   if (isNonEmpty(form.get(HONEYPOT_FIELD) as string)) {
     return NextResponse.json({ ok: true });
+  }
+
+  const timing = verifyFormToken(form.get("formToken"));
+  if (!timing.ok) {
+    console.warn("[apply] form token rejected:", timing.reason);
+    return NextResponse.json(
+      {
+        ok: false,
+        error:
+          timing.reason === "expired"
+            ? "This page has been open a while. Please refresh and try again."
+            : "We couldn't verify your submission. Please refresh the page and try again.",
+      },
+      { status: 400 },
+    );
   }
 
   const jobId = String(form.get("jobId") ?? "");

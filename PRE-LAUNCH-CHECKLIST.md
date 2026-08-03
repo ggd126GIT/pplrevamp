@@ -464,10 +464,18 @@ verified and configured (§2). **The remaining gate is the client's go-ahead on 
   or launch on the empty state, deliberately.
 - 🔴 **Confirm a form submission actually reaches `sales@` / `careers@` (§2)** — configured, verified
   as far as Resend, but delivery into those inboxes is unproven and needs a .ppl staffer
-- 🟠 **Verify public signup is disabled on Supabase (§5)** — every new auth user is created
-  `role = 'admin'`, so an open signup endpoint would be a staff-access hole
-- Merge and deploy `feat/turnstile` (15 commits, pushed as a backup but on neither environment), then
-  create Turnstile keys — those need **no** client Cloudflare access, any account works
+- 🔴 **Disable public signup on Supabase (§5)** — CHECKED 2026-08-03 and it is **OPEN**
+  (`/auth/v1/settings` → `"disable_signup": false`). Every new auth user is created `role = 'admin'`,
+  so anyone with the public anon key can self-provision a staff account; only mail confirmation
+  stands in the way. Fix: Authentication → Sign In / Providers → Email → turn off "Allow new users
+  to sign up". All six staff accounts were made via the Admin API, which that toggle does not affect.
+- 🔴 **Set `FORM_TOKEN_SECRET`** in `/var/www/ppl/.env.production` (any long random string,
+  `openssl rand -hex 32`) and redeploy. Without it the form timing check is inert. Server-only, so a
+  restart is enough — but `deploy.sh` rebuilds anyway.
+- Turnstile is **merged** (`09a5b4d`); what remains is creating the keys in the owner's own Cloudflare
+  account — those need **no** client Cloudflare access. Set `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and
+  `TURNSTILE_SECRET_KEY` **together**; the secret alone rejects every submission as `missing`, and
+  the site key is inlined at build time so it needs a rebuild.
 - Staging data cleanup by **date cut**, not the staging flag (§8)
 - Referral conditions copy — still "being checked by lawyer" (§9)
 - The 60-vs-100 years figure — still unconfirmed by the client

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Field, TextInput, Honeypot } from "@/components/forms/fields";
 import { HONEYPOT_FIELD } from "@/lib/forms";
 import { TurnstileWidget, useTurnstile } from "@/components/forms/Turnstile";
+import { FormTokenField } from "@/components/forms/FormToken";
 
 const ACCEPT = ".pdf,.doc,.docx,.jpg,.jpeg,.png";
 const MAX_BYTES = 2 * 1024 * 1024;
@@ -80,6 +81,7 @@ export function ApplicationForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
       <Honeypot name={HONEYPOT_FIELD} />
+      <FormTokenField />
 
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="First name" htmlFor="first_name" required>

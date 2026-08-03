@@ -6,6 +6,21 @@
 type Bucket = { count: number; resetAt: number };
 const buckets = new Map<string, Bucket>();
 
+/**
+ * Per-visitor submission budgets for the public forms, single-sourced so the
+ * enquiry routes cannot drift apart.
+ *
+ * Contact and discovery are deliberately tight: both deliver to the same sales
+ * inbox, and nobody has three genuine enquiries in ten minutes. Applications
+ * stay looser — one person may apply to several roles in a sitting, and a CV
+ * upload is the submission most likely to need a retry.
+ */
+export const FORM_LIMITS = {
+  contact: { limit: 3, windowMs: 10 * 60_000 },
+  discovery: { limit: 3, windowMs: 10 * 60_000 },
+  apply: { limit: 5, windowMs: 60_000 },
+} as const;
+
 export function rateLimit(
   key: string,
   { limit = 5, windowMs = 60_000 }: { limit?: number; windowMs?: number } = {},
