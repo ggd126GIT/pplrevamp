@@ -239,6 +239,37 @@ describe("geoFromHeaders", () => {
     ).toBe("NCR");
   });
 
+  it("repairs a city mangled by Latin-1 header decoding", () => {
+    // Cloudflare sends UTF-8 bytes for "Dasmariñas"; read as Latin-1 the ñ
+    // (C3 B1) becomes the two characters Ã and ±.
+    expect(
+      geoFromHeaders(h({ "cf-ipcity": "DasmariÃ±as" })).city,
+    ).toBe("Dasmariñas");
+  });
+
+  it("repairs a mangled region the same way", () => {
+    expect(
+      geoFromHeaders(h({ "cf-region": "RegiÃ³n de Murcia" })).region,
+    ).toBe("Región de Murcia");
+  });
+
+  it("leaves a correctly-encoded accented name untouched", () => {
+    // "Málaga" arriving already correct must not be round-tripped into mojibake.
+    expect(geoFromHeaders(h({ "cf-ipcity": "Málaga" })).city).toBe("Málaga");
+  });
+
+  it("leaves plain ASCII untouched", () => {
+    expect(geoFromHeaders(h({ "cf-ipcity": "Quezon City" })).city).toBe(
+      "Quezon City",
+    );
+  });
+
+  it("still handles Vercel's percent-encoded city", () => {
+    expect(geoFromHeaders(h({ "x-vercel-ip-city": "San%20Francisco" })).city).toBe(
+      "San Francisco",
+    );
+  });
+
   it("prefers the readable cf-region name over the code", () => {
     expect(
       geoFromHeaders(
