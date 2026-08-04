@@ -10,6 +10,7 @@ import { notExpiredFilter } from "@/lib/jobs";
 import { renderTiptap } from "@/lib/tiptap";
 import { ShareLinks } from "@/components/ShareLinks";
 import { absoluteUrl, previewDescription } from "@/lib/share";
+import { jobPostingSchema } from "@/lib/jobSchema";
 import { site } from "@/lib/site";
 
 export const revalidate = 60;
@@ -100,6 +101,14 @@ export default async function JobDetailPage({
 
   return (
     <Section bg="white">
+      {/* Google Jobs eligibility: this page is the canonical posting, so the
+          JobPosting markup lives here rather than on the /careers index. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jobPostingSchema(job, html)),
+        }}
+      />
       <Container size="wide">
         <Link
           href="/careers"
