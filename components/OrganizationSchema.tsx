@@ -19,8 +19,10 @@ export function OrganizationSchema() {
     logo: {
       "@type": "ImageObject",
       url: `${site.url}/ppl-logo.png`,
-      width: 133,
-      height: 63,
+      // Must match the file the pipeline emits from ppl-logo.svg — 2x the
+      // 133x63 CSS box. Update both together if that render size changes.
+      width: 266,
+      height: 126,
     },
     image: {
       "@type": "ImageObject",

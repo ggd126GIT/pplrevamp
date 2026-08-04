@@ -217,8 +217,11 @@ const MANIFEST = [
   { src: "Rafael Dayalo.webp", out: "team/rafael-dayalo.webp", copy: true },
   { src: "Clari Porras.webp", out: "team/clari-porras.webp", copy: true },
 
-  // Logo stays PNG: 2.9 KB with alpha, already below what webp would save.
-  { src: "ppl-logo.png", out: "ppl-logo.png", copy: true },
+  // Logo is now a vector source, rendered to PNG at 2x the 133x63 CSS box so
+  // the header mark stays crisp on retina. Output stays PNG rather than webp:
+  // it is a few KB with alpha either way, and the OG card and the Organization
+  // /JobPosting schemas all point at ppl-logo.png by name.
+  { src: "ppl-logo.svg", out: "ppl-logo.png", svg: { width: 266, height: 126 } },
 ];
 
 async function sizeOf(file) {
@@ -241,6 +244,14 @@ async function build(entry) {
   let bytes;
   if (entry.copy) {
     bytes = await readFile(from);
+  } else if (entry.svg) {
+    // Vector source. `density` drives the rasteriser, not the output size, so
+    // it must be high enough that the render is sharper than the target box —
+    // otherwise sharp rasterises small and upscales, defeating the point.
+    bytes = await sharp(from, { density: entry.svg.density ?? 1200 })
+      .resize(entry.svg.width, entry.svg.height)
+      .png({ compressionLevel: 9 })
+      .toBuffer();
   } else {
     const { width, height, quality } = PRESET[entry.preset];
     let pipeline = sharp(from);
