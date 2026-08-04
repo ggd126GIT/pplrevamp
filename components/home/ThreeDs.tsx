@@ -29,7 +29,13 @@ export function ThreeDs() {
                   <span className="relative z-10 flex size-[6.5rem] items-center justify-center rounded-2xl bg-gradient-to-br from-grad-from to-grad-to text-white shadow-lg shadow-purple/25">
                     <Icon className="size-10" strokeWidth={1.5} />
                   </span>
-                  <span className="font-display text-6xl font-extrabold text-black/[0.06]">
+                  {/* Decorative watermark. The step's meaning is carried by the
+                      heading below and its order by the DOM, so hide it rather
+                      than darken it to pass contrast. */}
+                  <span
+                    aria-hidden="true"
+                    className="font-display text-6xl font-extrabold text-black/[0.06]"
+                  >
                     0{i + 1}
                   </span>
                 </div>

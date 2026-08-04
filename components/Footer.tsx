@@ -46,9 +46,9 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-white">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-white">
               Explore
-            </h4>
+            </h2>
             {/* Tight spacing plus padded links: the tap target is the padding,
                 so the visual rhythm stays close to the original. */}
             <ul className="mt-2 space-y-0.5">
@@ -68,9 +68,9 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-white">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-white">
               Quick Links
-            </h4>
+            </h2>
             {/* Tight spacing plus padded links: the tap target is the padding,
                 so the visual rhythm stays close to the original. */}
             <ul className="mt-2 space-y-0.5">

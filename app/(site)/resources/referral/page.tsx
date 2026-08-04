@@ -56,7 +56,12 @@ export default function ReferralPage() {
                       <span className="flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-grad-from/12 to-grad-to/12 text-purple">
                         <Icon className="size-7" strokeWidth={1.6} />
                       </span>
-                      <span className="font-display text-5xl font-extrabold text-black/[0.06]">
+                      {/* Decorative watermark — the heading below already reads
+                          "Step {n}: …", so announcing it again is noise. */}
+                      <span
+                        aria-hidden="true"
+                        className="font-display text-5xl font-extrabold text-black/[0.06]"
+                      >
                         {step.n}
                       </span>
                     </div>

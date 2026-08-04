@@ -15,6 +15,9 @@ export function Hero() {
         aria-hidden
         fill
         priority
+        // This is the LCP element. `priority` alone did not emit
+        // fetchpriority="high" in the rendered markup, so set it explicitly.
+        fetchPriority="high"
         sizes="100vw"
         className="pointer-events-none select-none object-cover object-center opacity-40"
       />
@@ -76,7 +79,11 @@ export function Hero() {
                   Schedule a Consultation Today
                 </Button>
               </Magnetic>
+              {/* The visible label stays short for the design; the accessible
+                  name says where it goes, because a screen reader pulling up a
+                  list of links otherwise shows a bare "Learn More". */}
               <Button href="/services" size="lg" variant="outline"
+                aria-label="Learn more about our services"
                 className="border-white/30 text-white hover:border-white hover:bg-white/10"
               >
                 Learn More
