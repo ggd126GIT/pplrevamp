@@ -220,6 +220,32 @@ describe("geoFromHeaders", () => {
       ).region,
     ).toBeNull();
   });
+
+  it("reads the full Cloudflare edge set, including region", () => {
+    expect(
+      geoFromHeaders(
+        h({
+          "cf-ipcountry": "PH",
+          "cf-region": "Metro Manila",
+          "cf-ipcity": "Pasig",
+        }),
+      ),
+    ).toEqual({ country: "PH", region: "Metro Manila", city: "Pasig" });
+  });
+
+  it("falls back to cf-region-code when cf-region is absent", () => {
+    expect(
+      geoFromHeaders(h({ "cf-ipcountry": "PH", "cf-region-code": "NCR" })).region,
+    ).toBe("NCR");
+  });
+
+  it("prefers the readable cf-region name over the code", () => {
+    expect(
+      geoFromHeaders(
+        h({ "cf-region": "Metro Manila", "cf-region-code": "NCR" }),
+      ).region,
+    ).toBe("Metro Manila");
+  });
 });
 
 describe("normalizeEventBatch", () => {

@@ -100,7 +100,15 @@ export type Geo = {
 };
 
 const COUNTRY_HEADERS = ["x-vercel-ip-country", "cf-ipcountry", "x-geoip-country"];
-const REGION_HEADERS = ["x-vercel-ip-country-region", "x-geoip-region"];
+// `cf-region` is the readable name ("Metro Manila"); `cf-region-code` is the
+// short form ("NCR"). Both need the "Add visitor location headers" managed
+// transform enabled on the zone — Cloudflare only sends cf-ipcountry by default.
+const REGION_HEADERS = [
+  "x-vercel-ip-country-region",
+  "cf-region",
+  "cf-region-code",
+  "x-geoip-region",
+];
 const CITY_HEADERS = ["x-vercel-ip-city", "cf-ipcity", "x-geoip-city"];
 const MAX_GEO = 128;
 
