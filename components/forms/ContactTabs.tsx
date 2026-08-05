@@ -25,14 +25,18 @@ export function ContactTabs() {
 
   return (
     <div className="rounded-3xl border border-black/[0.06] bg-white p-6 shadow-sm sm:p-8">
-      <div className="mb-7 inline-flex rounded-full bg-mist p-1">
+      {/* Full-width and shrinkable on phones: as `inline-flex`, "Schedule a
+          consultation" set the row's min-content width to ~385px, and because
+          grid items default to `min-width: auto` that stretched the whole
+          column — pushing the page 65px wide at 320px, aside included. */}
+      <div className="mb-7 flex w-full rounded-full bg-mist p-1 sm:inline-flex sm:w-auto">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             type="button"
             onClick={() => setActive(tab.key)}
             className={cn(
-              "rounded-full px-4 py-2 text-sm font-semibold transition-colors sm:px-5",
+              "flex-1 rounded-full px-3 py-2 text-sm font-semibold transition-colors sm:flex-none sm:px-5",
               active === tab.key
                 ? "bg-white text-purple shadow-sm"
                 : "text-charcoal/60 hover:text-charcoal",

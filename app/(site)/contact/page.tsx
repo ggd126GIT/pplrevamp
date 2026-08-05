@@ -26,12 +26,15 @@ export default function ContactPage() {
         <Container size="wide">
           <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr] lg:items-start">
             {/* Contact + discovery forms */}
-            <div id="form" className="scroll-mt-24">
+            {/* min-w-0: grid items default to `min-width: auto`, so they refuse
+                to shrink below their content and push the page sideways on a
+                narrow phone instead of wrapping. */}
+            <div id="form" className="min-w-0 scroll-mt-24">
               <ContactTabs />
             </div>
 
             {/* Contact info */}
-            <aside className="space-y-6">
+            <aside className="min-w-0 space-y-6">
               <div className="rounded-2xl border border-black/[0.06] bg-cream p-7">
                 <h2 className="text-lg font-bold text-ink">Reach us directly</h2>
                 <ul className="mt-5 space-y-5 text-sm">
