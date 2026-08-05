@@ -40,6 +40,11 @@ export function BlogList({ posts }: { posts: PostCard[] }) {
               {formatDate(post.published_at)}
             </time>
             <h2 className="mt-2 text-lg font-bold text-ink">{post.title}</h2>
+            {post.byline && (
+              <p className="mt-1.5 text-sm font-medium text-charcoal/60">
+                By {post.byline}
+              </p>
+            )}
             {post.excerpt && (
               <p className="mt-2 line-clamp-3 whitespace-pre-line text-sm text-charcoal/70">
                 {excerptLines(post.excerpt).join("\n")}

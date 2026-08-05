@@ -267,6 +267,7 @@ export type Database = {
       posts: {
         Row: {
           author_id: string | null
+          byline: string | null
           content: Json | null
           cover_image_url: string | null
           created_at: string | null
@@ -282,6 +283,7 @@ export type Database = {
         }
         Insert: {
           author_id?: string | null
+          byline?: string | null
           content?: Json | null
           cover_image_url?: string | null
           created_at?: string | null
@@ -297,6 +299,7 @@ export type Database = {
         }
         Update: {
           author_id?: string | null
+          byline?: string | null
           content?: Json | null
           cover_image_url?: string | null
           created_at?: string | null

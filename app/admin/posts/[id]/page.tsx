@@ -62,6 +62,7 @@ export default async function EditPostPage({
           values={{
             title: post.title,
             slug: post.slug,
+            byline: post.byline,
             excerpt: post.excerpt,
             cover_image_url: post.cover_image_url,
             status: post.status,

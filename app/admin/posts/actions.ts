@@ -20,6 +20,9 @@ function parseContent(raw: string): Json {
 function parse(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const slug = slugify(String(formData.get("slug") ?? "").trim() || title);
+  // The public display credit. Distinct from author_id, which the action sets
+  // to whoever is signed in — usually not the writer.
+  const byline = String(formData.get("byline") ?? "").trim() || null;
   const excerpt = String(formData.get("excerpt") ?? "").trim() || null;
   const cover_image_url =
     String(formData.get("cover_image_url") ?? "").trim() || null;
@@ -28,7 +31,7 @@ function parse(formData: FormData) {
       ? "published"
       : "draft";
   const content = parseContent(String(formData.get("content") ?? ""));
-  return { title, slug, excerpt, cover_image_url, status, content };
+  return { title, slug, byline, excerpt, cover_image_url, status, content };
 }
 
 export async function createPost(

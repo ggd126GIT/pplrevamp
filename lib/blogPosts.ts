@@ -6,6 +6,7 @@ export type PostCard = {
   id: string;
   slug: string;
   title: string;
+  byline: string | null;
   excerpt: string | null;
   cover_image_url: string | null;
   published_at: string | null;
@@ -25,7 +26,7 @@ export async function fetchPostsPage(page: number): Promise<{
   const supabase = createPublicClient();
   const { data, count } = await supabase
     .from("posts")
-    .select("id, slug, title, excerpt, cover_image_url, published_at", {
+    .select("id, slug, title, byline, excerpt, cover_image_url, published_at", {
       count: "exact",
     })
     .eq("status", "published")

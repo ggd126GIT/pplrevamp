@@ -109,9 +109,10 @@ export default async function BlogPostPage({
             <ArrowLeft className="size-4" /> All posts
           </Link>
 
-          <time className="mt-8 block text-sm font-medium uppercase tracking-wide text-purple">
-            {formatDate(post.published_at)}
-          </time>
+          <p className="mt-8 text-sm font-medium uppercase tracking-wide text-purple">
+            <time>{formatDate(post.published_at)}</time>
+            {post.byline && <span> · {post.byline}</span>}
+          </p>
           <h1 className="mt-2 font-display text-3xl font-extrabold leading-tight text-ink sm:text-4xl">
             {post.title}
           </h1>

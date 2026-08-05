@@ -12,6 +12,7 @@ import type { Json } from "@/lib/database.types";
 type Values = {
   title?: string;
   slug?: string;
+  byline?: string | null;
   excerpt?: string | null;
   cover_image_url?: string | null;
   status?: string;
@@ -58,13 +59,22 @@ export function PostForm({
         </Field>
       </div>
 
+      <Field label="Author" htmlFor="byline">
+        <TextInput
+          id="byline"
+          name="byline"
+          defaultValue={values.byline ?? ""}
+          placeholder="Who wrote this post, e.g. Tina Loneza"
+        />
+      </Field>
+
       <Field label="Excerpt" htmlFor="excerpt">
         <Textarea
           id="excerpt"
           name="excerpt"
           defaultValue={values.excerpt ?? ""}
           className="min-h-20"
-          placeholder="Short summary shown on the blog listing."
+          placeholder="Short summary shown on the blog listing. The author goes in the field above."
         />
       </Field>
 
