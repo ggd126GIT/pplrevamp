@@ -8,6 +8,7 @@ import { Field, TextInput, Textarea, Select, Honeypot } from "./fields";
 import { HONEYPOT_FIELD, MAX_MESSAGE_LENGTH } from "@/lib/forms";
 import { getSessionId } from "@/lib/analytics/session";
 import { TurnstileWidget, useTurnstile } from "./Turnstile";
+import { useFormStart } from "./useFormStart";
 import { useFormToken } from "./FormToken";
 
 type Status = "idle" | "submitting" | "success" | "error";
@@ -47,6 +48,7 @@ const initial = {
 const stepLabels = ["Company", "Engagement", "Your details"];
 
 export function DiscoveryForm() {
+  const onFormStart = useFormStart("discovery");
   const [step, setStep] = useState(0);
   const [data, setData] = useState(initial);
   const [status, setStatus] = useState<Status>("idle");
@@ -127,7 +129,12 @@ export function DiscoveryForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+    <form
+      onSubmit={handleSubmit}
+      onInput={onFormStart}
+      className="space-y-6"
+      noValidate
+    >
       <Honeypot name={HONEYPOT_FIELD} />
 
       {/* Progress */}

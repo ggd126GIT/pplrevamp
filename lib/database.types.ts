@@ -131,27 +131,50 @@ export type Database = {
       }
       inquiries: {
         Row: {
+          attribution: Json | null
           created_at: string | null
           id: string
+          note: string | null
+          owner_id: string | null
           payload: Json
           session_id: string | null
+          status: string
+          status_updated_at: string | null
           type: string
         }
         Insert: {
+          attribution?: Json | null
           created_at?: string | null
           id?: string
+          note?: string | null
+          owner_id?: string | null
           payload: Json
           session_id?: string | null
+          status?: string
+          status_updated_at?: string | null
           type: string
         }
         Update: {
+          attribution?: Json | null
           created_at?: string | null
           id?: string
+          note?: string | null
+          owner_id?: string | null
           payload?: Json
           session_id?: string | null
+          status?: string
+          status_updated_at?: string | null
           type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "inquiries_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       jobs: {
         Row: {

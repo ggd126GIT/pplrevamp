@@ -1,7 +1,7 @@
 import { getSessionId } from "@/lib/analytics/session";
 
 export type QueuedEvent = {
-  type: "section_view" | "click";
+  type: "section_view" | "click" | "form_start";
   label: string;
   /** Recorded per event, not per batch: a flush and a route change can
    *  interleave, and a batch-level path would mislabel one page as another. */

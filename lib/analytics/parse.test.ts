@@ -290,6 +290,19 @@ describe("normalizeEventBatch", () => {
     });
   });
 
+  // Unknown types are dropped silently, so a form_start that never reached the
+  // allow-list would vanish without an error and the funnel would show zero
+  // starts forever.
+  it("accepts form_start, the funnel's middle step", () => {
+    const out = normalizeEventBatch({
+      sessionId: SID,
+      events: [{ type: "form_start", label: "contact", path: "/contact" }],
+    });
+    expect(out?.events).toEqual([
+      { type: "form_start", label: "contact", path: "/contact", meta: null },
+    ]);
+  });
+
   it("rejects a batch with a bad session id or no events", () => {
     expect(normalizeEventBatch({ sessionId: "nope", events: [ok] })).toBeNull();
     expect(normalizeEventBatch({ sessionId: SID, events: [] })).toBeNull();

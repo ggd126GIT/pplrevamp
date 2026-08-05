@@ -8,10 +8,12 @@ import { HONEYPOT_FIELD, MAX_MESSAGE_LENGTH } from "@/lib/forms";
 import { getSessionId } from "@/lib/analytics/session";
 import { TurnstileWidget, useTurnstile } from "./Turnstile";
 import { FormTokenField } from "./FormToken";
+import { useFormStart } from "./useFormStart";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
 export function ContactForm() {
+  const onFormStart = useFormStart("contact");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
   const {
@@ -66,7 +68,12 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+    <form
+      onSubmit={handleSubmit}
+      onInput={onFormStart}
+      className="space-y-5"
+      noValidate
+    >
       <Honeypot name={HONEYPOT_FIELD} />
       <FormTokenField />
 

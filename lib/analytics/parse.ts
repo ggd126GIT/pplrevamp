@@ -203,7 +203,13 @@ export function isUuid(v: unknown): v is string {
   return typeof v === "string" && UUID_RE.test(v);
 }
 
-export type EventType = "section_view" | "click";
+/**
+ * `form_start` fires on first real input into a lead form. It is what separates
+ * "never saw the form" from "saw it and gave up" — without it a zero
+ * conversion rate is unreadable, because you cannot tell a reach problem from a
+ * form problem.
+ */
+export type EventType = "section_view" | "click" | "form_start";
 
 export type NormalizedEvent = {
   type: EventType;
@@ -212,7 +218,7 @@ export type NormalizedEvent = {
   meta: { href: string } | null;
 };
 
-const EVENT_TYPES: EventType[] = ["section_view", "click"];
+const EVENT_TYPES: EventType[] = ["section_view", "click", "form_start"];
 const MAX_EVENTS_PER_BATCH = 50;
 const MAX_LABEL = 64;
 const MAX_HREF = 512;
