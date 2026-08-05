@@ -138,14 +138,12 @@ html {
 
 .no-js .threeds-stage,
 .no-js .threees-stage,
-.no-js .about-intro-stage,
-.no-js .svc-reveal-stage {
+.no-js .about-intro-stage {
   display: none;
 }
 .no-js .threeds-static,
 .no-js .threees-static,
 .no-js .about-intro-static,
-.no-js .svc-reveal-static,
 .no-js .about-lead-fallback {
   display: block;
 }
@@ -286,21 +284,10 @@ html {
   }
 }
 
-/* ---------- Services "what is offshoring" pinned reveal ---------- */
-.svc-reveal-stage {
-  display: none;
-}
-.svc-reveal-static {
-  display: block;
-}
-@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
-  .svc-reveal-stage {
-    display: flex;
-  }
-  .svc-reveal-static {
-    display: none;
-  }
-}
+/* The services "what is offshoring" section used to be a pinned scroll
+   sequence with a static twin, gated by .svc-reveal-stage/.svc-reveal-static.
+   It is now one plain carousel at every size, so both classes are gone —
+   nothing to gate, and nothing to hide. */
 
 /* Leadership profile panel cross-fades in each time the focused person changes
    (the element is remounted via a React key). */

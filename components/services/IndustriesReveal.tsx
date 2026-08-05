@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useState } from "react";
 import Image from "next/image";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { Reveal } from "@/components/ui/Reveal";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { cn } from "@/lib/cn";
 import { industryShowcase } from "@/lib/content";
 
 const P1 =
@@ -26,218 +26,89 @@ function ringLabel(label: string): string {
 }
 
 /**
- * "What is offshoring and outsourcing?" — the basics copy stays fixed on the
- * left while the right side plays a pinned scroll sequence through the six
- * industries .ppl supports. Each circular photo opens from the centre with a
- * linear horizontal wipe; the previous circle fades out as the next one wipes
- * in (a single-focus hand-off). Every frame is the same full size. Each circle
- * carries its own revolving ring of the industry name — same purple, weight
- * and slow spin as
- * the About photo ring — which fades in with the photo. A row of step dots
- * tracks progress.
+ * "What is offshoring and outsourcing?" — the basics copy on the left, and the
+ * six industries .ppl supports as a carousel on the right, one at a time.
  *
- * Gated by CSS (.svc-reveal-stage) — the static two-column layout in
- * .svc-reveal-static renders on mobile / reduced motion instead.
+ * This was a pinned, scroll-scrubbed sequence: the section stuck to the
+ * viewport and the visitor had to scroll through several screens of it to get
+ * past. That is scroll-jacking — it takes the page away from the reader and
+ * makes reaching the bottom of the page work. The visitor now scrolls straight
+ * past at their own pace, and steps through the industries deliberately with
+ * the arrows, the dots, or the arrow keys.
+ *
+ * One rendering at every size. The old pinned/static split existed only because
+ * the animation could not run on mobile; with no pin there is nothing to gate,
+ * so the duplicate markup — and the CSS that hid one half of it — is gone.
+ *
+ * No GSAP here. This is React state plus CSS transitions, so there is no
+ * ScrollTrigger to refresh, no pin-spacer for React to trip over on navigation,
+ * and nothing that can strand the content invisible if a script fails.
  */
 export function IndustriesReveal() {
-  const root = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+  const count = industryShowcase.length;
 
-  useEffect(() => {
-    const el = root.current;
-    if (!el) return;
-    const q = gsap.utils.selector(el);
+  // Wraps in both directions, so the arrows are never dead ends.
+  const go = useCallback(
+    (next: number) => setActive(((next % count) + count) % count),
+    [count],
+  );
 
-    const left = q("[data-svc-left]");
-    const items = q<HTMLElement>("[data-svc-item]");
-    const imgs = q<HTMLElement>("[data-svc-img]");
-    const rings = q<HTMLElement>("[data-svc-ring]");
-    const dots = q<HTMLElement>("[data-svc-dot]");
-
-    const mm = gsap.matchMedia();
-    mm.add(
-      "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
-      () => {
-        const N = imgs.length;
-
-        // Initial states. Every photo starts clipped shut at its centre and
-        // every ring hidden; the sequence brings each pair forward in turn.
-        gsap.set(left, { autoAlpha: 0, y: 24 });
-        gsap.set(items, { autoAlpha: 1 });
-        gsap.set(imgs, { clipPath: "inset(0% 50% 0% 50%)" });
-        gsap.set(rings, { autoAlpha: 0 });
-        gsap.set(dots, { width: 8, backgroundColor: "rgba(35,43,49,0.18)" });
-
-        const LEAD = 0.4; // buffer so the pin settles before anything reveals
-        const seg = 1; // scroll units per image
-        const total = LEAD + N * seg + 0.4;
-
-        const tl = gsap.timeline({
-          defaults: { ease: "none" },
-          scrollTrigger: {
-            trigger: el,
-            start: "top top",
-            // One extra viewport of scroll per image so the wipes read slowly.
-            end: () => "+=" + window.innerHeight * (N + 1),
-            pin: true,
-            scrub: 1,
-            anticipatePin: 1,
-          },
-        });
-        tl.to({}, { duration: total }, 0); // fix timeline length
-
-        // The basics copy rises in once, then holds for the whole pin.
-        tl.to(left, { autoAlpha: 1, y: 0, ease: "power2.out", duration: 0.6 }, 0);
-
-        imgs.forEach((im, i) => {
-          const at = LEAD + i * seg;
-          // Linear wipe: opens from a centre line outward to BOTH edges (left
-          // and right at once) — inset(0 50% 0 50%) → inset(0). The previous
-          // circle is already dropping out (below) so this two-direction reveal
-          // plays over the background rather than reading as a cross-fade.
-          const revealAt = at + (i > 0 ? seg * 0.15 : 0);
-          tl.to(
-            im,
-            { clipPath: "inset(0% 0% 0% 0%)", ease: "none", duration: seg * 0.85 },
-            revealAt,
-          );
-          // The orbiting label ring fades in alongside its photo.
-          tl.to(
-            rings[i],
-            { autoAlpha: 1, ease: "power2.out", duration: seg * 0.45 },
-            revealAt,
-          );
-          if (i > 0) {
-            // Drop the previous circle (photo + its ring) out quickly and up
-            // front so the incoming wipe reads over a clean background — and so
-            // the outgoing ring doesn't linger beneath the new one.
-            tl.to(
-              items[i - 1],
-              { autoAlpha: 0, ease: "power2.in", duration: seg * 0.3 },
-              at,
-            );
-          }
-          // Step dots — grow + colour the active one, dim the previous.
-          tl.to(
-            dots[i],
-            {
-              width: 26,
-              backgroundColor: "rgba(147,82,161,1)",
-              ease: "power2.out",
-              duration: seg * 0.4,
-            },
-            at,
-          );
-          if (i > 0) {
-            tl.to(
-              dots[i - 1],
-              {
-                width: 8,
-                backgroundColor: "rgba(35,43,49,0.18)",
-                ease: "power1.in",
-                duration: seg * 0.4,
-              },
-              at,
-            );
-          }
-        });
-      },
-    );
-
-    const refresh = window.setTimeout(() => ScrollTrigger.refresh(), 350);
-    return () => {
-      window.clearTimeout(refresh);
-      mm.revert();
-    };
-  }, []);
+  const onKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        go(active - 1);
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        go(active + 1);
+      }
+    },
+    [active, go],
+  );
 
   return (
-    <>
-      {/* Static fallback — mobile / reduced motion */}
-      <section data-track-section="offshoring" className="svc-reveal-static bg-white py-20 sm:py-28">
-        <Container size="wide">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
-            <div>
-              <SectionHeading
-                align="left"
-                eyebrow="The basics"
-                title="What is offshoring and outsourcing?"
-              />
-              <div className="mt-6 space-y-4 leading-relaxed text-charcoal/80">
-                <p>{P1}</p>
-                <p>{P2}</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3">
-              {industryShowcase.map((it) => (
-                <Reveal key={it.label}>
-                  <figure className="flex flex-col items-center text-center">
-                    <div className="relative aspect-square w-full overflow-hidden rounded-full shadow-lg shadow-purple/10 ring-1 ring-black/5">
-                      <Image
-                        src={it.image}
-                        alt={it.alt}
-                        fill
-                        sizes="(max-width: 640px) 50vw, 30vw"
-                        className="object-cover"
-                      />
-                    </div>
-                    <figcaption className="mt-3 text-xs font-semibold text-ink">
-                      {it.label}
-                    </figcaption>
-                  </figure>
-                </Reveal>
-              ))}
+    <section data-track-section="offshoring" className="bg-white py-20 sm:py-28">
+      <Container size="wide">
+        <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.05fr]">
+          <div>
+            <SectionHeading
+              align="left"
+              eyebrow="The basics"
+              title="What is offshoring and outsourcing?"
+            />
+            <div className="mt-6 space-y-4 leading-relaxed text-charcoal/80">
+              <p>{P1}</p>
+              <p>{P2}</p>
             </div>
           </div>
-        </Container>
-      </section>
 
-      {/* Animated pinned stage — motion-safe desktop.
-          Wrapped in a stable outer <div> that GSAP never touches: ScrollTrigger's
-          pin re-parents the inner stage into a .pin-spacer, so without this
-          wrapper React would try to removeChild the stage from a parent it no
-          longer belongs to on route change ("NotFoundError"). */}
-      <div data-track-section="offshoring" className="svc-reveal-stage-wrap">
-        <div
-          ref={root}
-          className="svc-reveal-stage min-h-screen w-full items-center overflow-hidden bg-white pt-24 pb-12"
-        >
-          <Container size="wide" className="relative w-full">
-            <div className="grid w-full items-center gap-14 lg:grid-cols-[1fr_1.05fr]">
-              {/* Left — the basics copy, fixed for the whole sequence */}
-              <div data-svc-left>
-                <SectionHeading
-                  align="left"
-                  eyebrow="The basics"
-                  title="What is offshoring and outsourcing?"
-                />
-                <div className="mt-6 space-y-4 leading-relaxed text-charcoal/80">
-                  <p>{P1}</p>
-                  <p>{P2}</p>
-                </div>
-              </div>
-
-              {/* Right — the circular wipe-reveal, one industry at a time.
-                  Sized by the smaller of the column width or the viewport
-                  height (min(100%,52vh)) so the full 100% circle AND its
-                  orbiting ring always fit between the sticky header and the
-                  dots — no top clipping. */}
-              <div className="relative mx-auto aspect-square w-[min(100%,50vh)] max-w-xl">
-                {industryShowcase.map((it, i) => (
+          <div
+            role="group"
+            aria-roledescription="carousel"
+            aria-label="Industries we support"
+            onKeyDown={onKeyDown}
+          >
+            <div className="relative mx-auto aspect-square w-[min(100%,26rem)]">
+              {industryShowcase.map((it, i) => {
+                const current = i === active;
+                return (
                   <div
                     key={it.label}
-                    data-svc-item
-                    className="absolute left-1/2 top-1/2 aspect-square w-full -translate-x-1/2 -translate-y-1/2"
+                    aria-hidden={!current}
+                    className={cn(
+                      "absolute inset-0 transition-opacity duration-500",
+                      current ? "opacity-100" : "pointer-events-none opacity-0",
+                    )}
                   >
                     {/* Orbiting label ring — same colour, weight and slow spin
                         as the About photo ring. inset-[-16%] makes it 132% of
                         the circle and centres it WITHOUT a transform, leaving
                         the transform free for the revolve animation. */}
                     <svg
-                      data-svc-ring
                       viewBox="0 0 400 400"
                       aria-hidden
                       className="about-revolve pointer-events-none absolute inset-[-16%]"
-                      style={{ opacity: 0 }}
                     >
                       <defs>
                         <path
@@ -261,12 +132,7 @@ export function IndustriesReveal() {
                       </text>
                     </svg>
 
-                    {/* Photo — wipes open from the centre to both edges. */}
-                    <div
-                      data-svc-img
-                      className="absolute inset-0 overflow-hidden rounded-full shadow-xl shadow-purple/10 ring-1 ring-black/5"
-                      style={{ clipPath: "inset(0% 50% 0% 50%)" }}
-                    >
+                    <div className="absolute inset-0 overflow-hidden rounded-full shadow-xl shadow-purple/10 ring-1 ring-black/5">
                       <Image
                         src={it.image}
                         alt={it.alt}
@@ -277,25 +143,81 @@ export function IndustriesReveal() {
                       />
                     </div>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
 
-            {/* Progress dots */}
-            <div className="mt-10 flex justify-center gap-2 lg:mt-8">
-              {industryShowcase.map((it) => (
-                <span
+            {/* The live industry name sits between the arrows: around the ring
+                it is decorative and hard to read, and a screen reader never
+                sees it there. */}
+            {/* Fixed-width row, arrows pinned to its ends. Centring the row on
+                its contents instead would move the arrows every time the label
+                length changed — "Telecommunications" against "IT, Software
+                Development & Animation" shifted them by ~50px per step. */}
+            <div className="mx-auto mt-8 flex w-[min(100%,26rem)] items-center justify-between gap-3">
+              <CarouselButton
+                label="Previous industry"
+                onClick={() => go(active - 1)}
+              >
+                <ChevronLeft className="size-5" />
+              </CarouselButton>
+
+              <p
+                aria-live="polite"
+                className="flex-1 text-center text-sm font-semibold leading-snug text-ink"
+              >
+                {industryShowcase[active].label}
+              </p>
+
+              <CarouselButton
+                label="Next industry"
+                onClick={() => go(active + 1)}
+              >
+                <ChevronRight className="size-5" />
+              </CarouselButton>
+            </div>
+
+            <div className="mt-5 flex justify-center gap-2">
+              {industryShowcase.map((it, i) => (
+                <button
                   key={it.label}
-                  data-svc-dot
-                  aria-hidden
-                  className="block h-2 rounded-full"
-                  style={{ width: 8, backgroundColor: "rgba(35,43,49,0.18)" }}
+                  type="button"
+                  onClick={() => go(i)}
+                  aria-label={`Show ${it.label}`}
+                  aria-current={i === active ? "true" : undefined}
+                  className={cn(
+                    "h-2 rounded-full transition-all",
+                    i === active
+                      ? "w-6 bg-purple"
+                      : "w-2 bg-charcoal/20 hover:bg-charcoal/40",
+                  )}
                 />
               ))}
             </div>
-          </Container>
+          </div>
         </div>
-      </div>
-    </>
+      </Container>
+    </section>
+  );
+}
+
+function CarouselButton({
+  label,
+  onClick,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      className="grid size-11 place-items-center rounded-full border border-black/10 bg-white text-charcoal shadow-sm outline-none transition-colors hover:border-purple/40 hover:text-purple focus-visible:ring-2 focus-visible:ring-purple focus-visible:ring-offset-2"
+    >
+      {children}
+    </button>
   );
 }
