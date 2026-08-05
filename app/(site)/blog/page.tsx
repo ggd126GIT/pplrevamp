@@ -7,6 +7,7 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { createPublicClient } from "@/lib/supabase/public";
+import { excerptLines } from "@/lib/excerpt";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -91,8 +92,8 @@ export default async function BlogPage() {
                       {post.title}
                     </h2>
                     {post.excerpt && (
-                      <p className="mt-2 line-clamp-3 text-sm text-charcoal/70">
-                        {post.excerpt}
+                      <p className="mt-2 line-clamp-3 whitespace-pre-line text-sm text-charcoal/70">
+                        {excerptLines(post.excerpt).join("\n")}
                       </p>
                     )}
                     <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-purple">

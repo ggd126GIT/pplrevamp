@@ -7,6 +7,7 @@ import { Container } from "@/components/ui/Container";
 import { CtaBand } from "@/components/CtaBand";
 import { createPublicClient } from "@/lib/supabase/public";
 import { renderTiptap } from "@/lib/tiptap";
+import { excerptLines } from "@/lib/excerpt";
 import { ShareLinks } from "@/components/ShareLinks";
 import { absoluteUrl, previewDescription } from "@/lib/share";
 import { site } from "@/lib/site";
@@ -95,6 +96,7 @@ export default async function BlogPostPage({
   if (!post) notFound();
 
   const html = renderTiptap(post.content);
+  const excerpt = excerptLines(post.excerpt).join("\n");
 
   return (
     <>
@@ -113,8 +115,10 @@ export default async function BlogPostPage({
           <h1 className="mt-2 font-display text-3xl font-extrabold leading-tight text-ink sm:text-4xl">
             {post.title}
           </h1>
-          {post.excerpt && (
-            <p className="mt-4 text-lg text-charcoal/70">{post.excerpt}</p>
+          {excerpt && (
+            <p className="mt-4 whitespace-pre-line text-lg text-charcoal/70">
+              {excerpt}
+            </p>
           )}
 
           {post.cover_image_url && (
