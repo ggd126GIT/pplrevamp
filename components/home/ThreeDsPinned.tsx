@@ -1,9 +1,19 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Container } from "@/components/ui/Container";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { gsap, ScrollTrigger, prefersReducedMotion } from "@/lib/gsap";
 import { threeDs } from "@/lib/content";
+import { PinnedStepper } from "./PinnedStepper";
+import { activeStep, stepScrollTop } from "@/lib/pinnedSteps";
+
+/**
+ * Where each phase rests, as a fraction of the 3-unit timeline below: mid-way
+ * through Discover's zoom (0.55), Design's draw (1.45) and Deliver's launch
+ * (2.6). Clicking a number scrolls to the matching point and lets the scrub
+ * play the transition.
+ */
+const PHASE_PROGRESS = [0.55 / 3, 1.45 / 3, 2.6 / 3];
 
 /**
  * Organic blob used both as the visible card and as the icon clip path.
@@ -27,6 +37,21 @@ const BLOB =
  */
 export function ThreeDsPinned() {
   const root = useRef<HTMLDivElement>(null);
+  // Held so a click can read the trigger's measured scroll range. `end` is
+  // recomputed on resize, so this must be read at click time, never cached.
+  const trigger = useRef<ScrollTrigger | null>(null);
+  const [active, setActive] = useState(0);
+
+  const goToStep = useCallback((index: number) => {
+    const st = trigger.current;
+    if (!st) return;
+    window.scrollTo({
+      top: stepScrollTop(st.start, st.end, PHASE_PROGRESS[index]),
+      // The scrub turns the scroll itself into the transition, so smooth is the
+      // animation. Reduced motion jumps straight there.
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
+  }, []);
 
   useEffect(() => {
     const el = root.current;
@@ -89,8 +114,11 @@ export function ThreeDsPinned() {
             pin: true,
             scrub: 1,
             anticipatePin: 1,
+            onUpdate: (self) =>
+              setActive(activeStep(self.progress, PHASE_PROGRESS)),
           },
         });
+        trigger.current = tl.scrollTrigger ?? null;
 
         // Continuous progress bar across the whole sequence.
         tl.to(progressFill, { scaleX: 1, duration: 3 }, 0);
@@ -336,33 +364,12 @@ export function ThreeDsPinned() {
 
           {/* Copy stage */}
           <div>
-            {/* Stepper */}
-            <div className="relative mb-12 flex max-w-md items-center justify-between">
-              <div className="absolute left-5 right-5 top-1/2 h-px -translate-y-1/2 bg-black/10">
-                <div
-                  data-progress-fill
-                  className="h-full origin-left bg-gradient-to-r from-grad-from to-grad-to"
-                />
-              </div>
-              {threeDs.map((step, i) => (
-                <div
-                  key={step.key}
-                  className="relative z-10 grid size-11 place-items-center rounded-full border border-black/10 bg-white"
-                >
-                  <span
-                    data-pill-fill
-                    aria-hidden
-                    className="absolute inset-0 rounded-full bg-gradient-to-br from-grad-from to-grad-to"
-                  />
-                  <span
-                    data-pill-num
-                    className="relative font-display text-sm font-bold"
-                  >
-                    0{i + 1}
-                  </span>
-                </div>
-              ))}
-            </div>
+            <PinnedStepper
+              steps={threeDs}
+              active={active}
+              onSelect={goToStep}
+              label="The 3Ds framework steps"
+            />
 
             {/* Crossfading copy */}
             <div className="relative min-h-[16rem]">

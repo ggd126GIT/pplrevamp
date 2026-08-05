@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { threeEs } from "@/lib/content";
+import { PinnedStepper } from "./PinnedStepper";
+import { activeStep, stepScrollTop } from "@/lib/pinnedSteps";
 
 /** Ring radius in the 0..100 viewBox — hugs the image, only slightly larger. */
 const RING_R = 51.5;
@@ -36,6 +38,28 @@ const COMET_STEP = 8; // degrees between trail dots
  */
 export function ThreeEsPinned() {
   const root = useRef<HTMLDivElement>(null);
+  // Held so a click can read the trigger's measured scroll range, and the
+  // timeline's own snap points so a click lands exactly where the scroll would
+  // settle anyway — landing off a snap point would make snap yank it after.
+  const trigger = useRef<ScrollTrigger | null>(null);
+  const snaps = useRef<number[]>([]);
+  const [active, setActive] = useState(0);
+
+  const goToStep = useCallback((index: number) => {
+    const st = trigger.current;
+    const target = snaps.current[index];
+    if (!st || target === undefined) return;
+    // Jump the scroll rather than smooth-scrolling it. This section configures
+    // ScrollTrigger `snap`, which fires whenever scrolling settles — a smooth
+    // scroll travelling several viewports gives it an opening mid-flight, and
+    // it hijacks the journey and drops you on an intermediate step (clicking 03
+    // landed on 02). Landing instantly leaves it nothing to interrupt.
+    //
+    // The transition is still animated: `scrub: 1` eases the timeline toward
+    // the new scroll position over ~1s, and the section is pinned, so nothing
+    // visibly "jumps" — only the phase changes.
+    window.scrollTo({ top: stepScrollTop(st.start, st.end, target) });
+  }, []);
 
   useEffect(() => {
     const el = root.current;
@@ -141,8 +165,12 @@ export function ThreeEsPinned() {
               delay: 0.05,
               ease: "power1.inOut",
             },
+            onUpdate: (self) =>
+              setActive(activeStep(self.progress, snapPoints)),
           },
         });
+        trigger.current = tl.scrollTrigger ?? null;
+        snaps.current = snapPoints;
 
         // Continuous progress bar across the whole sequence (after the lead-in).
         tl.to(progressFill, { scaleX: 1, duration: total - TAIL - LEAD }, LEAD);
@@ -256,33 +284,12 @@ export function ThreeEsPinned() {
         <div className="grid grid-cols-[1.1fr_0.9fr] items-center gap-16">
           {/* Copy stage (left) */}
           <div>
-            {/* Stepper */}
-            <div className="relative mb-12 flex max-w-md items-center justify-between">
-              <div className="absolute left-5 right-5 top-1/2 h-px -translate-y-1/2 bg-black/10">
-                <div
-                  data-progress-fill
-                  className="h-full origin-left bg-gradient-to-r from-grad-from to-grad-to"
-                />
-              </div>
-              {threeEs.map((item, i) => (
-                <div
-                  key={item.key}
-                  className="relative z-10 grid size-11 place-items-center rounded-full border border-black/10 bg-white"
-                >
-                  <span
-                    data-pill-fill
-                    aria-hidden
-                    className="absolute inset-0 rounded-full bg-gradient-to-br from-grad-from to-grad-to"
-                  />
-                  <span
-                    data-pill-num
-                    className="relative font-display text-sm font-bold"
-                  >
-                    0{i + 1}
-                  </span>
-                </div>
-              ))}
-            </div>
+            <PinnedStepper
+              steps={threeEs}
+              active={active}
+              onSelect={goToStep}
+              label="The 3Es steps"
+            />
 
             {/* Crossfading copy */}
             <div className="relative min-h-[16rem]">
