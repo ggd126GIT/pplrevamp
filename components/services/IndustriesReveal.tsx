@@ -150,11 +150,16 @@ export function IndustriesReveal() {
             {/* The live industry name sits between the arrows: around the ring
                 it is decorative and hard to read, and a screen reader never
                 sees it there. */}
-            {/* Fixed-width row, arrows pinned to its ends. Centring the row on
-                its contents instead would move the arrows every time the label
-                length changed — "Telecommunications" against "IT, Software
-                Development & Animation" shifted them by ~50px per step. */}
-            <div className="mx-auto mt-8 flex w-[min(100%,26rem)] items-center justify-between gap-3">
+            {/* The industry name is already spelled out around the ring, so
+                showing it again between the arrows was redundant. It stays in
+                the DOM as an sr-only live region: the ring is aria-hidden
+                decoration, so without this the arrows would move a visitor
+                between six unnamed photos with nothing announced.
+
+                With no visible label the row can centre on its contents — the
+                arrows no longer shift, because nothing between them changes
+                width. */}
+            <div className="mt-8 flex items-center justify-center gap-6">
               <CarouselButton
                 label="Previous industry"
                 onClick={() => go(active - 1)}
@@ -162,10 +167,7 @@ export function IndustriesReveal() {
                 <ChevronLeft className="size-5" />
               </CarouselButton>
 
-              <p
-                aria-live="polite"
-                className="flex-1 text-center text-sm font-semibold leading-snug text-ink"
-              >
+              <p aria-live="polite" className="sr-only">
                 {industryShowcase[active].label}
               </p>
 
