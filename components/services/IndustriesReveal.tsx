@@ -89,7 +89,21 @@ export function IndustriesReveal() {
             aria-label="Industries we support"
             onKeyDown={onKeyDown}
           >
-            <div className="relative mx-auto aspect-square w-[min(100%,26rem)]">
+            {/* Arrows flank the circle. The ring used to be drawn at
+                inset-[-16%], spilling outside its own layout box — anything
+                placed beside it got overlapped by the spinning text. The
+                wrapper below is now the RING's box and the photo is inset
+                within it, so the layout box matches what you see and a normal
+                flex gap actually keeps the arrows clear. */}
+            <div className="mx-auto flex w-full max-w-[34rem] items-center gap-1 sm:gap-3">
+              <CarouselButton
+                label="Previous industry"
+                onClick={() => go(active - 1)}
+              >
+                <ChevronLeft className="size-7" />
+              </CarouselButton>
+
+              <div className="relative aspect-square min-w-0 flex-1">
               {industryShowcase.map((it, i) => {
                 const current = i === active;
                 return (
@@ -102,13 +116,13 @@ export function IndustriesReveal() {
                     )}
                   >
                     {/* Orbiting label ring — same colour, weight and slow spin
-                        as the About photo ring. inset-[-16%] makes it 132% of
-                        the circle and centres it WITHOUT a transform, leaving
-                        the transform free for the revolve animation. */}
+                        as the About photo ring. It fills the wrapper, and the
+                        photo is inset inside it (see below), so the ring's
+                        visual bounds ARE the layout bounds. */}
                     <svg
                       viewBox="0 0 400 400"
                       aria-hidden
-                      className="about-revolve pointer-events-none absolute inset-[-16%]"
+                      className="about-revolve pointer-events-none absolute inset-0"
                     >
                       <defs>
                         <path
@@ -132,12 +146,14 @@ export function IndustriesReveal() {
                       </text>
                     </svg>
 
-                    <div className="absolute inset-0 overflow-hidden rounded-full shadow-xl shadow-purple/10 ring-1 ring-black/5">
+                    {/* 12.1% — the inverse of the old -16% outset, so the photo
+                        keeps exactly the size it had relative to the ring. */}
+                    <div className="absolute inset-[12.1%] overflow-hidden rounded-full shadow-xl shadow-purple/10 ring-1 ring-black/5">
                       <Image
                         src={it.image}
                         alt={it.alt}
                         fill
-                        sizes="(max-width: 1024px) 100vw, 45vw"
+                        sizes="(max-width: 1024px) 100vw, 40vw"
                         className="object-cover"
                         priority={i === 0}
                       />
@@ -145,41 +161,28 @@ export function IndustriesReveal() {
                   </div>
                 );
               })}
-            </div>
-
-            {/* The live industry name sits between the arrows: around the ring
-                it is decorative and hard to read, and a screen reader never
-                sees it there. */}
-            {/* The industry name is already spelled out around the ring, so
-                showing it again between the arrows was redundant. It stays in
-                the DOM as an sr-only live region: the ring is aria-hidden
-                decoration, so without this the arrows would move a visitor
-                between six unnamed photos with nothing announced.
-
-                With no visible label the row can centre on its contents — the
-                arrows no longer shift, because nothing between them changes
-                width. */}
-            <div className="mt-8 flex items-center justify-center gap-6">
-              <CarouselButton
-                label="Previous industry"
-                onClick={() => go(active - 1)}
-              >
-                <ChevronLeft className="size-5" />
-              </CarouselButton>
-
-              <p aria-live="polite" className="sr-only">
-                {industryShowcase[active].label}
-              </p>
+              </div>
 
               <CarouselButton
                 label="Next industry"
                 onClick={() => go(active + 1)}
               >
-                <ChevronRight className="size-5" />
+                <ChevronRight className="size-7" />
               </CarouselButton>
             </div>
 
-            <div className="mt-5 flex justify-center gap-2">
+            {/* The live industry name sits between the arrows: around the ring
+                it is decorative and hard to read, and a screen reader never
+                sees it there. */}
+            {/* The ring names the industry visually but is aria-hidden
+                decoration, so this is the only thing that announces a change —
+                without it the arrows move a visitor between six unnamed
+                photographs in silence. */}
+            <p aria-live="polite" className="sr-only">
+              {industryShowcase[active].label}
+            </p>
+
+            <div className="mt-6 flex justify-center gap-2">
               {industryShowcase.map((it, i) => (
                 <button
                   key={it.label}
@@ -213,11 +216,15 @@ function CarouselButton({
   children: React.ReactNode;
 }) {
   return (
+    // Brand purple, and bare rather than a bordered pill — beside the circle a
+    // white disc reads as a second, competing shape. size-11 keeps the tap
+    // target at the 44px minimum even though the chevron is smaller, and
+    // shrink-0 stops flex from squeezing it as the circle grows.
     <button
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="grid size-11 place-items-center rounded-full border border-black/10 bg-white text-charcoal shadow-sm outline-none transition-colors hover:border-purple/40 hover:text-purple focus-visible:ring-2 focus-visible:ring-purple focus-visible:ring-offset-2"
+      className="grid size-11 shrink-0 place-items-center rounded-full text-purple outline-none transition-colors hover:bg-purple/10 focus-visible:ring-2 focus-visible:ring-purple focus-visible:ring-offset-2"
     >
       {children}
     </button>
