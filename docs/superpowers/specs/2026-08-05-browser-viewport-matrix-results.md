@@ -87,3 +87,62 @@ the page wide. Re-measured: 0 overflow at 320/360/375/414, and all 10 pages clea
 Ask the client which browsers their prospects actually use — the analytics already records `device`
 and could record browser. Testing what visitors use beats testing an abstract matrix, and with 49
 sessions so far the real answer may be narrow.
+
+---
+
+# Re-run against `9c18f8e` (2026-08-05, after the /services rewrite)
+
+`/services` changed three times after the original run — pinned sequence replaced by a carousel, the
+visible label removed, the arrows moved beside the circle — and the old mobile 6-up grid no longer
+exists. The results above no longer described what was live, so the matrix was re-run on production.
+
+## Method correction: `scrollWidth` over-reports
+
+The original run measured horizontal overflow as `scrollWidth - clientWidth`. **That metric produced
+a false positive**, and it is worth recording because it nearly cost a wasted fix.
+
+On live `/contact` at 320px it reported **40px of overflow**. But with the clip removed, *no element
+extended past `clientWidth`*, and `window.scrollTo(9999, 0)` left `scrollX` at **0** — the page could
+not be scrolled sideways at all. That is the signature of a decorative element overhanging the
+**left** edge: it inflates `scrollWidth` while never being reachable in an LTR document.
+
+**The authoritative test is whether the page can actually be scrolled sideways** — unmask the clip,
+attempt to scroll, and read `scrollX`. `scrollWidth` is a proxy that reports layout facts a visitor
+never experiences. All figures below use the scroll test.
+
+## Results — everything clean
+
+**Horizontal scroll: `scrollX = 0` on all 10 pages at 320×568, and on `/`, `/services`, `/blog`,
+`/contact` at 1280×720.** Clip removed for every measurement.
+
+**Reveal floor: 0 stranded `.reveal` elements** on every page at every viewport, measured after the
+2s timeout — the A1 safety net still holds after the `/services` rewrite removed its
+`.svc-reveal-*` entries.
+
+**`/services` specifically**, at 320×568 / 375×667 / 768×1024 / 1024×768 / 1280×720 / 1440×900 /
+1920×1080: no sideways scroll at any size.
+
+**The carousel**, measured at 5 viewports:
+
+| Viewport | Ring | Arrow tap target | Clearance to ring glyphs | Dots | Steps? |
+|---|---|---|---|---|---|
+| 320×568 | 169px | 44×44 | 11px | 6 | yes |
+| 375×667 | 224px | 44×44 | 14px | 6 | yes |
+| 768×1024 | 432px | 44×44 | 31px | 6 | yes |
+| 1280×720 | 432px | 44×44 | 31px | 6 | yes |
+| 1920×1080 | 432px | 44×44 | 31px | 6 | yes |
+
+Clearance is measured to the **glyph ring** (radius 165 + font in a 400 viewBox), not to the SVG's
+bounding box — the box rotates, so its axis-aligned rect grows as it spins and reports overlap where
+there is clearance.
+
+⚠ **The 44px tap target is preserved at every size, but it costs the circle.** Two arrows take ~100px
+of width, so at 320px the ring is 169px (photo ~128px). Acceptable, and a deliberate trade — if it
+ever reads as too small on a phone, the fix is arrows below the circle under `sm`, which is now safe
+because the ring no longer spills outside its layout box.
+
+## Still not covered
+
+Unchanged from the original run, and still the biggest gap: **Firefox, Safari (macOS and iOS) and
+Edge are entirely untested** — Chrome is the only browser available. iOS Safari's `100vh` behaviour
+needs a real device or a paid service. No touch taps, no orientation change, no print styles.
