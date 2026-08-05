@@ -109,6 +109,57 @@ html {
     opacity 0.7s var(--ease-brand),
     transform 0.7s var(--ease-brand);
 }
+/* Rescued by the timeout rather than scrolled to: the visitor is not looking
+   at this yet, so it should simply already be there, not fade in late. */
+.reveal.reveal-instant {
+  transition: none;
+}
+
+/* ---------- No-scripting floor ----------
+   `no-js` is set on <html> and removed by an inline script in app/layout.tsx.
+   If it survives, scripting is disabled OR broken (blocked bundle, CSP refusal,
+   extension) — and every animation-driven hide below would otherwise leave real
+   content invisible permanently, not merely unanimated.
+
+   The timeout in Reveal.tsx cannot cover this: it is itself script.
+
+   Two kinds of hide need undoing:
+     1. `.reveal`, which starts transparent.
+     2. The four pinned stages, each of which is shown on desktop-motion while
+        its static twin is `display: none`. Without scripting the stage never
+        animates, so show the static twin instead — that content is complete and
+        needs no JS.
+   Selectors here are one class more specific than the rules they override, so
+   they win regardless of the media query. */
+.no-js .reveal {
+  opacity: 1;
+  transform: none;
+}
+
+.no-js .threeds-stage,
+.no-js .threees-stage,
+.no-js .about-intro-stage,
+.no-js .svc-reveal-stage {
+  display: none;
+}
+.no-js .threeds-static,
+.no-js .threees-static,
+.no-js .about-intro-static,
+.no-js .svc-reveal-static,
+.no-js .about-lead-fallback {
+  display: block;
+}
+
+/* Mission/Vision/Values has no static twin — GSAP animates the real elements in
+   place, and the desktop-motion rule below hides them until it does. Decorative
+   bits (trails, dots, carets) stay hidden; they mean nothing without motion. */
+.no-js .mvv-anim [data-reveal],
+.no-js .mvv-anim [data-icon],
+.no-js .mvv-anim [data-type],
+.no-js .mvv-anim [data-body],
+.no-js .mvv-anim [data-icare] {
+  opacity: 1;
+}
 
 /* ---------- 3Ds pinned sequence ---------- */
 /*
