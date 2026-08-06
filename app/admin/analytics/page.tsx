@@ -4,6 +4,7 @@ import {
   getAnalyticsSummary,
   getSectionReach,
   getGeoSummary,
+  getLeadFunnel,
   reachRows,
   type GeoSummary,
 } from "@/lib/analytics/queries";
@@ -12,6 +13,7 @@ import { SECTION_REGISTRY } from "@/lib/analytics/sections";
 import { ViewsChart } from "@/components/admin/ViewsChart";
 import { SectionReachCard } from "@/components/admin/SectionReachCard";
 import { BreakdownCard } from "@/components/admin/BreakdownCard";
+import { FunnelCard } from "@/components/admin/FunnelCard";
 
 const RANGES = [7, 30, 90];
 
@@ -58,10 +60,11 @@ export default async function AnalyticsPage({
 }) {
   const { days: raw } = await searchParams;
   const days = RANGES.includes(Number(raw)) ? Number(raw) : 30;
-  const [summary, reach, geo] = await Promise.all([
+  const [summary, reach, geo, funnel] = await Promise.all([
     getAnalyticsSummary(days),
     getSectionReach(days),
     getGeoSummary(days),
+    getLeadFunnel(days),
   ]);
 
   if (!summary) {
@@ -122,6 +125,14 @@ export default async function AnalyticsPage({
           </div>
         ))}
       </div>
+
+      {/* Directly under the headline tiles: the funnel is the question the
+          other panels only provide context for. */}
+      {funnel && (
+        <div className="mt-8">
+          <FunnelCard funnel={funnel} />
+        </div>
+      )}
 
       <div className="mt-8 rounded-2xl border border-black/[0.06] bg-white p-6">
         <h2 className="text-sm font-semibold text-ink">Views per day</h2>

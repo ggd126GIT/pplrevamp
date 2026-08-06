@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { SectionDef } from "@/lib/analytics/sections";
+import type { LeadFunnel } from "@/lib/analytics/funnel";
 
 export type AnalyticsSummary = {
   views: number;
@@ -146,6 +147,24 @@ export async function getGeoSummary(days: number): Promise<GeoSummary | null> {
     return data as unknown as GeoSummary;
   } catch (err) {
     console.error("[analytics] geo summary threw:", err);
+    return null;
+  }
+}
+
+/** Returns null on failure so a broken panel degrades instead of 500ing /admin. */
+export async function getLeadFunnel(days: number): Promise<LeadFunnel | null> {
+  try {
+    const supabase = await createClient();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the RPC is
+    // newer than the generated types; the shape is asserted by LeadFunnel.
+    const { data, error } = await (supabase.rpc as any)("lead_funnel", { days });
+    if (error) {
+      console.error("[analytics] lead funnel failed:", error.message);
+      return null;
+    }
+    return data as unknown as LeadFunnel;
+  } catch (err) {
+    console.error("[analytics] lead funnel threw:", err);
     return null;
   }
 }
