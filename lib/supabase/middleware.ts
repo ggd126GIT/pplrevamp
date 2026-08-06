@@ -3,10 +3,16 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/database.types";
 
 /**
- * Refreshes the Supabase session cookie and guards /admin routes.
- * Redirects unauthenticated users hitting /admin/* to /login, and bounces
- * signed-in users away from /login.
+ * Refreshes the Supabase session cookie and guards /admin and /preview routes.
+ * Redirects unauthenticated users to /login, and bounces signed-in users away
+ * from /login.
+ *
+ * For /preview this redirect is a convenience, not the security boundary: each
+ * preview page checks the session itself and 404s. Guarding a route by string
+ * prefix in two separate files is exactly the sort of thing that drifts, and the
+ * blast radius here would be every draft post and unposted job.
  */
+const GUARDED = ["/admin", "/preview"];
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -38,7 +44,7 @@ export async function updateSession(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
 
-  if (path.startsWith("/admin") && !user) {
+  if (GUARDED.some((prefix) => path.startsWith(prefix)) && !user) {
     const redirect = request.nextUrl.clone();
     redirect.pathname = "/login";
     redirect.searchParams.set("next", path);

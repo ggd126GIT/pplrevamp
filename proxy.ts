@@ -65,13 +65,20 @@ export async function proxy(request: NextRequest) {
   }
 
   const path = request.nextUrl.pathname;
+  const isPreview = path.startsWith("/preview");
   const response =
-    path.startsWith("/admin") || path === "/login"
+    path.startsWith("/admin") || isPreview || path === "/login"
       ? await updateSession(request)
       : NextResponse.next({ request });
 
   // Keep search engines out of the staging deployment entirely.
   if (process.env.STAGING_PASSWORD) {
+    response.headers.set("x-robots-tag", "noindex, nofollow");
+  }
+
+  // Previews are noindex in every environment, not just staging. Behind auth a
+  // crawler cannot reach them anyway; this is the second lock.
+  if (isPreview) {
     response.headers.set("x-robots-tag", "noindex, nofollow");
   }
 

@@ -21,7 +21,14 @@ export default function robots(): MetadataRoute.Robots {
         rules: {
           userAgent: "*",
           allow: "/",
-          disallow: ["/admin", "/login", "/api/", "/auth/", "/_next/"],
+          disallow: [
+            "/admin",
+            "/preview",
+            "/login",
+            "/api/",
+            "/auth/",
+            "/_next/",
+          ],
         },
         // No sitemap: nothing should actively advertise staging URLs.
       };
@@ -49,7 +56,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin", "/login", "/api/", "/auth/"],
+      disallow: ["/admin", "/preview", "/login", "/api/", "/auth/"],
     },
     sitemap: `${BASE}/sitemap.xml`,
   };

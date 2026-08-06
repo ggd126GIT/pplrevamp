@@ -64,7 +64,14 @@ describe("robots on public staging (STAGING_PUBLIC=1)", () => {
     expect(rulesFor("*")).toEqual({
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin", "/login", "/api/", "/auth/", "/_next/"],
+      disallow: [
+        "/admin",
+        "/preview",
+        "/login",
+        "/api/",
+        "/auth/",
+        "/_next/",
+      ],
     });
   });
 
@@ -103,7 +110,14 @@ describe("robots in production", () => {
     expect(rules).toEqual({
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin", "/login", "/api/", "/auth/"],
+      disallow: ["/admin", "/preview", "/login", "/api/", "/auth/"],
     });
+  });
+
+  // Preview URLs render unpublished work. They sit behind auth, so this is the
+  // second lock rather than the only one — but a crawler must never be invited.
+  it("keeps crawlers away from preview URLs", () => {
+    delete process.env.STAGING_PASSWORD;
+    expect(rulesFor("*")?.disallow).toContain("/preview");
   });
 });
