@@ -96,6 +96,22 @@ html {
     0 8px 30px -12px rgba(35, 43, 49, 0.18);
 }
 
+/* ---------- Admin breakdown cards: "Show all" / "Show less" ----------
+   The label swap lives in CSS so the collapse needs no JavaScript at all —
+   hidden rows stay in the markup and remain reachable when scripting fails. */
+.breakdown-more > summary::-webkit-details-marker {
+  display: none;
+}
+.breakdown-more-close {
+  display: none;
+}
+.breakdown-more[open] .breakdown-more-open {
+  display: none;
+}
+.breakdown-more[open] .breakdown-more-close {
+  display: inline;
+}
+
 /* ---------- Reveal-on-scroll base states (driven by GSAP/IO) ---------- */
 .reveal {
   opacity: 0;

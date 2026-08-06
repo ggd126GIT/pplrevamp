@@ -11,38 +11,9 @@ import { placeLabel } from "@/lib/analytics/format";
 import { SECTION_REGISTRY } from "@/lib/analytics/sections";
 import { ViewsChart } from "@/components/admin/ViewsChart";
 import { SectionReachCard } from "@/components/admin/SectionReachCard";
+import { BreakdownCard } from "@/components/admin/BreakdownCard";
 
 const RANGES = [7, 30, 90];
-
-/**
- * Both breakdown tables share a shape once the caller maps its rows to
- * {label, views} — avoids indexing a union row type by a variable key.
- */
-function BreakdownCard({
-  title,
-  rows,
-}: {
-  title: string;
-  rows: Array<{ label: string; views: number }>;
-}) {
-  return (
-    <div className="rounded-2xl border border-black/[0.06] bg-white p-6">
-      <h2 className="text-sm font-semibold text-ink">{title}</h2>
-      {!rows.length ? (
-        <p className="mt-4 text-sm text-charcoal/50">No data yet.</p>
-      ) : (
-        <dl className="mt-4 space-y-2">
-          {rows.map((row) => (
-            <div key={row.label} className="flex justify-between gap-4 text-sm">
-              <dt className="truncate text-charcoal/70">{row.label}</dt>
-              <dd className="shrink-0 font-medium text-ink">{row.views}</dd>
-            </div>
-          ))}
-        </dl>
-      )}
-    </div>
-  );
-}
 
 function LocationCards({
   countries,
