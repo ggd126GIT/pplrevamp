@@ -3,7 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 import { Pagination } from "@/components/admin/Pagination";
 import { pageCount, pageRange, parsePage } from "@/lib/pagination";
 import { DuplicateBadge } from "@/components/admin/DuplicateBadge";
+import { DeleteCvButton } from "@/components/admin/DeleteCvButton";
 import { matchApplicants, type ApplicantRow } from "@/lib/applicantMatch";
+import { formatManilaDate } from "@/lib/dates";
 
 export default async function ApplicationsPage({
   searchParams,
@@ -149,14 +151,24 @@ export default async function ApplicationsPage({
                   </td>
                   <td className="px-5 py-4">
                     {app.cvSignedUrl ? (
-                      <a
-                        href={app.cvSignedUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-full bg-purple/10 px-3 py-1.5 text-xs font-semibold text-purple hover:bg-purple/20"
-                      >
-                        <Download className="size-3.5" /> Download
-                      </a>
+                      <div className="space-y-2">
+                        <a
+                          href={app.cvSignedUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-full bg-purple/10 px-3 py-1.5 text-xs font-semibold text-purple hover:bg-purple/20"
+                        >
+                          <Download className="size-3.5" /> Download
+                        </a>
+                        <DeleteCvButton id={app.id} />
+                      </div>
+                    ) : app.cv_deleted_at ? (
+                      // Distinguishes "we deleted this" from "there never was
+                      // one", which is the question asked six months later.
+                      <span className="inline-flex items-center gap-1.5 text-xs text-charcoal/50">
+                        <FileText className="size-3.5" /> Deleted{" "}
+                        {formatManilaDate(app.cv_deleted_at)}
+                      </span>
                     ) : (
                       <span className="inline-flex items-center gap-1.5 text-xs text-charcoal/40">
                         <FileText className="size-3.5" /> Unavailable

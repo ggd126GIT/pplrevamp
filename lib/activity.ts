@@ -2,7 +2,12 @@ import type { createClient } from "@/lib/supabase/server";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
-export type ActivityEntity = "post" | "job";
+/**
+ * Must stay in step with `activity_entity_type_check`. A value allowed here and
+ * not by the constraint fails the insert, and `logActivity` swallows that by
+ * design — so the entry would vanish silently.
+ */
+export type ActivityEntity = "post" | "job" | "application";
 
 export type ActivityAction =
   | "created"
