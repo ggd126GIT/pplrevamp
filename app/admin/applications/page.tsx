@@ -151,7 +151,12 @@ export default async function ApplicationsPage({
                   </td>
                   <td className="px-5 py-4">
                     {app.cvSignedUrl ? (
-                      <div className="space-y-2">
+                      // Stacked, not side by side: `space-y-*` only adds margin
+                      // and these are inline-flex, so they sat on one line with
+                      // Delete a few pixels from Download. Keeping the
+                      // destructive action clear of the routine one matters more
+                      // than the row being compact.
+                      <div className="flex flex-col items-start gap-2.5">
                         <a
                           href={app.cvSignedUrl}
                           target="_blank"
