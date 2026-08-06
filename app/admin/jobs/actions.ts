@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slug";
 import { deriveAction, logActivity } from "@/lib/activity";
-import { manilaEndOfDay } from "@/lib/dates";
+import { manilaDateTime, manilaEndOfDay } from "@/lib/dates";
+import { EMPLOYMENT_TYPES } from "@/lib/jobs";
 import type { Json } from "@/lib/database.types";
 
 export type JobFormState = { error?: string } | undefined;
@@ -41,6 +42,14 @@ function parse(formData: FormData) {
   // null = cleared, undefined = malformed. The callers reject undefined so a
   // typo never silently wipes an expiry date.
   const expires_at = manilaEndOfDay(String(formData.get("expires_at") ?? ""));
+  // Same three-way contract. Blank means "use the row's creation time".
+  const posted_at = manilaDateTime(String(formData.get("posted_at") ?? ""));
+  const employmentRaw = String(formData.get("employment_type") ?? "").trim();
+  const employment_type = (
+    EMPLOYMENT_TYPES as readonly string[]
+  ).includes(employmentRaw)
+    ? employmentRaw
+    : null;
   return {
     title,
     slug,
@@ -51,6 +60,8 @@ function parse(formData: FormData) {
     status,
     description,
     expires_at,
+    posted_at,
+    employment_type,
   };
 }
 
@@ -63,6 +74,8 @@ export async function createJob(
   if (!data.slug) return { error: "A valid slug is required." };
   if (data.expires_at === undefined)
     return { error: "Enter a valid expiry date." };
+  if (data.posted_at === undefined)
+    return { error: "Enter a valid posted date and time." };
 
   const supabase = await createClient();
   const {
@@ -108,6 +121,8 @@ export async function updateJob(
   if (!data.slug) return { error: "A valid slug is required." };
   if (data.expires_at === undefined)
     return { error: "Enter a valid expiry date." };
+  if (data.posted_at === undefined)
+    return { error: "Enter a valid posted date and time." };
 
   const supabase = await createClient();
   const {

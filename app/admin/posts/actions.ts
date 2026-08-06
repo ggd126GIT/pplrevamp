@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slug";
 import { deriveAction, logActivity } from "@/lib/activity";
+import { manilaDateTime } from "@/lib/dates";
 import type { Json, TablesUpdate } from "@/lib/database.types";
 
 export type PostFormState = { error?: string } | undefined;
@@ -31,16 +32,24 @@ function parse(formData: FormData) {
       ? "published"
       : "draft";
   const content = parseContent(String(formData.get("content") ?? ""));
-  return { title, slug, byline, excerpt, cover_image_url, status, content };
+  // null = cleared (fall back to publish time), undefined = malformed. Kept out
+  // of the returned row so callers decide what a blank field means.
+  const publishedAt = manilaDateTime(String(formData.get("published_at") ?? ""));
+  return {
+    row: { title, slug, byline, excerpt, cover_image_url, status, content },
+    publishedAt,
+  };
 }
 
 export async function createPost(
   _prev: PostFormState,
   formData: FormData,
 ): Promise<PostFormState> {
-  const data = parse(formData);
+  const { row: data, publishedAt } = parse(formData);
   if (!data.title) return { error: "Title is required." };
   if (!data.slug) return { error: "A valid slug is required." };
+  if (publishedAt === undefined)
+    return { error: "Enter a valid published date and time." };
 
   const supabase = await createClient();
   const {
@@ -56,7 +65,8 @@ export async function createPost(
       author_id: actorId,
       updated_by: actorId,
       published_by: published ? actorId : null,
-      published_at: published ? new Date().toISOString() : null,
+      // An explicit date wins, so a post can go live already backdated.
+      published_at: publishedAt ?? (published ? new Date().toISOString() : null),
     })
     .select("id")
     .single();
@@ -93,9 +103,11 @@ export async function updatePost(
   _prev: PostFormState,
   formData: FormData,
 ): Promise<PostFormState> {
-  const data = parse(formData);
+  const { row: data, publishedAt } = parse(formData);
   if (!data.title) return { error: "Title is required." };
   if (!data.slug) return { error: "A valid slug is required." };
+  if (publishedAt === undefined)
+    return { error: "Enter a valid published date and time." };
 
   const supabase = await createClient();
   const {
@@ -103,20 +115,24 @@ export async function updatePost(
   } = await supabase.auth.getUser();
   const actorId = user?.id ?? null;
 
-  // Preserve original published_at; set it the first time it goes live.
   const { data: existing } = await supabase
     .from("posts")
     .select("published_at, status")
     .eq("id", id)
     .single();
 
-  const wasPublished = Boolean(existing?.published_at);
-  let published_at = existing?.published_at ?? null;
+  // Status is the signal for "has this been live before", not published_at —
+  // the date is editor-owned now and survives a return to draft, so it can no
+  // longer stand in for publication history.
+  const wasPublished = existing?.status === "published";
+
+  // The editor's date wins. Blank keeps whatever is stored, and stamps now the
+  // first time a post goes live. Returning to draft deliberately does NOT clear
+  // it: discarding a date someone set is data loss, and the public pages all
+  // filter on status, so an unpublished post stays invisible regardless.
+  let published_at = publishedAt ?? existing?.published_at ?? null;
   if (data.status === "published" && !published_at) {
     published_at = new Date().toISOString();
-  }
-  if (data.status === "draft") {
-    published_at = null;
   }
 
   const update: TablesUpdate<"posts"> = {
@@ -124,8 +140,8 @@ export async function updatePost(
     published_at,
     updated_by: actorId,
   };
-  // published_by tracks published_at: cleared when a post goes back to draft,
-  // set on the edit that first takes it live, untouched otherwise.
+  // published_by is cleared when a post goes back to draft, set on the edit
+  // that first takes it live, and left untouched otherwise.
   if (data.status === "draft") {
     update.published_by = null;
   } else if (!wasPublished) {

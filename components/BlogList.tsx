@@ -2,17 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { excerptLines } from "@/lib/excerpt";
+import { formatManilaDate } from "@/lib/dates";
 import type { PostCard } from "@/lib/blogPosts";
-
-function formatDate(d: string | null) {
-  return d
-    ? new Date(d).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : "";
-}
 
 /** The blog card grid. Shared by /blog and /blog/page/[page]. */
 export function BlogList({ posts }: { posts: PostCard[] }) {
@@ -36,8 +27,11 @@ export function BlogList({ posts }: { posts: PostCard[] }) {
             />
           </div>
           <div className="flex flex-1 flex-col p-6">
-            <time className="text-xs font-medium uppercase tracking-wide text-purple">
-              {formatDate(post.published_at)}
+            <time
+              dateTime={post.published_at ?? undefined}
+              className="text-xs font-medium uppercase tracking-wide text-purple"
+            >
+              {formatManilaDate(post.published_at)}
             </time>
             <h2 className="mt-2 text-lg font-bold text-ink">{post.title}</h2>
             {post.byline && (

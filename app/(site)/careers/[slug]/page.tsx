@@ -1,12 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, MapPin, Building2, Laptop } from "lucide-react";
+import {
+  ArrowLeft,
+  MapPin,
+  Building2,
+  Laptop,
+  CalendarDays,
+  Briefcase,
+} from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { ApplicationForm } from "@/components/careers/ApplicationForm";
 import { createPublicClient } from "@/lib/supabase/public";
-import { notExpiredFilter } from "@/lib/jobs";
+import {
+  notExpiredFilter,
+  postedAt,
+  employmentTypeLabels,
+} from "@/lib/jobs";
+import { formatManilaDate } from "@/lib/dates";
 import { renderTiptap } from "@/lib/tiptap";
 import { ShareLinks } from "@/components/ShareLinks";
 import { absoluteUrl, previewDescription } from "@/lib/share";
@@ -90,12 +102,17 @@ export default async function JobDetailPage({
   if (!job) notFound();
 
   const html = renderTiptap(job.description);
+  const posted = postedAt(job);
   const meta = [
     job.department && { icon: Building2, label: job.department },
     job.location && { icon: MapPin, label: job.location },
     job.work_mode && {
       icon: Laptop,
       label: workModeLabels[job.work_mode] ?? job.work_mode,
+    },
+    job.employment_type && {
+      icon: Briefcase,
+      label: employmentTypeLabels[job.employment_type] ?? job.employment_type,
     },
   ].filter(Boolean) as { icon: typeof MapPin; label: string }[];
 
@@ -132,6 +149,13 @@ export default async function JobDetailPage({
                   </span>
                 );
               })}
+              {posted && (
+                <span className="inline-flex items-center gap-1.5">
+                  <CalendarDays className="size-4 text-purple" />
+                  Posted&nbsp;
+                  <time dateTime={posted}>{formatManilaDate(posted)}</time>
+                </span>
+              )}
             </div>
 
             {html ? (

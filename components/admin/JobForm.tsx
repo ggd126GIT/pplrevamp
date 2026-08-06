@@ -10,6 +10,7 @@ import {
   Select,
 } from "@/components/forms/fields";
 import { RichTextEditor } from "./RichTextEditor";
+import { employmentTypeLabels } from "@/lib/jobs";
 import type { JobFormState } from "@/app/admin/jobs/actions";
 import type { Json } from "@/lib/database.types";
 
@@ -23,6 +24,8 @@ type Values = {
   short_description?: string | null;
   description?: Json | null;
   expires_at?: string;
+  posted_at?: string;
+  employment_type?: string | null;
 };
 
 export function JobForm({
@@ -84,11 +87,41 @@ export function JobForm({
             <option value="hybrid">Hybrid</option>
           </Select>
         </Field>
+        <Field label="Employment type" htmlFor="employment_type">
+          <Select
+            id="employment_type"
+            name="employment_type"
+            defaultValue={values.employment_type ?? "FULL_TIME"}
+          >
+            <option value="">Not specified</option>
+            {Object.entries(employmentTypeLabels).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </Select>
+          <p className="mt-1.5 text-xs text-charcoal/60">
+            Shown to Google in the job listing. Leave unspecified only if the
+            role genuinely does not fit one of these.
+          </p>
+        </Field>
         <Field label="Status" htmlFor="status">
           <Select id="status" name="status" defaultValue={values.status ?? "open"}>
             <option value="open">Open</option>
             <option value="closed">Closed</option>
           </Select>
+        </Field>
+        <Field label="Posted on" htmlFor="posted_at">
+          <TextInput
+            id="posted_at"
+            name="posted_at"
+            type="datetime-local"
+            defaultValue={values.posted_at ?? ""}
+          />
+          <p className="mt-1.5 text-xs text-charcoal/60">
+            Manila time, shown on the role and given to search engines. Leave
+            blank to use when the role was first saved.
+          </p>
         </Field>
         <Field label="Expires on" htmlFor="expires_at">
           <TextInput

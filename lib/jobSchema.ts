@@ -5,9 +5,9 @@
  *
  * Eligibility for Google Jobs depends on getting the required fields right:
  * `title`, `description`, `datePosted`, `hiringOrganization` and a location.
- * Fields we do not actually hold — salary and employment type — are deliberately
- * omitted rather than guessed: a wrong `baseSalary` in structured data is a
- * claim made on the client's behalf to every jobseeker who sees the listing.
+ * `baseSalary` is deliberately omitted rather than guessed: a wrong salary in
+ * structured data is a claim made on the client's behalf to every jobseeker who
+ * sees the listing. Search Console reports its absence as non-critical.
  */
 import { site } from "@/lib/site";
 
@@ -17,13 +17,14 @@ export type JobForSchema = {
   location: string | null;
   work_mode: string | null;
   created_at: string | null;
+  posted_at: string | null;
   expires_at: string | null;
+  employment_type: string | null;
   short_description: string | null;
 };
 
 /** Google wants the country of the office, not of the applicant's browser. */
-const COUNTRY = "PH";
-const REGION = "Metro Manila";
+const REGION = site.address.region;
 
 export function jobPostingSchema(
   job: JobForSchema,
@@ -57,9 +58,15 @@ export function jobPostingSchema(
     directApply: true,
   };
 
-  // datePosted is required. It is only absent on rows predating the column
-  // default, and emitting an invalid date is worse than omitting the field.
-  if (job.created_at) schema.datePosted = job.created_at;
+  // datePosted is required. The editor's posted date wins over the row's
+  // creation time; absent both, omitting the field beats emitting an invalid
+  // date.
+  const datePosted = job.posted_at ?? job.created_at;
+  if (datePosted) schema.datePosted = datePosted;
+
+  // Left null when an editor has not said which it is. Values are stored in
+  // schema.org's own vocabulary, so they pass straight through.
+  if (job.employment_type) schema.employmentType = job.employment_type;
 
   // Expiry is optional in our schema but Google drops postings that outlive
   // their validThrough, which is exactly the behaviour we want for expired roles.
@@ -74,16 +81,20 @@ export function jobPostingSchema(
       name: "Philippines",
     };
   } else {
+    // On-site and hybrid roles are staffed from the registered office, so they
+    // carry its street and postcode. A role staffed anywhere else would need a
+    // per-job address rather than this constant.
     schema.jobLocation = {
       "@type": "Place",
       address: {
         "@type": "PostalAddress",
+        streetAddress: `${site.address.street}, ${site.address.district}`,
         // `location` is free text an editor typed, so it is used as the locality
-        // rather than parsed. No street address: a role need not sit at the
-        // registered office, and inventing one would be a false claim.
+        // rather than parsed.
         addressLocality: job.location ?? REGION,
         addressRegion: REGION,
-        addressCountry: COUNTRY,
+        postalCode: site.address.postalCode,
+        addressCountry: site.address.country,
       },
     };
   }

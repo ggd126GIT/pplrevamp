@@ -9,6 +9,20 @@ export const site = {
   careersEmail: "careers@pplsolutionsinc.com",
   phone: "+1.814.747.5335",
   phoneHref: "tel:+18147475335",
+  /**
+   * The registered office. Rendered on the privacy policy and emitted as the
+   * `jobLocation` of every on-site or hybrid role, so the two can never drift.
+   * Field names match schema.org PostalAddress.
+   */
+  address: {
+    street: "32F One San Miguel Building, San Miguel Ave. corner Shaw Boulevard",
+    /** The part of the street line that is not the street. */
+    district: "Ortigas Center",
+    locality: "Pasig City",
+    region: "Metro Manila",
+    postalCode: "1605",
+    country: "PH",
+  },
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.pplsolutionsinc.com",
   social: {
     linkedin: "https://www.linkedin.com/company/ppl-solutions-inc/",

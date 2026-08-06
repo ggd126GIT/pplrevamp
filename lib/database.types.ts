@@ -182,9 +182,11 @@ export type Database = {
           created_by: string | null
           department: string | null
           description: Json | null
+          employment_type: string | null
           expires_at: string | null
           id: string
           location: string | null
+          posted_at: string | null
           short_description: string | null
           slug: string
           status: string
@@ -198,9 +200,11 @@ export type Database = {
           created_by?: string | null
           department?: string | null
           description?: Json | null
+          employment_type?: string | null
           expires_at?: string | null
           id?: string
           location?: string | null
+          posted_at?: string | null
           short_description?: string | null
           slug: string
           status?: string
@@ -214,9 +218,11 @@ export type Database = {
           created_by?: string | null
           department?: string | null
           description?: Json | null
+          employment_type?: string | null
           expires_at?: string | null
           id?: string
           location?: string | null
+          posted_at?: string | null
           short_description?: string | null
           slug?: string
           status?: string

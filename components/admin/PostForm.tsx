@@ -17,6 +17,7 @@ type Values = {
   cover_image_url?: string | null;
   status?: string;
   content?: Json | null;
+  published_at?: string;
 };
 
 export function PostForm({
@@ -58,6 +59,19 @@ export function PostForm({
           </Select>
         </Field>
       </div>
+
+      <Field label="Published on" htmlFor="published_at">
+        <TextInput
+          id="published_at"
+          name="published_at"
+          type="datetime-local"
+          defaultValue={values.published_at ?? ""}
+        />
+        <p className="mt-1.5 text-xs text-charcoal/60">
+          Manila time. This is the date readers and search engines see — set it
+          to backdate a post, or leave it blank to stamp the moment it goes live.
+        </p>
+      </Field>
 
       <Field label="Author" htmlFor="byline">
         <TextInput

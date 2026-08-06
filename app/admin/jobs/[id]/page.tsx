@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { JobForm } from "@/components/admin/JobForm";
 import { createClient } from "@/lib/supabase/server";
-import { toDateInput } from "@/lib/dates";
+import { toDateInput, toDateTimeInput } from "@/lib/dates";
 import { updateJob, deleteJob } from "../actions";
 
 export default async function EditJobPage({
@@ -59,6 +59,10 @@ export default async function EditJobPage({
             short_description: job.short_description,
             description: job.description,
             expires_at: toDateInput(job.expires_at),
+            employment_type: job.employment_type,
+            // Show the effective posted date, so an editor sees what the page
+            // actually renders rather than an empty field.
+            posted_at: toDateTimeInput(job.posted_at ?? job.created_at),
           }}
         />
       </div>

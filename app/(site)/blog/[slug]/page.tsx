@@ -8,6 +8,7 @@ import { CtaBand } from "@/components/CtaBand";
 import { createPublicClient } from "@/lib/supabase/public";
 import { renderTiptap } from "@/lib/tiptap";
 import { excerptLines } from "@/lib/excerpt";
+import { formatManilaDate } from "@/lib/dates";
 import { ShareLinks } from "@/components/ShareLinks";
 import { absoluteUrl, previewDescription } from "@/lib/share";
 import { site } from "@/lib/site";
@@ -76,16 +77,6 @@ export async function generateMetadata({
   };
 }
 
-function formatDate(d: string | null) {
-  return d
-    ? new Date(d).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : "";
-}
-
 export default async function BlogPostPage({
   params,
 }: {
@@ -110,7 +101,9 @@ export default async function BlogPostPage({
           </Link>
 
           <p className="mt-8 text-sm font-medium uppercase tracking-wide text-purple">
-            <time>{formatDate(post.published_at)}</time>
+            <time dateTime={post.published_at ?? undefined}>
+              {formatManilaDate(post.published_at)}
+            </time>
             {post.byline && <span> · {post.byline}</span>}
           </p>
           <h1 className="mt-2 font-display text-3xl font-extrabold leading-tight text-ink sm:text-4xl">

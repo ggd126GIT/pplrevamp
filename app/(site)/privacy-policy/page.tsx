@@ -224,9 +224,10 @@ export default function PrivacyPolicyPage() {
                     Address
                   </p>
                   <p className="mt-1">
-                    32F One San Miguel Building., San Miguel Ave. corner Shaw Boulevard
+                    {site.address.street}
                     <br />
-                    Ortigas Center, Pasig City, 1605, Metro Manila
+                    {site.address.district}, {site.address.locality},{" "}
+                    {site.address.postalCode}, {site.address.region}
                   </p>
                   <p className="mt-4 text-sm font-semibold uppercase tracking-wide text-charcoal/50">
                     Email

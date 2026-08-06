@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MapPin, Building2, Laptop, ArrowRight } from "lucide-react";
+import { MapPin, Building2, Laptop, ArrowRight, CalendarDays } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { createPublicClient } from "@/lib/supabase/public";
-import { notExpiredFilter } from "@/lib/jobs";
+import { notExpiredFilter, postedAt } from "@/lib/jobs";
+import { formatManilaDate } from "@/lib/dates";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -27,7 +28,9 @@ export default async function CareersPage() {
   const supabase = createPublicClient();
   const { data: jobs } = await supabase
     .from("jobs")
-    .select("id, slug, title, department, location, work_mode, short_description")
+    .select(
+      "id, slug, title, department, location, work_mode, short_description, posted_at, created_at",
+    )
     .eq("status", "open")
     .or(notExpiredFilter())
     .order("created_at", { ascending: false });
@@ -64,7 +67,9 @@ export default async function CareersPage() {
             </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2">
-              {jobs.map((job) => (
+              {jobs.map((job) => {
+                const posted = postedAt(job);
+                return (
                 <Link
                   key={job.id}
                   href={`/careers/${job.slug}`}
@@ -95,13 +100,23 @@ export default async function CareersPage() {
                         {workModeLabels[job.work_mode] ?? job.work_mode}
                       </span>
                     )}
+                    {posted && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <CalendarDays className="size-4 text-purple" />
+                        Posted&nbsp;
+                        <time dateTime={posted}>
+                          {formatManilaDate(posted)}
+                        </time>
+                      </span>
+                    )}
                   </div>
                   <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-purple">
                     View role &amp; apply
                     <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
                   </span>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           )}
 

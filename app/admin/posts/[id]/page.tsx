@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Trash2, ExternalLink } from "lucide-react";
 import { PostForm } from "@/components/admin/PostForm";
 import { createClient } from "@/lib/supabase/server";
+import { toDateTimeInput } from "@/lib/dates";
 import { updatePost, deletePost } from "../actions";
 
 export default async function EditPostPage({
@@ -67,6 +68,7 @@ export default async function EditPostPage({
             cover_image_url: post.cover_image_url,
             status: post.status,
             content: post.content,
+            published_at: toDateTimeInput(post.published_at),
           }}
         />
       </div>

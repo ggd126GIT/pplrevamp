@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { jobPostingSchema, type JobForSchema } from "@/lib/jobSchema";
+import { site } from "@/lib/site";
 
 const base: JobForSchema = {
   slug: "project-manager",
@@ -7,7 +8,9 @@ const base: JobForSchema = {
   location: "Pasig",
   work_mode: "hybrid",
   created_at: "2026-07-31T15:49:03.269Z",
+  posted_at: null,
   expires_at: "2026-08-17T15:59:59.999Z",
+  employment_type: "FULL_TIME",
   short_description: "Supports delivery of platform releases.",
 };
 
@@ -28,8 +31,10 @@ describe("jobPostingSchema", () => {
     expect(s.jobLocation).toMatchObject({
       "@type": "Place",
       address: {
+        streetAddress: `${site.address.street}, ${site.address.district}`,
         addressLocality: "Pasig",
         addressRegion: "Metro Manila",
+        postalCode: "1605",
         addressCountry: "PH",
       },
     });
@@ -39,8 +44,10 @@ describe("jobPostingSchema", () => {
     const s = jobPostingSchema({ ...base, work_mode: "wfh" }, "<p>x</p>");
     expect(s.jobLocationType).toBe("TELECOMMUTE");
     expect(s.applicantLocationRequirements).toMatchObject({ name: "Philippines" });
-    // A remote role must not also claim a physical address.
+    // A remote role must not also claim a physical address — least of all the
+    // office street, which is exactly where nobody works.
     expect(s.jobLocation).toBeUndefined();
+    expect(JSON.stringify(s)).not.toContain(site.address.street);
   });
 
   it("falls back to the short description when the body renders empty", () => {
@@ -65,10 +72,30 @@ describe("jobPostingSchema", () => {
     expect("datePosted" in s).toBe(false);
   });
 
-  it("never invents a salary or employment type", () => {
+  it("never invents a salary", () => {
     const s = jobPostingSchema(base, "<p>x</p>");
     expect("baseSalary" in s).toBe(false);
+  });
+
+  it("emits the employment type when a job carries one", () => {
+    const s = jobPostingSchema(base, "<p>x</p>");
+    expect(s.employmentType).toBe("FULL_TIME");
+  });
+
+  it("omits the employment type rather than guessing one", () => {
+    const s = jobPostingSchema(
+      { ...base, employment_type: null },
+      "<p>x</p>",
+    );
     expect("employmentType" in s).toBe(false);
+  });
+
+  it("prefers the editor's posted date over the row's creation time", () => {
+    const s = jobPostingSchema(
+      { ...base, posted_at: "2026-08-01T02:00:00.000Z" },
+      "<p>x</p>",
+    );
+    expect(s.datePosted).toBe("2026-08-01T02:00:00.000Z");
   });
 
   it("falls back to the region when a job has no location", () => {
