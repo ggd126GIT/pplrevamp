@@ -96,6 +96,21 @@ html {
     0 8px 30px -12px rgba(35, 43, 49, 0.18);
 }
 
+/* ---------- Preview bar offset ----------
+   The bar is fixed to the viewport, but the site header is `sticky top-0`, so
+   without this the bar sits straight on top of it and hides the logo and CTA —
+   and the header is part of what the preview exists to show. Shifting the
+   document down and re-anchoring the header keeps both visible, and keeps the
+   header sticking correctly once you scroll.
+
+   2.75rem must match the bar's `h-11` in PreviewBanner.tsx. */
+body:has(.preview-bar) {
+  padding-top: 2.75rem;
+}
+body:has(.preview-bar) header {
+  top: 2.75rem;
+}
+
 /* ---------- Admin breakdown cards: "Show all" / "Show less" ----------
    The label swap lives in CSS so the collapse needs no JavaScript at all —
    hidden rows stay in the markup and remain reachable when scripting fails. */
