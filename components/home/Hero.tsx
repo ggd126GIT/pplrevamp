@@ -79,14 +79,18 @@ export function Hero() {
                   Schedule a Consultation Today
                 </Button>
               </Magnetic>
-              {/* The visible label stays short for the design; the accessible
-                  name says where it goes, because a screen reader pulling up a
-                  list of links otherwise shows a bare "Learn More". */}
-              <Button href="/services" size="lg" variant="outline"
-                aria-label="Learn more about our services"
+              {/* Names its destination rather than saying "Learn More". Anchor
+                  text is one of the few signals telling search engines what
+                  /services is about, and the site currently has no visibility
+                  for the queries that page exists to win. An aria-label is not
+                  a substitute — crawlers read the visible text. */}
+              <Button
+                href="/services"
+                size="lg"
+                variant="outline"
                 className="border-white/30 text-white hover:border-white hover:bg-white/10"
               >
-                Learn More
+                Our Services
               </Button>
             </div>
           </div>
