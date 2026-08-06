@@ -2,18 +2,22 @@
 
 import { useRef } from "react";
 import { prefersReducedMotion } from "@/lib/gsap";
+import { magneticOffset } from "@/lib/magnetic";
 
 /**
  * Wraps a child so it drifts toward the pointer (magnetic hover). Disabled
  * for reduced motion and coarse pointers.
+ *
+ * `maxOffset` is a hard pixel cap rather than a multiplier, so the effect feels
+ * the same on a narrow button and a wide one. See lib/magnetic.ts.
  */
 export function Magnetic({
   children,
-  strength = 0.35,
+  maxOffset = 8,
   className,
 }: {
   children: React.ReactNode;
-  strength?: number;
+  maxOffset?: number;
   className?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -27,9 +31,12 @@ export function Magnetic({
     const el = ref.current;
     if (!el || !allow()) return;
     const rect = el.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    el.style.transform = `translate(${x * strength}px, ${y * strength}px)`;
+    const { x, y } = magneticOffset(
+      rect,
+      { x: e.clientX - rect.left, y: e.clientY - rect.top },
+      maxOffset,
+    );
+    el.style.transform = `translate(${x}px, ${y}px)`;
   };
 
   const reset = () => {
