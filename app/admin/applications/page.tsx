@@ -2,6 +2,8 @@ import { Download, FileText } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Pagination } from "@/components/admin/Pagination";
 import { pageCount, pageRange, parsePage } from "@/lib/pagination";
+import { DuplicateBadge } from "@/components/admin/DuplicateBadge";
+import { matchApplicants, type ApplicantRow } from "@/lib/applicantMatch";
 
 export default async function ApplicationsPage({
   searchParams,
@@ -17,6 +19,55 @@ export default async function ApplicationsPage({
     .select("*, jobs(title, slug)", { count: "exact" })
     .order("created_at", { ascending: false })
     .range(from, to);
+
+  // Everything this page's applicants could match against. At a few hundred
+  // rows a year this is cheaper than a per-row query or a database view, and it
+  // keeps the matching rules in one tested place rather than in SQL.
+  const emailKeys = [
+    ...new Set((applications ?? []).map((a) => a.email_key).filter(Boolean)),
+  ] as string[];
+  const phoneKeys = [
+    ...new Set(
+      (applications ?? []).map((a) => a.phone_key).filter((k) => !!k && k.length === 10),
+    ),
+  ] as string[];
+
+  const [{ data: related }, { data: blocks }] = await Promise.all([
+    supabase
+      .from("applications")
+      .select("id, first_name, last_name, email_key, phone_key, created_at, status, jobs(title)")
+      .or(
+        [
+          emailKeys.length ? `email_key.in.(${emailKeys.join(",")})` : "",
+          phoneKeys.length ? `phone_key.in.(${phoneKeys.join(",")})` : "",
+        ]
+          .filter(Boolean)
+          .join(",") || "id.is.null",
+      )
+      .order("created_at", { ascending: false })
+      .limit(500),
+    emailKeys.length
+      ? supabase
+          .from("applicant_blocks")
+          .select("email_key, reason")
+          .in("email_key", emailKeys)
+      : Promise.resolve({ data: [] as { email_key: string; reason: string }[] }),
+  ]);
+
+  const blockedBy = new Map(
+    (blocks ?? []).map((b) => [b.email_key, b.reason] as const),
+  );
+
+  const candidates: ApplicantRow[] = (related ?? []).map((r) => ({
+    id: r.id,
+    first_name: r.first_name,
+    last_name: r.last_name,
+    email_key: r.email_key,
+    phone_key: r.phone_key,
+    created_at: r.created_at,
+    status: r.status,
+    job_title: r.jobs?.title ?? null,
+  }));
 
   // Signed URLs for private CVs (1 hour).
   const withCv = await Promise.all(
@@ -60,6 +111,23 @@ export default async function ApplicationsPage({
                 <tr key={app.id} className="align-top">
                   <td className="px-5 py-4 font-medium text-ink">
                     {app.first_name} {app.last_name}
+                    <DuplicateBadge
+                      matches={matchApplicants(
+                        {
+                          id: app.id,
+                          first_name: app.first_name,
+                          last_name: app.last_name,
+                          email_key: app.email_key,
+                          phone_key: app.phone_key,
+                          created_at: app.created_at,
+                          status: app.status,
+                        },
+                        candidates,
+                      )}
+                      blocked={
+                        app.email_key ? blockedBy.get(app.email_key) : null
+                      }
+                    />
                   </td>
                   <td className="px-5 py-4 text-charcoal/70">
                     {app.jobs?.title ?? "—"}

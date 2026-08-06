@@ -1,7 +1,24 @@
 # Application Retention & Duplicate Detection — Design
 
-**Date:** 2026-08-05
-**Status:** spec for review — nothing implemented
+**Date:** 2026-08-05 · **Updated:** 2026-08-06
+**Status:** steps 1–2 built (`applications` RLS/grants, schema, match keys, duplicate banner).
+Status control, blacklist UI, CV deletion and auto-expiry still to build.
+
+## Retention — decided 2026-08-06
+
+**Two clocks, not one.** Confusing them would defeat the feature:
+
+| | Retention |
+|---|---|
+| **CV file** in storage | **120 days**, then auto-deleted |
+| **The row** — name, contact, role, outcome | **2 years**, matching what the privacy policy already publishes |
+| **Blacklist entry** | Until removed |
+
+The record must outlive the attachment. Deleting the row at 120 days would only catch someone
+reapplying within four months, and repeat or blocked applicants are precisely the people who return
+after six or twelve. 120 days for the CV is *more* protective than the published 2 years, so it
+promises nothing new — but the policy still needs a sentence naming recruitment data, because its
+current clause is written around "inquiries and requests".
 **Source:** recruitment's request, relayed 2026-08-05 — delete CV attachments but keep the person,
 catch duplicate applications (especially failed/blacklisted ones), against a target of **100
 applications per quarter**
@@ -97,8 +114,8 @@ collects only `**/*.test.ts`. At 400 rows/year this is trivially cheap; no view 
 unlikely to send it twice. `cv_deleted_at` is what distinguishes "we deleted this" from "there never
 was one", which matters when someone asks why a row has no attachment.
 
-**Automatic.** A purge route that deletes CVs older than `CV_RETENTION_DAYS` (proposed: **365**, env
-configurable), run daily. Two ways to trigger it on this stack:
+**Automatic.** A purge route that deletes CVs older than `CV_RETENTION_DAYS` — **120 days, decided
+2026-08-06** (env configurable), run daily. Two ways to trigger it on this stack:
 
 - a **cron on the VPS** hitting the route with a shared secret — simplest, and the box already runs
   the app; or

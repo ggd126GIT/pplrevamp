@@ -55,36 +55,82 @@ export type Database = {
           },
         ]
       }
+      applicant_blocks: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          email_key: string
+          reason: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          email_key: string
+          reason: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          email_key?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applicant_blocks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       applications: {
         Row: {
           created_at: string | null
-          cv_url: string
+          cv_deleted_at: string | null
+          cv_url: string | null
           email: string
+          email_key: string | null
           first_name: string
           id: string
           job_id: string | null
           last_name: string
           phone: string | null
+          phone_key: string | null
+          reviewed_by: string | null
+          status: string
+          status_note: string | null
+          status_updated_at: string | null
         }
         Insert: {
           created_at?: string | null
-          cv_url: string
+          cv_deleted_at?: string | null
+          cv_url?: string | null
           email: string
           first_name: string
           id?: string
           job_id?: string | null
           last_name: string
           phone?: string | null
+          reviewed_by?: string | null
+          status?: string
+          status_note?: string | null
+          status_updated_at?: string | null
         }
         Update: {
           created_at?: string | null
-          cv_url?: string
+          cv_deleted_at?: string | null
+          cv_url?: string | null
           email?: string
           first_name?: string
           id?: string
           job_id?: string | null
           last_name?: string
           phone?: string | null
+          reviewed_by?: string | null
+          status?: string
+          status_note?: string | null
+          status_updated_at?: string | null
         }
         Relationships: [
           {
