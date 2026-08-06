@@ -15,13 +15,16 @@ import { formatManilaDate } from "@/lib/dates";
  */
 export function DuplicateBadge({
   matches,
+  createdAt,
   blocked,
 }: {
   matches: MatchResult;
+  /** This application's own date, so the ordinal counts only earlier ones. */
+  createdAt: string | null;
   /** Blacklist reason, when this applicant is blocked. */
   blocked?: string | null;
 }) {
-  const repeat = repeatLabel(matches);
+  const repeat = repeatLabel(matches, createdAt);
   const rejected = wasRejectedBefore(matches);
 
   if (!repeat && !matches.possible.length && !blocked) return null;

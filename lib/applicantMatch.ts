@@ -99,13 +99,22 @@ export function matchApplicants(
 /**
  * How to describe a repeat application in one line.
  *
- * Counts the person's applications including this one, so "3rd application"
- * means what a reader expects.
+ * Counts only applications made BEFORE this one, so the ordinal describes this
+ * application's place in the person's sequence. Counting every match regardless
+ * of direction made the oldest row announce itself as the "2nd application",
+ * which is the opposite of true.
  */
-export function repeatLabel(result: MatchResult): string | null {
-  const n = result.confirmed.length;
-  if (n === 0) return null;
-  const ordinal = n + 1;
+export function repeatLabel(
+  result: MatchResult,
+  createdAt: string | null,
+): string | null {
+  const self = Date.parse(createdAt ?? "");
+  const prior = result.confirmed.filter((m) => {
+    const t = Date.parse(m.row.created_at ?? "");
+    return Number.isFinite(self) && Number.isFinite(t) ? t < self : false;
+  }).length;
+  if (prior === 0) return null;
+  const ordinal = prior + 1;
   const suffix =
     ordinal % 100 >= 11 && ordinal % 100 <= 13
       ? "th"
@@ -119,7 +128,10 @@ export function repeatLabel(result: MatchResult): string | null {
   return `${ordinal}${suffix} application — same email`;
 }
 
-/** Whether any prior application by this person was rejected. */
+/**
+ * Whether any application by this person was rejected. Direction-agnostic on
+ * purpose: a rejection is worth surfacing whichever row you are looking at.
+ */
 export function wasRejectedBefore(result: MatchResult): boolean {
   return result.confirmed.some((m) => m.row.status === "rejected");
 }

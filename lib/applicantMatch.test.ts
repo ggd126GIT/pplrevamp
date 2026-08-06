@@ -104,21 +104,61 @@ describe("matchApplicants", () => {
 });
 
 describe("repeatLabel", () => {
-  it("counts the current application too", () => {
-    const one = matchApplicants(row({ id: "a" }), [row({ id: "b" })]);
-    expect(repeatLabel(one)).toBe("2nd application — same email");
+  const JAN = "2026-01-01T00:00:00.000Z";
+  const JUN = "2026-06-01T00:00:00.000Z";
+  const DEC = "2026-12-01T00:00:00.000Z";
 
-    const two = matchApplicants(row({ id: "a" }), [row({ id: "b" }), row({ id: "c" })]);
-    expect(repeatLabel(two)).toBe("3rd application — same email");
+  it("counts prior applications plus this one", () => {
+    const one = matchApplicants(row({ id: "a", created_at: JUN }), [
+      row({ id: "b", created_at: JAN }),
+    ]);
+    expect(repeatLabel(one, JUN)).toBe("2nd application — same email");
+
+    const two = matchApplicants(row({ id: "a", created_at: DEC }), [
+      row({ id: "b", created_at: JAN }),
+      row({ id: "c", created_at: JUN }),
+    ]);
+    expect(repeatLabel(two, DEC)).toBe("3rd application — same email");
+  });
+
+  // The regression this exists for: counting every match regardless of order
+  // made the OLDEST application announce itself as the "2nd application".
+  it("says nothing on the earliest application, even when later ones exist", () => {
+    const earliest = matchApplicants(row({ id: "a", created_at: JAN }), [
+      row({ id: "b", created_at: JUN }),
+      row({ id: "c", created_at: DEC }),
+    ]);
+    expect(repeatLabel(earliest, JAN)).toBeNull();
+  });
+
+  it("counts only the earlier ones when a match sits on each side", () => {
+    const middle = matchApplicants(row({ id: "a", created_at: JUN }), [
+      row({ id: "b", created_at: JAN }),
+      row({ id: "c", created_at: DEC }),
+    ]);
+    expect(repeatLabel(middle, JUN)).toBe("2nd application — same email");
   });
 
   it("says nothing when there is no confirmed repeat", () => {
-    expect(repeatLabel({ confirmed: [], possible: [] })).toBeNull();
+    expect(repeatLabel({ confirmed: [], possible: [] }, JUN)).toBeNull();
+  });
+
+  it("says nothing rather than guessing when the date is unusable", () => {
+    const r = matchApplicants(row({ id: "a", created_at: JUN }), [
+      row({ id: "b", created_at: JAN }),
+    ]);
+    expect(repeatLabel(r, null)).toBeNull();
   });
 
   it("handles the teens, where the naive ordinal rule breaks", () => {
-    const many = { confirmed: Array.from({ length: 12 }, (_, i) => ({ row: row({ id: String(i) }), reason: "email" as const })), possible: [] };
-    expect(repeatLabel(many)).toBe("13th application — same email");
+    const many = {
+      confirmed: Array.from({ length: 12 }, (_, i) => ({
+        row: row({ id: String(i), created_at: JAN }),
+        reason: "email" as const,
+      })),
+      possible: [],
+    };
+    expect(repeatLabel(many, DEC)).toBe("13th application — same email");
   });
 });
 

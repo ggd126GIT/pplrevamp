@@ -124,6 +124,7 @@ export default async function ApplicationsPage({
                         },
                         candidates,
                       )}
+                      createdAt={app.created_at}
                       blocked={
                         app.email_key ? blockedBy.get(app.email_key) : null
                       }
