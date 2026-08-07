@@ -3,6 +3,7 @@ import { Logo } from "./Logo";
 import { Container } from "./ui/Container";
 import { footerLinks, primaryNav, site } from "@/lib/site";
 import { FacebookIcon, LinkedInIcon } from "@/components/icons/brand";
+import { CookieSettingsButton } from "@/components/CookieConsent";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -92,10 +93,13 @@ export function Footer() {
           <p>
             &copy; {year} {site.name} All rights reserved.
           </p>
-          <p>
-            Happy <span className="ppl-lockup">.ppl</span> create Happy
-            Customers.
-          </p>
+          <div className="flex items-center gap-4">
+            <CookieSettingsButton className="py-2 text-white/50 transition-colors hover:text-gold" />
+            <p>
+              Happy <span className="ppl-lockup">.ppl</span> create Happy
+              Customers.
+            </p>
+          </div>
         </div>
       </Container>
     </footer>

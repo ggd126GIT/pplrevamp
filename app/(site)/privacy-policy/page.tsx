@@ -64,7 +64,8 @@ const sections: { heading: string; body: Block[] }[] = [
   {
     heading: "Methods Utilized for Automated Access",
     body: [
-      "The Company uses its own first-party, cookieless analytics to understand website traffic and improve our services. We record an approximate location (country and city) derived from your IP address at the network edge; we do not store your IP address. No data is disclosed to any other entity, and no cookies are used for this purpose.",
+      "The Company uses its own first-party, cookieless analytics to understand website traffic and improve our services. We record an approximate location (country and city) derived from your IP address at the network edge; we do not store your IP address. This first-party analysis uses no cookies, and the data it produces is not disclosed to any other entity.",
+      "In addition, and only if you accept our cookie banner, we use Google Analytics 4 to measure website traffic. Google Analytics sets cookies on your device and processes your data on our behalf as a third-party service provider, which may involve transferring it outside the Philippines. It does not load at all unless you accept, and declining leaves the rest of this website fully functional. You may change your mind at any time using the “Cookie settings” link in our website footer, which withdraws your consent and deletes the cookies concerned.",
       "The following web traffic data are processed for this purpose:",
       {
         list: [
