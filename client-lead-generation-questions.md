@@ -116,19 +116,39 @@ that. If mutual trust is fine, we will leave it as is.
 
 ### 7. What happens to an enquiry when it arrives? *(Decision)*
 
-Enquiries land in `sales@` and in the admin panel, where they can be marked
-*new → contacted → qualified → won / lost*. We need to know:
+Enquiries land in `sales@` and in the website admin panel, where they can be marked
+*new → contacted → qualified → won / lost*.
+
+**We have also set up a HubSpot CRM account for you, on the free plan, at no cost.** The sales
+pipeline is built and matches the 3Ds language you already use:
+
+> New Lead → Consultation Booked → Discover → Design → Deliver → Won / Lost
+
+**To be clear about the money:** we are not recommending you *pay* for a CRM. At the current volume
+a paid subscription would be an empty database that gets abandoned. We set up the free plan because
+it costs nothing and means the pipeline already exists when volume arrives, rather than being a
+project you have to start later. A paid plan is worth revisiting once you are consistently seeing
+ten to fifteen enquiries a month.
+
+⚠ **One thing to action:** the account currently has a **14-day free trial of a paid tier**
+attached. Everything we built works on the free plan, so **nothing needs to be bought and the trial
+can simply be allowed to lapse.** Please don't upgrade on our account — if HubSpot prompts you, you
+can ignore it.
+
+What we still need from you:
 
 - **Who owns follow-up**, and how quickly? The site currently promises a reply within 1–2 business
   days on your behalf.
-- **What counts as "qualified"** to you? Our definitions are currently a guess.
-- **Do you use a CRM?** You told us not currently.
+- **What counts as "qualified"** to you? Our definitions are currently a guess, and they are what
+  every later conversion number will be measured against.
+- **Do the pipeline stages above match how you actually sell?** They are our reading of your 3Ds
+  framework. If a real deal moves differently, tell us and we will change them — better now, while
+  the pipeline is empty.
 
-**Our recommendation on the CRM:** do not buy one yet. At zero enquiries a month it would be an
-empty subscription that gets abandoned. The admin panel already tracks status and tells you where
-each lead came from, which most CRMs will not do without extra setup. Revisit when you are
-consistently getting ten to fifteen enquiries a month — HubSpot's free tier would be the natural
-first step.
+**This question also unlocks a separate one.** We have asked, in the access note sent alongside
+this, for permission to connect the sales team's Microsoft 365 mailboxes to HubSpot, so that replies
+to an enquiry are logged against that customer rather than living in one person's inbox. That only
+makes sense once we know **whose** mailbox — so answering "who owns follow-up" answers both.
 
 ### 8. Two time-sensitive housekeeping items *(Decision — needed within 10 days)*
 
@@ -146,6 +166,8 @@ first step.
 So this does not read as a list of things waiting on you:
 
 - The enquiry path has been tested end to end and is confirmed working.
+- A HubSpot CRM account is set up on the free plan, with your sales pipeline built — no cost, and
+  nothing for you to configure.
 - Search engines can now properly read your blog posts, job listings and company details — this was
   missing and is now in place.
 - Your company address and details are published in the format Google uses to tell businesses
