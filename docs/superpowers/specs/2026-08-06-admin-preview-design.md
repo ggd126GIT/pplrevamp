@@ -89,7 +89,9 @@ form. Rendered by the preview pages only, outside the shared detail component so
 can never leak into the public page.
 
 A **"Preview saved version"** button on `/admin/jobs/[id]` and `/admin/posts/[id]`,
-opening in a new tab so unsaved work is not lost.
+opening in a new tab so unsaved work is not lost. It sits at the foot of the form,
+immediately left of the save button, so Save → Preview is a single spot rather than
+a scroll back to the page header.
 
 ### Known limitation, stated in the UI
 

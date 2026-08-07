@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Trash2, Eye } from "lucide-react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { JobForm } from "@/components/admin/JobForm";
 import { createClient } from "@/lib/supabase/server";
 import { toDateInput, toDateTimeInput } from "@/lib/dates";
@@ -35,16 +35,7 @@ export default async function EditJobPage({
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-ink">Edit job</h1>
         <div className="flex items-center gap-3">
-          {/* Renders the SAVED row, not the form's current contents — hence the
-              label. New tab so unsaved edits survive. */}
-          <a
-            href={`/preview/jobs/${job.id}`}
-            target="_blank"
-            rel="noopener"
-            className="inline-flex items-center gap-1.5 rounded-full border border-purple/30 px-4 py-2 text-sm font-medium text-purple hover:bg-purple/5"
-          >
-            <Eye className="size-4" /> Preview saved version
-          </a>
+          {/* Preview lives beside the save button at the foot of the form. */}
           <form action={deleteJob}>
             <input type="hidden" name="id" value={job.id} />
             <button
@@ -61,6 +52,7 @@ export default async function EditJobPage({
         <JobForm
           action={boundUpdate}
           submitLabel="Save changes"
+          previewHref={`/preview/jobs/${job.id}`}
           values={{
             title: job.title,
             slug: job.slug,

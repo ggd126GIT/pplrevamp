@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Eye, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import {
   Field,
@@ -32,10 +32,13 @@ export function JobForm({
   action,
   values = {},
   submitLabel = "Save job",
+  previewHref,
 }: {
   action: (state: JobFormState, formData: FormData) => Promise<JobFormState>;
   values?: Values;
   submitLabel?: string;
+  /** Omitted on the new-job form: there is no saved row to preview yet. */
+  previewHref?: string;
 }) {
   const [state, formAction, pending] = useActionState<JobFormState, FormData>(
     action,
@@ -163,15 +166,31 @@ export function JobForm({
         <p className="text-sm font-medium text-red-600">{state.error}</p>
       )}
 
-      <Button type="submit" disabled={pending}>
-        {pending ? (
-          <>
-            <Loader2 className="size-4 animate-spin" /> Saving…
-          </>
-        ) : (
-          submitLabel
+      {/* Preview sits left of the submit button so the Save → Preview loop is one
+          place, not a scroll back to the page header. It renders the SAVED row,
+          not what is currently typed — hence the label. New tab so unsaved edits
+          survive. */}
+      <div className="flex flex-wrap items-center gap-3">
+        {previewHref && (
+          <a
+            href={previewHref}
+            target="_blank"
+            rel="noopener"
+            className="inline-flex items-center gap-1.5 rounded-full border border-purple/30 px-4 py-2 text-sm font-medium text-purple hover:bg-purple/5"
+          >
+            <Eye className="size-4" /> Preview saved version
+          </a>
         )}
-      </Button>
+        <Button type="submit" disabled={pending}>
+          {pending ? (
+            <>
+              <Loader2 className="size-4 animate-spin" /> Saving…
+            </>
+          ) : (
+            submitLabel
+          )}
+        </Button>
+      </div>
     </form>
   );
 }

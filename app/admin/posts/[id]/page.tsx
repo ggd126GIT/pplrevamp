@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Trash2, ExternalLink, Eye } from "lucide-react";
+import { ArrowLeft, Trash2, ExternalLink } from "lucide-react";
 import { PostForm } from "@/components/admin/PostForm";
 import { createClient } from "@/lib/supabase/server";
 import { toDateTimeInput } from "@/lib/dates";
@@ -35,16 +35,7 @@ export default async function EditPostPage({
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-ink">Edit post</h1>
         <div className="flex items-center gap-2">
-          {/* Renders the SAVED row, not the form's current contents — hence the
-              label. The only way to see a draft as it will actually appear. */}
-          <a
-            href={`/preview/blog/${post.id}`}
-            target="_blank"
-            rel="noopener"
-            className="inline-flex items-center gap-1.5 rounded-full border border-purple/30 px-4 py-2 text-sm font-medium text-purple hover:bg-purple/5"
-          >
-            <Eye className="size-4" /> Preview saved version
-          </a>
+          {/* Preview lives beside the save button at the foot of the form. */}
           {post.status === "published" && (
             <Link
               href={`/blog/${post.slug}`}
@@ -70,6 +61,7 @@ export default async function EditPostPage({
         <PostForm
           action={boundUpdate}
           submitLabel="Save changes"
+          previewHref={`/preview/blog/${post.id}`}
           values={{
             title: post.title,
             slug: post.slug,
