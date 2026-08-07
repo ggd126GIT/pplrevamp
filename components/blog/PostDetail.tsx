@@ -15,14 +15,32 @@ import { excerptLines } from "@/lib/excerpt";
 import { formatManilaDate } from "@/lib/dates";
 import { ShareLinks } from "@/components/ShareLinks";
 import { absoluteUrl } from "@/lib/share";
+import { blogPostingSchema, type PostForSchema } from "@/lib/postSchema";
 import type { Tables } from "@/lib/database.types";
 
-export function PostDetail({ post }: { post: Tables<"posts"> }) {
+export function PostDetail({
+  post,
+  includeSchema = true,
+}: {
+  post: Tables<"posts">;
+  includeSchema?: boolean;
+}) {
   const html = renderTiptap(post.content);
   const excerpt = excerptLines(post.excerpt).join("\n");
 
   return (
     <>
+      {/* The public route is the canonical post, so the BlogPosting markup
+          lives there and never on a preview, which must not be indexable at
+          all — same rule as JobDetail. */}
+      {includeSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(blogPostingSchema(post as PostForSchema)),
+          }}
+        />
+      )}
       <article className="pb-8 pt-14 sm:pt-20">
         <Container size="narrow">
           <Link

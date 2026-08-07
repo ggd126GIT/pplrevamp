@@ -43,7 +43,7 @@ export default async function PostPreviewPage({
         label={post.title}
         editHref={`/admin/posts/${post.id}`}
       />
-      <PostDetail post={post} />
+      <PostDetail post={post} includeSchema={false} />
     </>
   );
 }
