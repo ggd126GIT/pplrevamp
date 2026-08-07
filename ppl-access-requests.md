@@ -1,83 +1,101 @@
-# .ppl Website — One Remaining Request
+# .ppl Website — Access Requests
 
 **To:** Joey Lianko (and Rafael Dayalo)
 **From:** Gilbert
-**Date:** 31 July 2026 *(supersedes the 30 July version, which listed three requests)*
-**Summary:** The website is now built, deployed and running on your server. One access permission
-is left before it can go live.
+**Date:** 7 August 2026 *(supersedes the 31 July version — everything it asked for is now done)*
+**Summary:** The website is live. One optional permission is outstanding, and it is not urgent.
+
+---
+
+## Everything previously requested is resolved
+
+Kept here so nothing gets re-raised by mistake:
+
+- ✅ **Server access** — resolved 31 July.
+- ✅ **Server security issue** — the pre-installed database was reachable from the public internet;
+  locked down and confirmed closed. Still running in case something depends on it — say the word and
+  we'll remove it, which would free roughly half the server's memory.
+- ✅ **Cloudflare DNS, Part A (website email)** — done. `send.pplsolutionsinc.com` is verified and
+  the contact and careers forms deliver to `sales@` and `careers@`. Confirmed working end to end.
+- ✅ **Cloudflare DNS, Part B (domain switchover)** — done. **The new site went live on
+  www.pplsolutionsinc.com on 4 August 2026.** Microsoft 365 mail was untouched throughout.
+
+---
+
+## The one outstanding request: approve HubSpot's email integration in Microsoft 365
+
+**This is optional and nothing is blocked by it.** It is worth doing, but if the answer is no, we
+lose one convenience and nothing else.
+
+**Who this is for:** whoever administers your Microsoft 365 tenant. *Rafael, we think this is you* —
+you set up Microsoft 365 originally. If not, please point us to who does.
+
+### Why we're asking
+
+We've set up a HubSpot CRM account so enquiries from the website land somewhere structured rather
+than in an inbox. That part is done and working.
+
+The gap is what happens **after** someone replies. At the moment:
+
+1. **The site publicly promises a reply within 1–2 business days**, and there is currently no way to
+   check whether that is actually happening.
+2. **A lead nobody answered looks identical to one that was handled well.** There is no record of
+   follow-up.
+3. **Conversation history sits in one person's mailbox.** If they're on leave or move on, the
+   thread goes with them rather than staying attached to the customer.
+4. **We can already see where a lead came from** — Google, LinkedIn, a referral — but not whether it
+   turned into anything, because the reply happens outside the system.
+
+Approving this closes that loop: emails to and from a customer are logged against that customer's
+record automatically.
+
+### What is actually being approved
+
+Admin consent for the **HubSpot Office 365 integration**, so that named people can connect their own
+work mailbox.
+
+**What it does:** logs emails those people exchange with contacts in the CRM, and lets them send
+tracked one-to-one email from HubSpot.
+
+**What it does not do — worth being explicit:**
+
+- It does **not** change mail routing, MX records, DNS, or SPF. Microsoft 365 mail flow is untouched.
+- It does **not** give HubSpot access to the whole company's mail. Access is per person, and only
+  for people who connect their own mailbox.
+- It does **not** send bulk or marketing email. One-to-one only.
+
+### A narrower scope, if you'd prefer
+
+Rather than approving it for the whole organisation, **approve it for named people only** — in
+practice Joey and Apol, or whoever actually owns lead follow-up. In Microsoft's admin centre that
+means assigning the application to specific users instead of enabling it for everyone.
+
+We'd suggest **not** including Gilbert's account. Logging a developer's email produces no useful
+sales history.
+
+**Reversible at any time:** revoke it under Enterprise applications in Microsoft, and disconnect in
+HubSpot. Nothing needs migrating and nothing breaks.
+
+### Two honest notes
+
+**Read Microsoft's approval screen, not our summary.** It lists the exact permissions HubSpot asks
+for. That screen is the authoritative version — we're describing the shape of the request.
+
+**There's a question to answer before this one.** Connecting a mailbox only makes sense once we know
+whose mailbox — i.e. who owns replying to enquiries. That's also question 7 in the lead-generation
+note we've sent separately. **Answer that first; this request follows from it.**
 
 ---
 
 ## Where things stand
 
-**The new website is live on your Hostinger server and ready to review:**
-
-**https://w2.pplsolutionsinc.com** — username `ppl`, password `Jaax4PvOUvE9`
-
-It is password-protected on purpose, and hidden from Google, so nothing is public until you say so.
-Your current WordPress site at www.pplsolutionsinc.com is untouched and still running normally.
-
-Two of the three requests from the 30 July note are now resolved:
-
-- ✅ **Server access** — sorted. No further action needed from you.
-- ✅ **The server security issue** — fixed. The pre-installed database on your server was reachable
-  from the public internet; it is now locked to the server itself and confirmed closed from outside.
-  We left it running rather than removing it, in case something of yours depends on it. If nothing
-  does, tell us and we'll remove it — that would free up roughly half the server's memory.
-
----
-
-## The one thing still needed: Cloudflare DNS
-
-Your domain's DNS settings are hosted at **Cloudflare**, in an account nobody on our side can sign
-in to. Hostinger is only the registrar — the actual settings live at Cloudflare.
-
-**Rafael is the most likely person to have this.** Setting up Microsoft 365 requires creating
-several DNS records, and those records are sitting in that Cloudflare account. There's also a
-specific clue: on 5 July, when the server was set up, someone added a record to that same account.
-
-Rafael — if you have access, this is the ask. If not, could you point us to who does?
-
-### Part A — three records to switch on website email (small, safe, ready now)
-
-Right now, when someone submits the contact form or applies for a job, **the enquiry is saved but
-nobody gets notified**. Three DNS records fix that.
-
-They are all new entries on a `send.` prefix that doesn't currently exist. **They do not touch
-Microsoft 365** — not the mail routing, not the sender policy, not autodiscover, nothing that
-currently carries company email. That separation is deliberate.
-
-This part can be done now, independently of the launch decision. It cannot affect anything live.
-
-### Part B — pointing the domain at the new site (when you're ready to launch)
-
-Two existing records get changed so `pplsolutionsinc.com` shows the new website instead of the old
-WordPress one. This is the actual go-live moment, so it happens only on your say-so, and we'd want
-to do it together on a call — it takes a few minutes and there's a specific order to follow.
-
-**Before that call, one thing matters a lot:** we need to write down the current settings for those
-two records first. They're the only way back to the WordPress site if anything goes wrong, and that
-information exists nowhere except inside the Cloudflare account.
-
-> **Please don't let Hostinger move the domain's nameservers to Hostinger**, and don't accept any
-> prompt offering to do so. Your Microsoft 365 email settings live in that Cloudflare account, and
-> moving them carelessly can take company email offline.
-
----
-
-## Where this leaves the launch
-
 | | Status |
 |---|---|
-| Website built, tested, and deployed to your server | ✅ Done — reviewable at the link above |
-| Content and design changes from your feedback | ✅ Done |
-| Server access | ✅ Resolved |
-| Server security issue | ✅ Fixed |
-| Contact and careers form emails | ⛔ Needs Part A |
-| Switching the domain over | ⛔ Needs Part B, and your go-ahead |
-
-**Part A is the one worth starting today** — it's small, carries no risk to anything currently
-running, and it's the difference between enquiries being silently collected and someone actually
-being told about them.
+| Website live on www.pplsolutionsinc.com | ✅ Live since 4 August |
+| Contact and careers form emails | ✅ Working — `sales@` and `careers@` |
+| Server access and security | ✅ Resolved |
+| Domain switchover | ✅ Done |
+| CRM account and sales pipeline | ✅ Set up |
+| Logging email replies against customer records | ⚪ Optional — needs the approval above |
 
 Happy to jump on a quick call for any of this.
