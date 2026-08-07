@@ -95,7 +95,10 @@ export async function createPost(
 
   revalidatePath("/blog");
   revalidatePath("/admin/posts");
-  redirect("/admin/posts");
+  // Land on the new post's editor, not the list: preview only exists once a row
+  // does, so this is what puts "read it before it goes live" one click from
+  // saving. Falls back to the list if the insert somehow returned no id.
+  redirect(created?.id ? `/admin/posts/${created.id}` : "/admin/posts");
 }
 
 export async function updatePost(

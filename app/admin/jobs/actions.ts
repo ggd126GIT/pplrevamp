@@ -108,7 +108,10 @@ export async function createJob(
 
   revalidatePath("/careers");
   revalidatePath("/admin/jobs");
-  redirect("/admin/jobs");
+  // Land on the new role's editor, not the list: preview only exists once a row
+  // does, so this is what puts "check it before it goes live" one click from
+  // saving. Falls back to the list if the insert somehow returned no id.
+  redirect(created?.id ? `/admin/jobs/${created.id}` : "/admin/jobs");
 }
 
 export async function updateJob(
