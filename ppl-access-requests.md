@@ -1,6 +1,6 @@
 # .ppl Website — Access Requests
 
-**To:** Joey Lianko (and Rafael Dayalo)
+**To:** Rafael Dayalo · **cc:** Joey Lianko
 **From:** Gilbert
 **Date:** 7 August 2026 *(supersedes the 31 July version — everything it asked for is now done)*
 **Summary:** The website is live. One optional permission is outstanding, and it is not urgent.
@@ -27,8 +27,7 @@ Kept here so nothing gets re-raised by mistake:
 **This is optional and nothing is blocked by it.** It is worth doing, but if the answer is no, we
 lose one convenience and nothing else.
 
-**Who this is for:** whoever administers your Microsoft 365 tenant. *Rafael, we think this is you* —
-you set up Microsoft 365 originally. If not, please point us to who does.
+**Rafael — this one is yours**, as the Microsoft 365 administrator.
 
 ### Why we're asking
 
