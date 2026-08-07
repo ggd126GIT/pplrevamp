@@ -7,6 +7,7 @@ import { cn } from "@/lib/cn";
 import { Field, TextInput, Textarea, Select, Honeypot } from "./fields";
 import { HONEYPOT_FIELD, MAX_MESSAGE_LENGTH } from "@/lib/forms";
 import { getSessionId } from "@/lib/analytics/session";
+import { flush } from "@/lib/analytics/events";
 import { TurnstileWidget, useTurnstile } from "./Turnstile";
 import { useFormStart } from "./useFormStart";
 import { useFormToken } from "./FormToken";
@@ -108,6 +109,9 @@ export function DiscoveryForm() {
         throw new Error(json.error ?? "Something went wrong. Please try again.");
       }
       setStatus("success");
+      // Highest-intent moment in the session: send whatever is still queued
+      // rather than betting on the exit flush firing later.
+      flush();
     } catch (err) {
       setStatus("error");
       setError(err instanceof Error ? err.message : "Something went wrong.");

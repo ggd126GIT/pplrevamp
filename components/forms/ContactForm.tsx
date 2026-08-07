@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Field, TextInput, Textarea, Honeypot } from "./fields";
 import { HONEYPOT_FIELD, MAX_MESSAGE_LENGTH } from "@/lib/forms";
 import { getSessionId } from "@/lib/analytics/session";
+import { flush } from "@/lib/analytics/events";
 import { TurnstileWidget, useTurnstile } from "./Turnstile";
 import { FormTokenField } from "./FormToken";
 import { useFormStart } from "./useFormStart";
@@ -45,6 +46,9 @@ export function ContactForm() {
         throw new Error(json.error ?? "Something went wrong. Please try again.");
       }
       setStatus("success");
+      // Highest-intent moment in the session: send whatever is still queued
+      // rather than betting on the exit flush firing later.
+      flush();
       form.reset();
     } catch (err) {
       setStatus("error");

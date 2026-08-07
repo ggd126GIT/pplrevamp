@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef } from "react";
-import { queueEvent } from "@/lib/analytics/events";
+import { queueEventNow } from "@/lib/analytics/events";
 
 /**
  * Fires one `form_start` the first time a visitor actually types into a lead
@@ -15,6 +15,9 @@ import { queueEvent } from "@/lib/analytics/events";
  * Deliberately on input rather than focus: focus fires when a visitor tabs
  * through or clicks by accident, which would inflate starts and make the form
  * look worse than it is.
+ *
+ * Sent immediately rather than batched — see `queueEventNow` for why this one
+ * event does not wait for the exit flush.
  */
 export function useFormStart(formName: string) {
   const fired = useRef(false);
@@ -22,6 +25,6 @@ export function useFormStart(formName: string) {
   return useCallback(() => {
     if (fired.current) return;
     fired.current = true;
-    queueEvent("form_start", formName, window.location.pathname);
+    queueEventNow("form_start", formName, window.location.pathname);
   }, [formName]);
 }
