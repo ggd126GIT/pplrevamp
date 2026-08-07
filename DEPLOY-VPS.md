@@ -475,6 +475,46 @@ Vercel's automatic build-on-push — pushing to `master` no longer deploys anyth
 > live site is briefly serving a half-written `.next`. At this traffic level that is acceptable. If
 > it stops being acceptable, switch to building into a timestamped directory and flipping a symlink.
 
+### C5. CV retention cron
+
+`POST /api/cron/purge-cvs` deletes CV **files** past the retention window (120 days by default) and
+leaves the application row, which is kept for 2 years. Two clocks — see `lib/cvRetention.ts`.
+
+Two env vars in `/var/www/ppl/.env.production`:
+
+```bash
+CRON_SECRET=<openssl rand -hex 32>
+CV_RETENTION_DAYS=120
+```
+
+**`CRON_SECRET` unset means the endpoint is OFF, not open** — it 404s without a valid bearer token,
+so a missing var disables the purge rather than exposing an unauthenticated delete.
+
+The crontab entry (user `gilbertd`, not root — it only needs to reach localhost):
+
+```cron
+# CV retention purge — 03:15 Manila daily
+15 3 * * * curl -fsS -X POST -H "Authorization: Bearer $(grep -m1 '^CRON_SECRET=' /var/www/ppl/.env.production | cut -d= -f2-)" http://127.0.0.1:3000/api/cron/purge-cvs >> /var/log/ppl-purge-cvs.log 2>&1
+```
+
+Notes on that line, all load-bearing:
+
+- **`127.0.0.1:3000`, not the public hostname.** Keeps the secret off the public interface entirely
+  and skips Cloudflare, which would otherwise see a daily unexplained POST.
+- **The secret is read from the env file at run time**, so it lives in exactly one place. Putting it
+  in the crontab would be a second copy to rotate and a `ps`-visible argument.
+- **`-fsS`** so a non-2xx is an actual failure with a message, rather than a silent success that
+  writes an error body to the log.
+- The route logs a summary line on every run — a cron with no output is a cron nobody notices has
+  stopped.
+
+Verify (should print `{"error":"not configured"}`-free JSON with counts):
+
+```bash
+curl -X POST -H "Authorization: Bearer $CRON_SECRET" http://127.0.0.1:3000/api/cron/purge-cvs
+curl -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:3000/api/cron/purge-cvs   # expect 404
+```
+
 ---
 
 ## Phase D — Resend email ✅ COMPLETE 2026-07-31

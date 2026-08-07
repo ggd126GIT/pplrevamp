@@ -1,8 +1,23 @@
 # Application Retention & Duplicate Detection — Design
 
-**Date:** 2026-08-05 · **Updated:** 2026-08-06
-**Status:** steps 1–2 built (`applications` RLS/grants, schema, match keys, duplicate banner).
-Status control, blacklist UI, CV deletion and auto-expiry still to build.
+**Date:** 2026-08-05 · **Updated:** 2026-08-07
+**Status: BUILT — steps 1–6 all shipped.** Schema + RLS/grants, match keys, duplicate banner,
+manual Delete CV, status control + filter, blacklist add/remove, and the automatic purge route
+with its VPS cron.
+
+**The one piece deliberately NOT done: the privacy-policy wording (Privacy §2 below).** Drafted
+here, not applied — this project's standing rule is that the legal page is the client's to approve,
+and it already has two other pending edits awaiting the same sign-off (the Cloudflare RUM
+disclosure and a sentence covering recruitment data). Proposed text:
+
+> **Recruitment data.** When you apply for a role, we collect the details and CV you submit. Your
+> CV file is deleted 120 days after your application. Your application record — your name, contact
+> details, the role applied for and the outcome — is kept for two years so that we can recognise
+> returning applicants and answer questions about previous applications. You may request access to,
+> correction of, or deletion of this information at any time using the contact details below.
+
+Note this is *more* protective than the two-year period the policy already publishes, so it commits
+to nothing new — but it must still be the client's call to publish.
 
 ## Retention — decided 2026-08-06
 

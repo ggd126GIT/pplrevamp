@@ -6,19 +6,32 @@ import { DuplicateBadge } from "@/components/admin/DuplicateBadge";
 import { DeleteCvButton } from "@/components/admin/DeleteCvButton";
 import { matchApplicants, type ApplicantRow } from "@/lib/applicantMatch";
 import { formatManilaDate } from "@/lib/dates";
+import {
+  ApplicationStatusForm,
+  ApplicationStatusBadge,
+} from "@/components/admin/ApplicationStatus";
+import { BlockApplicantButton } from "@/components/admin/BlockApplicantButton";
+import { APPLICATION_STATUSES } from "@/lib/applicationStatus";
+import { filterHref, parseStatusFilter } from "@/lib/applicationFilter";
+import { cn } from "@/lib/cn";
 
 export default async function ApplicationsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; status?: string }>;
 }) {
-  const page = parsePage((await searchParams).page);
+  const params = await searchParams;
+  const page = parsePage(params.page);
+  const statusFilter = parseStatusFilter(params.status);
   const { from, to } = pageRange(page);
 
   const supabase = await createClient();
-  const { data: applications, count } = await supabase
+  let query = supabase
     .from("applications")
-    .select("*, jobs(title, slug)", { count: "exact" })
+    .select("*, jobs(title, slug)", { count: "exact" });
+  if (statusFilter) query = query.eq("status", statusFilter);
+
+  const { data: applications, count } = await query
     .order("created_at", { ascending: false })
     .range(from, to);
 
@@ -92,9 +105,32 @@ export default async function ApplicationsPage({
         Job applications with downloadable CVs.
       </p>
 
+      {/* Filter tabs. Plain links, so the current filter is shareable and the
+          browser Back button behaves. */}
+      <div className="mt-6 flex flex-wrap gap-1.5">
+        {[null, ...APPLICATION_STATUSES].map((s) => (
+          <a
+            key={s ?? "all"}
+            href={filterHref(s)}
+            className={cn(
+              "rounded-full px-3 py-1.5 text-xs font-semibold capitalize",
+              s === statusFilter
+                ? "bg-ink text-white"
+                : "border border-black/10 text-charcoal/60 hover:bg-mist",
+            )}
+          >
+            {s ?? "All"}
+          </a>
+        ))}
+      </div>
+
       {!withCv.length ? (
         <p className="mt-10 rounded-2xl border border-dashed border-black/10 p-10 text-center text-charcoal/50">
-          No applications yet.
+          {statusFilter
+            ? // Saying "none yet" under a filter would read as "no applications
+              // at all", which is a different and alarming statement.
+              `No applications with status “${statusFilter}”.`
+            : "No applications yet."}
         </p>
       ) : (
         <div className="mt-8 overflow-x-auto rounded-2xl border border-black/[0.06] bg-white">
@@ -105,6 +141,7 @@ export default async function ApplicationsPage({
                 <th className="px-5 py-3 font-semibold">Role</th>
                 <th className="px-5 py-3 font-semibold">Contact</th>
                 <th className="px-5 py-3 font-semibold">Applied</th>
+                <th className="px-5 py-3 font-semibold">Outcome</th>
                 <th className="px-5 py-3 font-semibold">CV</th>
               </tr>
             </thead>
@@ -131,6 +168,14 @@ export default async function ApplicationsPage({
                         app.email_key ? blockedBy.get(app.email_key) : null
                       }
                     />
+                    {app.email_key && (
+                      <div className="mt-2">
+                        <BlockApplicantButton
+                          emailKey={app.email_key}
+                          blocked={blockedBy.has(app.email_key)}
+                        />
+                      </div>
+                    )}
                   </td>
                   <td className="px-5 py-4 text-charcoal/70">
                     {app.jobs?.title ?? "—"}
@@ -148,6 +193,19 @@ export default async function ApplicationsPage({
                     {app.created_at
                       ? new Date(app.created_at).toLocaleDateString()
                       : ""}
+                  </td>
+                  <td className="w-52 px-5 py-4">
+                    <ApplicationStatusBadge status={app.status} />
+                    <ApplicationStatusForm
+                      id={app.id}
+                      status={app.status}
+                      note={app.status_note}
+                    />
+                    {app.status_updated_at && (
+                      <p className="mt-1.5 text-[11px] text-charcoal/40">
+                        Updated {formatManilaDate(app.status_updated_at)}
+                      </p>
+                    )}
                   </td>
                   <td className="px-5 py-4">
                     {app.cvSignedUrl ? (
@@ -187,10 +245,12 @@ export default async function ApplicationsPage({
         </div>
       )}
 
+      {/* basePath carries the filter, so paging never silently drops it —
+          Pagination appends `&page=N` when a query string is already there. */}
       <Pagination
         page={page}
         pageCount={pageCount(count)}
-        basePath="/admin/applications"
+        basePath={filterHref(statusFilter)}
       />
     </div>
   );
