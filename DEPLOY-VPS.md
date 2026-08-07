@@ -494,17 +494,23 @@ The crontab entry (user `gilbertd`, not root — it only needs to reach localhos
 
 ```cron
 # CV retention purge — 03:15 Manila daily
-15 3 * * * curl -fsS -X POST -H "Authorization: Bearer $(grep -m1 '^CRON_SECRET=' /var/www/ppl/.env.production | cut -d= -f2-)" http://127.0.0.1:3000/api/cron/purge-cvs >> /var/log/ppl-purge-cvs.log 2>&1
+15 3 * * * /bin/bash /var/www/ppl/scripts/purge-cvs.sh >> /var/www/ppl/logs/purge-cvs.log 2>&1
 ```
 
-Notes on that line, all load-bearing:
+Notes, all load-bearing:
 
-- **`127.0.0.1:3000`, not the public hostname.** Keeps the secret off the public interface entirely
-  and skips Cloudflare, which would otherwise see a daily unexplained POST.
-- **The secret is read from the env file at run time**, so it lives in exactly one place. Putting it
-  in the crontab would be a second copy to rotate and a `ps`-visible argument.
-- **`-fsS`** so a non-2xx is an actual failure with a message, rather than a silent success that
-  writes an error body to the log.
+- **The work lives in `scripts/purge-cvs.sh`, not in the crontab line.** The command needs a
+  `$(...)` inside a double-quoted header inside a cron line, and crontab mangles that — a first
+  attempt at the inline version **silently installed an empty crontab**, reporting success. A
+  script file gives cron nothing to quote.
+- **Invoked as `/bin/bash <script>`**, so it does not depend on the executable bit surviving a
+  checkout from a Windows workstation.
+- **`127.0.0.1:3000`, not the public hostname.** Keeps the secret off the public interface and
+  skips Cloudflare, which would otherwise see a daily unexplained POST.
+- **The secret is read from the env file at run time**, so it lives in exactly one place. Putting
+  it in the crontab would be a second copy to rotate and a `ps`-visible argument.
+- **Logs to `/var/www/ppl/logs/`, not `/var/log/`** — `gilbertd` cannot write to `/var/log`, and a
+  redirect to an uncreatable file makes the whole cron line fail before curl ever runs.
 - The route logs a summary line on every run — a cron with no output is a cron nobody notices has
   stopped.
 
