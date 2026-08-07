@@ -1,45 +1,15 @@
-import { site } from "@/lib/site";
+import { organizationSchema } from "@/lib/orgSchema";
 
 /**
  * Organization structured data, rendered once per page from the site layout.
- *
- * `logo` and `image` are the image-SEO half of this: they tell Google which
- * asset represents the brand in knowledge panels and rich results, which no
- * amount of `alt` text on a decorative hero can do. Both must be absolute URLs.
+ * The object itself lives in `lib/orgSchema.ts` so it can be tested.
  */
 export function OrganizationSchema() {
-  const schema = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: site.name,
-    alternateName: site.shortName,
-    url: site.url,
-    description:
-      "A BPO solutions provider offering bespoke offshoring and outsourcing services across front-office and back-office functions.",
-    logo: {
-      "@type": "ImageObject",
-      url: `${site.url}/ppl-logo.png`,
-      // Must match the file the pipeline emits from ppl-logo.svg — 2x the
-      // 133x63 CSS box. Update both together if that render size changes.
-      width: 266,
-      height: 126,
-    },
-    image: {
-      "@type": "ImageObject",
-      url: `${site.url}/og/about.jpg`,
-      width: 1200,
-      height: 630,
-    },
-    email: site.email,
-    telephone: site.phone,
-    sameAs: [site.social.linkedin, site.social.facebook],
-  };
-
   return (
     <script
       type="application/ld+json"
       // Server-rendered from a static object literal — no user input reaches this.
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema()) }}
     />
   );
 }

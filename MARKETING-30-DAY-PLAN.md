@@ -66,8 +66,8 @@ Highest value per hour in the whole month, because it works on traffic that alre
 
 | # | Action | Why |
 |---|---|---|
-| 1.1 | **Add `CtaBand` to `/careers`, `/contact` and `/blog`** | It is absent from all three. These are the pages people land on and leave from. Directly targets the 80% who never reach `/contact`. |
-| 1.2 | **Add `BlogPosting` / `Article` JSON-LD to posts** | Posts currently have **no structured data at all**, so Google cannot read a post's date, author or headline. The blog is our entire SEO play and it is invisible as content. ~1 file. |
+| 1.1 | ~~Add `CtaBand` to `/careers`, `/contact` and `/blog`~~ → **`/blog` only. DONE 2026-08-07.** | Narrowed on review. `/contact` **is** the band's destination, so a band there is circular. **`/careers` was actively wrong**: that traffic is jobseekers, and routing candidates into the sales enquiry form pollutes the lead funnel with job questions — `/careers` already has the right CTA for its audience (the application form and `careers@`). Only the blog listing was a genuine dead end, and individual posts already carried a band. |
+| 1.2 | ~~Add `BlogPosting` / `Article` JSON-LD to posts~~ **DONE 2026-08-07** (`3c7cb52`) | Shipped on all 6 published posts, verified live; the `/blog` listing correctly carries none. Note this makes posts *legible* to Google, not competitive — they are personal-narrative pieces on HR and customer success, not aimed at anything a buyer searches for. That gap is 1.6's job. |
 | 1.3 | **Internal links from blog posts into `/services`** with descriptive anchor text | Anchor text is one of the few signals telling Google what `/services` is about. We just fixed the hero button; posts should do the same. |
 | 1.4 | **Re-run the funnel** at day 9 and compare | 1.1 is a hypothesis, not a fact. Measure it. |
 

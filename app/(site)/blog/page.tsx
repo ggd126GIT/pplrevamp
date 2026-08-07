@@ -5,6 +5,7 @@ import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { BlogList } from "@/components/BlogList";
 import { BlogPagination } from "@/components/BlogPagination";
+import { CtaBand } from "@/components/CtaBand";
 import { fetchPostsPage } from "@/lib/blogPosts";
 import { absoluteUrl } from "@/lib/share";
 
@@ -50,6 +51,17 @@ export default async function BlogPage() {
           )}
         </Container>
       </Section>
+
+      {/* Individual posts already end on a CtaBand; the listing was the one
+          blog surface with no route onward. Suppressed on the empty state,
+          which carries its own Contact button. */}
+      {posts.length > 0 && (
+        <CtaBand
+          title="Ready to power your business strategies?"
+          subtitle="Let's talk about how our .ppl can help."
+          buttonLabel="Get in Touch"
+        />
+      )}
     </>
   );
 }

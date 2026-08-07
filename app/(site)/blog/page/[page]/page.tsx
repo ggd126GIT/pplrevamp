@@ -5,6 +5,7 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { BlogList } from "@/components/BlogList";
 import { BlogPagination } from "@/components/BlogPagination";
+import { CtaBand } from "@/components/CtaBand";
 import { fetchPostsPage, fetchPostsPageCount } from "@/lib/blogPosts";
 import { parsePageSegment } from "@/lib/pagination";
 import { absoluteUrl } from "@/lib/share";
@@ -69,6 +70,14 @@ export default async function BlogPagedPage({
           <BlogPagination page={n} pageCount={pageCount} />
         </Container>
       </Section>
+
+      {/* Matches /blog — a reader on page 2 is further in, not less
+          interested. An empty page 404s above, so there is no empty state. */}
+      <CtaBand
+        title="Ready to power your business strategies?"
+        subtitle="Let's talk about how our .ppl can help."
+        buttonLabel="Get in Touch"
+      />
     </>
   );
 }
