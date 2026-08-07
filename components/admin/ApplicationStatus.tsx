@@ -50,6 +50,14 @@ export function ApplicationStatusForm({
       <select
         id={`app-status-${id}`}
         name="status"
+        // `key` on the STORED status, not just `defaultValue`. An uncontrolled
+        // select binds defaultValue at mount only, so after the server action
+        // revalidates this page the element survives reconciliation holding a
+        // stale value — verified live: the badge read "rejected" while the
+        // dropdown still read "new". The next Save would then have written
+        // "new" back over the real outcome without anyone touching the field.
+        // Changing the key forces a fresh element, so defaultValue reapplies.
+        key={status}
         defaultValue={status}
         className="w-full rounded-lg border border-black/10 bg-white px-2.5 py-1.5 text-xs capitalize"
       >

@@ -50,6 +50,10 @@ export function InquiryStatusForm({
       <select
         id={`status-${id}`}
         name="status"
+        // See the note in ApplicationStatus.tsx — same defect, same fix. An
+        // uncontrolled select keeps a stale value after revalidatePath, so a
+        // subsequent Save silently reverts the lead's status.
+        key={status}
         defaultValue={status}
         className="rounded-lg border border-black/10 bg-white px-3 py-1.5 text-sm capitalize"
       >

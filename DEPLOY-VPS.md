@@ -493,9 +493,13 @@ so a missing var disables the purge rather than exposing an unauthenticated dele
 The crontab entry (user `gilbertd`, not root — it only needs to reach localhost):
 
 ```cron
-# CV retention purge — 03:15 Manila daily
-15 3 * * * /bin/bash /var/www/ppl/scripts/purge-cvs.sh >> /var/www/ppl/logs/purge-cvs.log 2>&1
+# CV retention purge - 19:15 UTC = 03:15 Manila (box is UTC)
+15 19 * * * /bin/bash /var/www/ppl/scripts/purge-cvs.sh >> /var/www/ppl/logs/purge-cvs.log 2>&1
 ```
+
+⚠ **The box runs `Etc/UTC`** (`timedatectl`), so cron fields are UTC. `15 3` would have fired at
+**11:15 Manila — the middle of the working day**, which is exactly the mistake a comment saying
+"03:15 Manila" invites. Convert explicitly: Manila is UTC+8, so subtract 8.
 
 Notes, all load-bearing:
 
