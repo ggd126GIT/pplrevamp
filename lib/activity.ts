@@ -16,7 +16,8 @@ export type ActivityAction =
   | "unpublished"
   | "opened"
   | "closed"
-  | "deleted";
+  | "deleted"
+  | "exported";
 
 /** Tailwind classes per action, so the feed reads at a glance. */
 export const ACTION_STYLES: Record<ActivityAction, string> = {
@@ -27,6 +28,9 @@ export const ACTION_STYLES: Record<ActivityAction, string> = {
   opened: "bg-emerald-100 text-emerald-700",
   closed: "bg-amber-100 text-amber-700",
   deleted: "bg-red-100 text-red-700",
+  // Personal data leaving the system is worth spotting in the feed at a glance,
+  // so it gets its own colour rather than sharing the neutral "edited" grey.
+  exported: "bg-sky-100 text-sky-700",
 };
 
 /**

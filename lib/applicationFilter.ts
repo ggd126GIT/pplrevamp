@@ -31,3 +31,12 @@ export function parseStatusFilter(
 export function filterHref(status: ApplicationStatus | null): string {
   return status ? `${BASE}?status=${status}` : BASE;
 }
+
+/**
+ * Link for the CSV export, carrying the filter the reader is looking at. Page
+ * number is deliberately absent: the export returns every matching row, not the
+ * fifteen currently on screen.
+ */
+export function exportHref(status: ApplicationStatus | null): string {
+  return status ? `${BASE}/export?status=${status}` : `${BASE}/export`;
+}

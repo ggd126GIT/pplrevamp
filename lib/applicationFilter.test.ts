@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { parseStatusFilter, filterHref } from "@/lib/applicationFilter";
+import {
+  parseStatusFilter,
+  filterHref,
+  exportHref,
+} from "@/lib/applicationFilter";
 
 describe("parseStatusFilter", () => {
   it("accepts a real status", () => {
@@ -25,5 +29,23 @@ describe("filterHref", () => {
     // Page 3 of everything is rarely page 3 of one status, and landing past
     // the end shows an empty table rather than results.
     expect(filterHref("hired")).toBe("/admin/applications?status=hired");
+  });
+});
+
+describe("exportHref", () => {
+  it("points at the export route with no filter", () => {
+    expect(exportHref(null)).toBe("/admin/applications/export");
+  });
+
+  it("carries the filter, so Export gives you what the tabs show", () => {
+    expect(exportHref("rejected")).toBe(
+      "/admin/applications/export?status=rejected",
+    );
+  });
+
+  // The export must never inherit the page number: page 3 of the table is not
+  // a meaningful slice of a file that contains every matching row.
+  it("never carries a page number", () => {
+    expect(exportHref("interview")).not.toContain("page");
   });
 });
