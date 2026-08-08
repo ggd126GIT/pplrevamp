@@ -31,12 +31,30 @@ export function manilaEndOfDay(input: string): string | null | undefined {
 }
 
 /**
+ * The mirror of `manilaEndOfDay`: the instant that day *begins* in Manila.
+ *
+ * Used as the inclusive lower bound of a date-range filter, so an application
+ * submitted at 00:30 Manila on the "from" date is included. Comparing against
+ * the bare date string instead would silently drop it, because the stored value
+ * is UTC and 00:30 Manila is the previous UTC day.
+ */
+export function manilaStartOfDay(input: string): string | null | undefined {
+  const trimmed = input.trim();
+  if (!trimmed) return null;
+  if (!DATE_INPUT.test(trimmed)) return undefined;
+  if (!isRealDate(trimmed)) return undefined;
+
+  const ms = Date.parse(`${trimmed}T00:00:00.000+08:00`);
+  return Number.isNaN(ms) ? undefined : new Date(ms).toISOString();
+}
+
+/**
  * Whether a yyyy-mm-dd string names a day that exists.
  *
  * `Date.parse` accepts 2026-02-30 and rolls it over to 2026-03-02, so a
  * round-trip comparison is the only way to reject it.
  */
-function isRealDate(date: string): boolean {
+export function isRealDate(date: string): boolean {
   const [year, month, day] = date.split("-");
   const parsed = new Date(`${date}T00:00:00Z`);
   return (

@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { logActivity } from "@/lib/activity";
-import { parseStatusFilter } from "@/lib/applicationFilter";
+import { hasActiveFilters, parseFilters } from "@/lib/applicationFilter";
+import { applyApplicationFilters } from "@/lib/applicationQuery";
 import {
   exportFilename,
   toCsv,
@@ -40,16 +41,22 @@ export async function GET(request: NextRequest) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const status = parseStatusFilter(
-    request.nextUrl.searchParams.get("status") ?? undefined,
-  );
+  const sp = request.nextUrl.searchParams;
+  const filters = parseFilters({
+    status: sp.get("status") ?? undefined,
+    job: sp.get("job") ?? undefined,
+    from: sp.get("from") ?? undefined,
+    to: sp.get("to") ?? undefined,
+  });
 
   let query = supabase
     .from("applications")
     .select("first_name, last_name, email, phone, cv_url, created_at, status, jobs(title)")
     .order("created_at", { ascending: false })
     .limit(MAX_ROWS);
-  if (status) query = query.eq("status", status);
+  // The same helper the table uses, so the file can never contain different
+  // rows than the screen it was exported from.
+  query = applyApplicationFilters(query, filters);
 
   const { data: applications, error } = await query;
   if (error) {
@@ -89,17 +96,19 @@ export async function GET(request: NextRequest) {
     cv_link: r.cv_url ? (signed.get(r.cv_url) ?? null) : null,
   }));
 
-  const filename = exportFilename(status);
+  const filename = exportFilename(filters.status);
 
   // Personal data leaving the system is exactly what the activity log is for.
-  // After the query, so a failed export is not recorded as one.
+  // After the query, so a failed export is not recorded as one. The log records
+  // that the export was narrowed, but not by what: reconstructing it would mean
+  // resolving a job id to a title on a path whose job is to return a file.
   await logActivity(supabase, {
     action: "exported",
     entityType: "application",
     entityId: null,
     entityTitle: `${exportRows.length} application${
       exportRows.length === 1 ? "" : "s"
-    }${status ? ` (${status})` : ""}`,
+    }${hasActiveFilters(filters) ? " (filtered)" : ""}`,
     actorId: user.id,
   });
 

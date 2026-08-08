@@ -15,29 +15,43 @@ import { APPLICATION_STATUSES } from "@/lib/applicationStatus";
 import {
   exportHref,
   filterHref,
-  parseStatusFilter,
+  hasActiveFilters,
+  parseFilters,
 } from "@/lib/applicationFilter";
+import { ApplicationFilters } from "@/components/admin/ApplicationFilters";
+import { applyApplicationFilters } from "@/lib/applicationQuery";
 import { cn } from "@/lib/cn";
 
 export default async function ApplicationsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; status?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    status?: string;
+    job?: string;
+    from?: string;
+    to?: string;
+  }>;
 }) {
   const params = await searchParams;
   const page = parsePage(params.page);
-  const statusFilter = parseStatusFilter(params.status);
+  const filters = parseFilters(params);
+  const statusFilter = filters.status;
   const { from, to } = pageRange(page);
 
   const supabase = await createClient();
   let query = supabase
     .from("applications")
     .select("*, jobs(title, slug)", { count: "exact" });
-  if (statusFilter) query = query.eq("status", statusFilter);
+  query = applyApplicationFilters(query, filters);
 
-  const { data: applications, count } = await query
-    .order("created_at", { ascending: false })
-    .range(from, to);
+  const [{ data: applications, count }, { data: jobOptions }] =
+    await Promise.all([
+      query.order("created_at", { ascending: false }).range(from, to),
+      // Every job, not just those with applications: a role with none is
+      // exactly the one someone wants to check.
+      supabase.from("jobs").select("id, title").order("title"),
+    ]);
 
   // Everything this page's applicants could match against. At a few hundred
   // rows a year this is cheaper than a per-row query or a database view, and it
@@ -116,7 +130,9 @@ export default async function ApplicationsPage({
           {[null, ...APPLICATION_STATUSES].map((s) => (
             <a
               key={s ?? "all"}
-              href={filterHref(s)}
+              // Override only the status, so switching tabs keeps the role and
+              // date range the reader just set.
+              href={filterHref(filters, { status: s })}
               className={cn(
                 "rounded-full px-3 py-1.5 text-xs font-semibold capitalize",
                 s === statusFilter
@@ -134,7 +150,7 @@ export default async function ApplicationsPage({
             button never hands back a header-only file. */}
         {!!count && (
           <a
-            href={exportHref(statusFilter)}
+            href={exportHref(filters)}
             className="inline-flex items-center gap-1.5 rounded-full border border-purple/30 px-4 py-2 text-xs font-semibold text-purple hover:bg-purple/5"
           >
             <Sheet className="size-3.5" />
@@ -143,12 +159,14 @@ export default async function ApplicationsPage({
         )}
       </div>
 
+      <ApplicationFilters filters={filters} jobs={jobOptions ?? []} />
+
       {!withCv.length ? (
         <p className="mt-10 rounded-2xl border border-dashed border-black/10 p-10 text-center text-charcoal/50">
-          {statusFilter
+          {hasActiveFilters(filters)
             ? // Saying "none yet" under a filter would read as "no applications
               // at all", which is a different and alarming statement.
-              `No applications with status “${statusFilter}”.`
+              "No applications match these filters."
             : "No applications yet."}
         </p>
       ) : (
@@ -269,7 +287,7 @@ export default async function ApplicationsPage({
       <Pagination
         page={page}
         pageCount={pageCount(count)}
-        basePath={filterHref(statusFilter)}
+        basePath={filterHref(filters)}
       />
     </div>
   );

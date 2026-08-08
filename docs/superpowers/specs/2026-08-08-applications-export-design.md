@@ -14,7 +14,7 @@ feed another system, secondarily to hand a shortlist to someone without a login.
 |---|---|---|
 | Format | **CSV** | Imports natively into HubSpot, any ATS, Sheets and Excel. XLSX would need a spreadsheet library added to an 11-package dependency list. |
 | Scope | **Every row matching the current filter** | Pagination is a display concern. An export silently returning 15 of 60 rows is a dangerous bug, not a feature. |
-| Filter | **Inherited from the page** | Click "rejected", hit Export, get the rejected ones. Per-status shortlists for free, no new UI. |
+| Filter | **Inherited from the page** | Export what you are looking at. Filters live in the URL, so the export gets them for free. |
 | CV files | **7-day signed links, one column** | Owner's choice. Makes the file useful to an external system; also makes the file sensitive, which the activity log records. |
 | Internal fields | **Excluded** | Status notes are candid remarks about named individuals. The file is designed to be forwarded; those should not travel with it. |
 | Audit | **One `exported` activity entry** | Personal data leaving the system is exactly what an append-only log is for, and this site carries a real DPA-2012 statement. |
@@ -94,9 +94,44 @@ Verified end to end against a production build: 401/307 unauthenticated;
 `EF BB BF` on the wire; filter honoured; bogus filter falls back to all; CV link
 is a real signed URL returning 200; four `exported` rows in the activity log.
 
+## Filters (added the same day, at the owner's request)
+
+Status was the only filter. Role and an applied-date range were added, and the
+decision that shaped everything else: **the filters live on the page, and the
+export inherits them.** Export-only filters would mean two filtering systems and
+no way to see what you were about to export.
+
+- `lib/applicationFilter.ts` holds the model: `parseFilters`, `filtersToQuery`,
+  `filterHref`, `exportHref`. Status tabs pass an *override*, so switching tab
+  keeps the role and dates the reader just set.
+- `lib/applicationQuery.ts` turns the model into predicates, **shared by the
+  table and the export**. Separate `where` clauses would eventually disagree,
+  and the failure mode is a file quietly containing different rows than the
+  screen it came from. Structurally typed, so it is tested against a fake query
+  object with no database.
+- `components/admin/ApplicationFilters.tsx` is a plain GET form, no client
+  JavaScript. The browser writes the query string the page already reads, so the
+  view is bookmarkable, shareable, survives Back — and the export inherits the
+  filters because they are in the URL rather than in component state.
+
+Both date bounds are **inclusive Manila days** (`manilaStartOfDay` /
+`manilaEndOfDay`). An application submitted at 00:30 Manila is stored as 16:30
+the previous UTC day; bounding on the bare date string would drop it from a
+single-day export and nobody would notice.
+
+A backwards range is **swapped rather than returning nothing** — it is a typo,
+not a request to see an empty table, and the corrected order shows back in the
+inputs.
+
+`isRealDate` is now exported from `lib/dates.ts` and used by `parseFilters`. The
+shape regex alone accepts `2026-13-01` and `2026-02-30`, which would then be
+dropped silently further down while the input still displayed them — a filter
+that appears set but is not. A test caught this.
+
 ## Deliberately not built
 
 - No ZIP of CV files. Much larger job, slow, and the heaviest privacy exposure.
-- No date-range filter. Status is the filter that exists; adding another needs a
-  reason.
 - No XLSX.
+- The activity log records *that* an export was filtered, not by what.
+  Reconstructing the filter would mean resolving a job id to a title on a path
+  whose job is to return a file.

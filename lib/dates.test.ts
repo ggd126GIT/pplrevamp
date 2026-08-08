@@ -3,6 +3,7 @@ import {
   formatManilaDate,
   manilaDateTime,
   manilaEndOfDay,
+  manilaStartOfDay,
   toDateInput,
   toDateTimeInput,
 } from "./dates";
@@ -125,5 +126,36 @@ describe("formatManilaDate", () => {
     expect(formatManilaDate(null)).toBe("");
     expect(formatManilaDate(undefined)).toBe("");
     expect(formatManilaDate("not a date")).toBe("");
+  });
+});
+
+describe("manilaStartOfDay", () => {
+  it("is the first instant of that Manila day, in UTC", () => {
+    // 00:00 on 7 Aug in Manila is 16:00 on 6 Aug UTC.
+    expect(manilaStartOfDay("2026-08-07")).toBe("2026-08-06T16:00:00.000Z");
+  });
+
+  it("pairs with manilaEndOfDay to cover exactly one day", () => {
+    const start = manilaStartOfDay("2026-08-07") as string;
+    const end = manilaEndOfDay("2026-08-07") as string;
+    expect(Date.parse(end) - Date.parse(start)).toBe(86_400_000 - 1);
+  });
+
+  // An application submitted at 00:30 Manila is 16:30 the PREVIOUS UTC day.
+  // Comparing against the bare date string would drop it.
+  it("includes an application made just after midnight Manila", () => {
+    const start = manilaStartOfDay("2026-08-07") as string;
+    expect(Date.parse("2026-08-06T16:30:00Z")).toBeGreaterThan(Date.parse(start));
+  });
+
+  it("returns null for blank (no bound) and undefined for a typo", () => {
+    expect(manilaStartOfDay("")).toBeNull();
+    expect(manilaStartOfDay("   ")).toBeNull();
+    expect(manilaStartOfDay("2026-13-01")).toBeUndefined();
+    expect(manilaStartOfDay("07/08/2026")).toBeUndefined();
+  });
+
+  it("rejects a day that does not exist", () => {
+    expect(manilaStartOfDay("2026-02-30")).toBeUndefined();
   });
 });
