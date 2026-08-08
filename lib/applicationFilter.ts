@@ -129,10 +129,8 @@ export function filterHref(
 }
 
 /**
- * Link for the CSV export, carrying exactly the filters on screen. No page
- * number: the export returns every matching row, not the fifteen displayed.
+ * There is deliberately no `exportHref`. The Export button submits the filter
+ * form itself via `formAction`, so the file always reflects the fields as they
+ * stand rather than the last-applied query string — a URL built here would go
+ * stale the moment someone typed a date without pressing Apply.
  */
-export function exportHref(f: ApplicationFilters): string {
-  const query = filtersToQuery(f);
-  return query ? `${BASE}/export?${query}` : `${BASE}/export`;
-}

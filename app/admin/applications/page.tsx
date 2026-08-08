@@ -1,4 +1,4 @@
-import { Download, FileText, Sheet } from "lucide-react";
+import { Download, FileText } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Pagination } from "@/components/admin/Pagination";
 import { pageCount, pageRange, parsePage } from "@/lib/pagination";
@@ -13,7 +13,6 @@ import {
 import { BlockApplicantButton } from "@/components/admin/BlockApplicantButton";
 import { APPLICATION_STATUSES } from "@/lib/applicationStatus";
 import {
-  exportHref,
   filterHref,
   hasActiveFilters,
   parseFilters,
@@ -123,9 +122,10 @@ export default async function ApplicationsPage({
         Job applications with downloadable CVs.
       </p>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+      <div className="mt-6">
         {/* Filter tabs. Plain links, so the current filter is shareable and the
-            browser Back button behaves. */}
+            browser Back button behaves. Export lives in the filter bar below,
+            beside Apply, so narrowing and exporting are one place. */}
         <div className="flex flex-wrap gap-1.5">
           {[null, ...APPLICATION_STATUSES].map((s) => (
             <a
@@ -144,22 +144,13 @@ export default async function ApplicationsPage({
             </a>
           ))}
         </div>
-
-        {/* Exports what the filter currently shows, every matching row rather
-            than this page of 15. Hidden when there is nothing to export, so the
-            button never hands back a header-only file. */}
-        {!!count && (
-          <a
-            href={exportHref(filters)}
-            className="inline-flex items-center gap-1.5 rounded-full border border-purple/30 px-4 py-2 text-xs font-semibold text-purple hover:bg-purple/5"
-          >
-            <Sheet className="size-3.5" />
-            Export CSV
-          </a>
-        )}
       </div>
 
-      <ApplicationFilters filters={filters} jobs={jobOptions ?? []} />
+      <ApplicationFilters
+        filters={filters}
+        jobs={jobOptions ?? []}
+        canExport={!!count}
+      />
 
       {!withCv.length ? (
         <p className="mt-10 rounded-2xl border border-dashed border-black/10 p-10 text-center text-charcoal/50">

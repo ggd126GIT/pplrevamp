@@ -114,6 +114,24 @@ no way to see what you were about to export.
   view is bookmarkable, shareable, survives Back — and the export inherits the
   filters because they are in the URL rather than in component state.
 
+**The Export button lives in the filter bar** (owner's placement), at the
+right-hand end beside Apply, so narrowing and exporting are one place rather
+than a trip back to the page header.
+
+It is a submit button with `formAction="/admin/applications/export"`, **not** a
+link. Sitting inside the form, a link would export the last *applied* filters
+while the fields showed something else — you would have to remember to press
+Apply first, and forgetting produces a plausible file containing the wrong rows.
+`formAction` submits the fields as they stand, so what you see is what you get.
+This is also why there is no `exportHref` helper: the table and the file read
+the same form, so they cannot disagree.
+
+Known and accepted: `canExport` hides the button based on the *applied* count,
+so typing a filter that matches nothing without pressing Apply can still produce
+a header-only file. Closing that would need client-side JavaScript to re-count,
+which would cost the whole no-JS design for a case where the person has just
+asked for something that does not exist.
+
 Both date bounds are **inclusive Manila days** (`manilaStartOfDay` /
 `manilaEndOfDay`). An application submitted at 00:30 Manila is stored as 16:30
 the previous UTC day; bounding on the bare date string would drop it from a

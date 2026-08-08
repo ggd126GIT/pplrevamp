@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { Sheet, X } from "lucide-react";
 import {
   filterHref,
   type ApplicationFilters as Filters,
@@ -23,9 +23,13 @@ export type JobOption = { id: string; title: string };
 export function ApplicationFilters({
   filters,
   jobs,
+  canExport,
 }: {
   filters: Filters;
   jobs: JobOption[];
+  /** False when the current view is empty, so Export never returns a
+      header-only file. */
+  canExport: boolean;
 }) {
   const active = hasActiveFilters(filters);
 
@@ -94,6 +98,22 @@ export function ApplicationFilters({
         >
           <X className="size-3.5" /> Clear
         </a>
+      )}
+
+      {canExport && (
+        // Submits THIS form to the export route rather than linking to a URL
+        // built from the already-applied filters. Sitting inside the form, a
+        // link would export the last-applied set while the fields showed
+        // something else — you would have to remember to press Apply first.
+        // formAction means what you see in the fields is what you get.
+        <button
+          type="submit"
+          formAction="/admin/applications/export"
+          className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-purple/30 px-4 py-2 text-sm font-semibold text-purple hover:bg-purple/5"
+        >
+          <Sheet className="size-3.5" />
+          Export CSV
+        </button>
       )}
     </form>
   );

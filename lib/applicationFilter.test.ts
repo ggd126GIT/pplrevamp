@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
   NO_FILTERS,
-  exportHref,
   filterHref,
   filtersToQuery,
   hasActiveFilters,
@@ -142,23 +141,9 @@ describe("filterHref", () => {
   });
 });
 
-describe("exportHref", () => {
-  it("points at the export route with no filters", () => {
-    expect(exportHref(NO_FILTERS)).toBe("/admin/applications/export");
-  });
-
-  // The export and the table must never disagree about what is selected.
-  it("carries exactly the same query as the table link", () => {
-    const f = filters({ status: "hired", jobId: JOB, from: "2026-01-01", to: "2026-06-30" });
-    expect(exportHref(f)).toBe(
-      filterHref(f).replace("/admin/applications", "/admin/applications/export"),
-    );
-  });
-
-  it("never carries a page number", () => {
-    expect(exportHref(filters({ status: "interview" }))).not.toContain("page");
-  });
-});
+// There is no exportHref to test: the Export button submits the filter form
+// itself via formAction, so the table and the file cannot disagree about what
+// is selected — they read the same fields. See ApplicationFilters.
 
 // The regex alone accepts these; only a real-date check rejects them. A filter
 // that displays a value it is not applying is worse than one that ignores it.
